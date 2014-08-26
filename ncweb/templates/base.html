@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    {% block head %}
+    <title>{% block title %}{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-2.1.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+    {% endblock %}
+</head>
+<body role="document">
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+	        <div class="navbar-header">
+	            <a class="navbar-brand" href="#">NetCDF - DataViewer</a>
+	            <ul class="nav navbar-nav">
+	                <li class="active">
+	                    <a href="/">Home</a>
+	                </li>
+	                <li>
+	                    <a href="/hello">Test</a>
+	                </li>
+	            </ul>
+	        </div>
+
+		</div>
+    </div>
+    <div id="content" class="container" role="main">{% block content %}{% endblock %}</div>
+    <div id="footer" class="container" role="footer">
+        {% block footer %}
+        &copy; abcd some sample footer <a href="http://www.ipf.tuwien.ac.at/">IPF TU Wien</a>.
+        {% endblock %}
+    </div>
+</body>
