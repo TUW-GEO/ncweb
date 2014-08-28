@@ -24,6 +24,8 @@
 	    	{%- endfor %}
 		{%- endfor %}
 		<form method="POST" action="/" name="NetCdfForm" role="form">
+			{{ render_field(form.files) }}
+			<br /><br /><br />
 	    	{{ render_field(form.variables) }}
 		</form>
 		asdf
