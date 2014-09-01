@@ -1,12 +1,13 @@
-import os
-import sys
 from os import path
 from ogcserver.wsgi import WSGIApp
-import ogcserver
-import pkg_resources
-import testGetMap
+
 
 def startOgcServer(configfile, mapfile):
+    '''
+    
+    :param configfile:
+    :param mapfile:
+    '''
     if not configfile:
         configfile = path.join('default.conf')
     if not mapfile:
