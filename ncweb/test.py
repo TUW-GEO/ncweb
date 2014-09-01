@@ -7,18 +7,28 @@ import netCDF4
 import glob
 from osgeo import gdal
 import datetime
-import osr
+import iris.fileformats
+
 
 class NetCdfForm(Form):
     files = SelectField('files', choices=[])
     variables = SelectField('variables', choices=[])
+
+
+def convert2GTiff(netcdfile, outdir, VarName):
+    '''
     
-def modelout_to_geotif(netcdfile, outdir, VarName):
+    :param netcdfile:
+    :param outdir:
+    :param VarName:
+    '''
+    
     try:
         nci = gdal.Open('NETCDF:{0}:{1}'.format(netcdfile, VarName))
         ncd = netCDF4.Dataset(netcdfile, format='NETCDF4')
+        ncIris = iris.fileformats.cf.CFReader(netcdfile)
     except:
-        print "Could not open input file: {0}".format(netcdfile)
+        print "Could not open input file: {0}\n".format(netcdfile)
         return
 
     try:
@@ -26,6 +36,7 @@ def modelout_to_geotif(netcdfile, outdir, VarName):
     except:
         print "Could not get geotransform.\n"
         return
+
     try:
         projection = nci.GetProjection()
     except:
@@ -33,7 +44,6 @@ def modelout_to_geotif(netcdfile, outdir, VarName):
         return
 
     numbands = nci.RasterCount
-    times = [o2d(t) for t in ncd.variables['time']]
     print "Found {0} bands to process for {1}".format(numbands, VarName)
     for i in range(numbands):
         band = nci.GetRasterBand(i + 1)
@@ -48,47 +58,63 @@ def modelout_to_geotif(netcdfile, outdir, VarName):
         if os.path.exists(output_file):
             continue
         
-        # Create gtif
+        # Create GTiff
         driver = gdal.GetDriverByName("GTiff")
         
         dst_ds = driver.Create(output_file, x, y, 1, gdal.GDT_Int32)
 
         # top left x, w-e pixel resolution, rotation, top left y, rotation, n-s pixel resolution
         dst_ds.SetGeoTransform(geotransform)
-
         # set the reference info 
         dst_ds.SetProjection(projection)
         
-        print raster
+        # print raster
 
         # write the band
         outBand = dst_ds.GetRasterBand(1)
         outBand.WriteArray(raster)
-        
+
         dst_ds = None
 
 def readNetCDF(file):
+    '''
+    
+    :param file:
+    '''
+    
     try:
         nc = netCDF4.Dataset(file, format='NETCDF4')
-        
-#         ari_arr = nc.variables['arid regions mask'][:, :]
-#         lat_arr = nc.variables['lat']
-#         lon_arr = nc.variables['lon']
-#         topo_arr = nc.variables['topographic complexity'][:, :]
-#         trop_arr = nc.variables['tropical forest mask'][:, :]
-#         wetland_arr = nc.variables['wetland fraction'][:, :]
-        allVars = ('arid regions mask', 'topographic complexity', 'tropical forest mask', 'wetland fraction')
-        for var in allVars:
-            modelout_to_geotif(file, os.path.join("/home/pydev/GTiff"), 'tropical forest mask')
-        
-        i = 0
-        variablechoices = []
-        for variable in nc.variables:
-            variablechoices.append((str(i), variable.encode('ascii', 'ignore')))
-            i += 1
-        return [file, nc, variablechoices]
     except:
-        pass
+        print "Could not open input file: {0}".format(file)
+        return
+
+    ari_arr = nc.variables['arid regions mask'][:, :]
+    print "arid regions mask:\n", ari_arr
+    lat_arr = nc.variables['lat']
+    lon_arr = nc.variables['lon']
+    topo_arr = nc.variables['topographic complexity'][:, :]
+    print 'topographic complexity:\n', topo_arr
+    trop_arr = nc.variables['tropical forest mask'][:, :]
+    print 'tropical forest mask:\n', trop_arr
+    wetland_arr = nc.variables['wetland fraction'][:, :]
+    print 'wetland fraction:\n', wetland_arr
+
+    # allVars = ('arid regions mask', 'topographic complexity', 'tropical forest mask', 'wetland fraction')
+    
+    for var in nc.variables:
+        try:
+            if (nc.variables[var].grid_mapping == unicode('crs') 
+                and nc.variables[var].dimensions == tuple([unicode('lat'), unicode('lon')])):
+                convert2GTiff(file, os.path.join("/home/pydev/GTiff"), str(var))
+        except:
+            continue
+
+    i = 0
+    variablechoices = []
+    for variable in nc.variables:
+        variablechoices.append((str(i), variable.encode('ascii', 'ignore')))
+        i += 1
+    return [file, nc, variablechoices]
 
 
 app = Flask(__name__)
