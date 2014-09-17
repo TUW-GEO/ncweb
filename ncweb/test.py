@@ -1,4 +1,4 @@
-from flask import Flask, url_for, render_template
+from flask import Flask, url_for, render_template, request
 from flask_wtf import Form
 from wtforms import SelectField
 import os
@@ -8,12 +8,13 @@ import glob
 from osgeo import gdal
 import datetime
 import iris.fileformats
+from owslib.wms import WebMapService
+import urllib2
 
 
 class NetCdfForm(Form):
-    files = SelectField('files', choices=[])
     variables = SelectField('variables', choices=[])
-
+    files = SelectField('files', choices=[])
 
 def convert2GTiff(netcdfile, outdir, VarName):
     '''
@@ -88,16 +89,16 @@ def readNetCDF(file):
         print "Could not open input file: {0}".format(file)
         return
 
-    ari_arr = nc.variables['arid regions mask'][:, :]
-    print "arid regions mask:\n", ari_arr
-    lat_arr = nc.variables['lat']
-    lon_arr = nc.variables['lon']
-    topo_arr = nc.variables['topographic complexity'][:, :]
-    print 'topographic complexity:\n', topo_arr
-    trop_arr = nc.variables['tropical forest mask'][:, :]
-    print 'tropical forest mask:\n', trop_arr
-    wetland_arr = nc.variables['wetland fraction'][:, :]
-    print 'wetland fraction:\n', wetland_arr
+#     ari_arr = nc.variables['arid regions mask'][:, :]
+#     print "arid regions mask:\n", ari_arr
+#     lat_arr = nc.variables['lat']
+#     lon_arr = nc.variables['lon']
+#     topo_arr = nc.variables['topographic complexity'][:, :]
+#     print 'topographic complexity:\n', topo_arr
+#     trop_arr = nc.variables['tropical forest mask'][:, :]
+#     print 'tropical forest mask:\n', trop_arr
+#     wetland_arr = nc.variables['wetland fraction'][:, :]
+#     print 'wetland fraction:\n', wetland_arr
 
     # allVars = ('arid regions mask', 'topographic complexity', 'tropical forest mask', 'wetland fraction')
     
@@ -105,7 +106,8 @@ def readNetCDF(file):
         try:
             if (nc.variables[var].grid_mapping == unicode('crs') 
                 and nc.variables[var].dimensions == tuple([unicode('lat'), unicode('lon')])):
-                convert2GTiff(file, os.path.join("/home/pydev/GTiff"), str(var))
+                # convert2GTiff(file, os.path.join("/home/pydev/GTiff"), str(var))
+                pass
         except:
             continue
 
@@ -114,6 +116,7 @@ def readNetCDF(file):
     for variable in nc.variables:
         variablechoices.append((str(i), variable.encode('ascii', 'ignore')))
         i += 1
+
     return [file, nc, variablechoices]
 
 
@@ -141,9 +144,63 @@ def index():
     # return netcdfData[0].dataset_name
     return render_template('netcdfData.html', form=form, netcdfData=netcdfData, allData=allData)
 
+
 @app.route('/hello')
 def hello():
     return 'Hello World'
+
+
+def wmsRequest(req_url):
+    # wms = WebMapService('http://localhost:8001/advisory_flags_test.nc.wms?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.1.1')
+    wmsData = WebMapService(req_url)
+
+    i = 0
+    variablechoices = []
+    for variable in wmsData.contents:
+        variablechoices.append((str(i), variable.encode('ascii', 'ignore'), urllib2.unquote(variable)))
+        i += 1
+
+    return (wmsData, variablechoices)
+
+def getTimepositions(wmsData, varName):
+    try:
+        return wmsData.contents[varName].timepositions
+    except:
+        return []
+
+
+@app.route('/wms', methods=['GET', 'POST'])
+def wmsIndex():
+    try:
+        req_url = request.form['wmsSelect']
+    except:
+        req_url = ""
+
+    if request.method == 'POST' and req_url != "":
+            wmsData, variablechoices = wmsRequest(request.form['wmsSelect'])
+            try:
+                req_var = request.form['varSelect']
+            except:
+                req_var = variablechoices[0][1]
+            timepositions = getTimepositions(wmsData, req_var)
+            if timepositions:
+                try:
+                    req_time = request.form['timeSelect']
+                except:
+                    if len(timepositions) > 0:
+                        req_time = timepositions[0]
+                    else:
+                        req_time = ""
+            else:
+                req_time = ""
+            return render_template('wmsData.html', wmsData=wmsData,
+                                   nc_variables=variablechoices,
+                                   timepositions=timepositions,
+                                   req_url=req_url,
+                                   req_var=req_var,
+                                   req_time=req_time)
+
+    return render_template('wmsData.html', req_url=req_url)
 
 
 # run app

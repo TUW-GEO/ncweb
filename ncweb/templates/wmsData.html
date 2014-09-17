@@ -1,0 +1,96 @@
+{% from "_formhelper.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}NetCDF - DataViewer - WMS{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='OpenLayers/theme/default/style.css') }}">
+    <script src="{{ url_for('static', filename='OpenLayers/OpenLayers.js') }}"></script>
+{% endblock %}
+{% set active_page = "wms" %}
+{% block content %}
+{% if wmsData %}
+	<script type="text/javascript">
+	$(document).ready(function(){
+	    // Add map.
+	    var map = new OpenLayers.Map('map');
+	    wms_name = "OSM-WMS worldwide";
+	    wms_url = "http://129.206.228.72/cached/osm?";
+	    wms_options = {layers:'osm_auto:all', srs:'EPSG:900913', format:'image/png'};
+	    var layerOSM = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
+	    map.addLayer(layerOSM);
+	    
+	    map.zoomToMaxExtent();
+	    map.zoomIn();
+	    
+	    layer = new OpenLayers.Layer.WMS("{{ req_var }} - {{ req_time }}", "{{ req_url.split('?')[0] }}?LAYERS={{ req_var }}{% if req_time != "" %}&TIME={{ req_time }}{% endif %}",
+	    		{layers: "{{ req_var }}", TRANSPARENT: true},
+                {isBaseLayer: false}
+        	);
+        layer.setOpacity(0.8);
+        layer.setVisibility(true);
+        map.addLayer(layer);
+	});
+	</script>
+{% endif %}
+	<div class="page-header">
+	    <h1>
+	        NetCDF - Data
+	    </h1>
+    </div>
+    <div class="well form-group">
+    <form method="POST" action="/wms" role="form">
+    	<input type="hidden" name="changedCtrl" value="wmsSelect" />
+    	<div class="row">
+			<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">WMS</div>
+		    <div class="controls col-lg-6 col-md-7 col-sm-8">
+				<select class='form-control' id="wmsSelect" name="wmsSelect" onchange="this.form.changedCtrl.value = 'wmsSelect'; this.form.submit()">
+			    	{% set wms_choices = [
+				    	(0, 'http://localhost:8001/advisory_flags_test.nc.wms?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.1.1', 'advisory_flags_test.nc'),
+				    	(1, 'http://localhost:8001/ESACCI-L3S_SOILMOISTURE-SSMV-COMBINED-YEARLY_AVERAGE-1979_2013-fv01.2.nc.wms?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.1.1', 'ESACCI-L3S_SOILMOISTURE-SSMV-COMBINED-YEARLY_AVERAGE-1979_2013-fv01.2.nc'),
+						(2, 'http://localhost:8001/test20140902v02.nc.wms?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.1.1', 'test20140902v02.nc')
+					] -%}
+			    	{% for choice in wms_choices -%} 	
+			    	<option id="{{ choice[0] }}" value="{{ choice[1] }}" {% if choice[1] == req_url %}SELECTED{% endif %}>{{ choice[2] }}</option>
+			    	{%- endfor %}
+				</select>
+			</div>
+		</div>
+    	{% if wmsData %}
+		<br />
+		{% if nc_variables %}
+		<div class="row">
+		    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
+		    <div class="controls col-lg-4 col-md-5 col-sm-6">
+		        <select class='form-control' id="ncSelect" name="ncSelect" onchange="this.form.changedCtrl.value = 'ncSelect'; this.form.submit()">
+		        	{% for variable in nc_variables -%} 	
+		        	<option id="{{ variable[0] }}" value="{{ variable[1] }}" {% if variable[1] == req_var %}SELECTED{% endif %}>{{ variable[2] }}</option>
+		        	{%- endfor %}
+		        </select>
+		    </div>
+	    </div>
+		{% endif %}
+		<br />
+		{% if timepositions %}
+		<div class="row">
+		    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Time Positions</div>
+		    <div class="controls col-lg-4 col-md-5 col-sm-6">
+		        <select class='form-control' id="timeSelect" name="timeSelect" onchange="this.form.changedCtrl.value = 'timeSelect'; this.form.submit()">
+		        	{% for time in timepositions -%} 	
+		        	<option value="{{ time }}" {% if time == req_time %}SELECTED{% endif %}>{{ time }}</option>
+		        	{%- endfor %}
+		        </select>
+		    </div>
+	    </div>
+		{% endif %}
+		<br />
+		<div class="row">
+			<div class="span10">
+				<div id="map" style="width: 100%; height: 500px;"></div>
+			</div>
+		</div>
+		{% else %}
+	  	<h1>Hello World!</h1>
+		{% endif %}
+	</form>
+	</div>
+{% endblock %}
