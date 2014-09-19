@@ -151,18 +151,32 @@ def hello():
 
 
 def wmsRequest(req_url):
-    # wms = WebMapService('http://localhost:8001/advisory_flags_test.nc.wms?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.1.1')
+    '''
+    Returns the WMS Response and the netcdf Variables for a requested url
+    :param req_url:    WMS Request URL - 
+                        e.g. http://pydap-file-url.wms?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.1.1'
+    '''
     wmsData = WebMapService(req_url)
 
     i = 0
     variablechoices = []
-    for variable in wmsData.contents:
-        variablechoices.append((str(i), variable.encode('ascii', 'ignore'), urllib2.unquote(variable)))
-        i += 1
+    try:
+        for variable in wmsData.contents:
+            # Append the choice in a form, that the <select> option can handle it (id, name, value)
+            variablechoices.append((str(i), variable.encode('ascii', 'ignore'), wmsData.contents[variable].title))
+            i += 1
+    except:
+        pass
 
     return (wmsData, variablechoices)
 
+
 def getTimepositions(wmsData, varName):
+    '''
+    Returns the timepositions of observations for a variable
+    :param wmsData:    WMS Response
+    :param varName:    Name of the variable
+    '''
     try:
         return wmsData.contents[varName].timepositions
     except:
@@ -178,20 +192,27 @@ def wmsIndex():
 
     if request.method == 'POST' and req_url != "":
             wmsData, variablechoices = wmsRequest(request.form['wmsSelect'])
-            try:
-                req_var = request.form['varSelect']
-            except:
+            if len(variablechoices) > 0:
                 req_var = variablechoices[0][1]
-            timepositions = getTimepositions(wmsData, req_var)
-            if timepositions:
-                try:
-                    req_time = request.form['timeSelect']
-                except:
-                    if len(timepositions) > 0:
-                        req_time = timepositions[0]
-                    else:
-                        req_time = ""
+                if request.form['changedCtrl'] != 'wmsSelect':
+                    try:
+                        req_var = request.form['ncvarSelect']
+                    except:
+                        req_var = variablechoices[0][1]
+                timepositions = getTimepositions(wmsData, req_var)
+                if timepositions and len(timepositions) > 0:
+                    req_time = timepositions[0]
+                    if request.form['changedCtrl'] not in ('wmsSelect', 'ncvarSelect'):
+                        try:
+                            req_time = request.form['timeSelect']
+                        except:
+                            req_time = timepositions[0]
+                else:
+                    req_time = ""
             else:
+                variablechoices = (0, 'noVarFound', 'WMS Response doesn\'t contain any variables')
+                timepositions = []
+                req_var = variablechoices[1]
                 req_time = ""
             return render_template('wmsData.html', wmsData=wmsData,
                                    nc_variables=variablechoices,

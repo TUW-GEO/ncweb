@@ -4,22 +4,48 @@
 {% block head %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='OpenLayers/theme/default/style.css') }}">
-    <script src="{{ url_for('static', filename='OpenLayers/OpenLayers.js') }}"></script>
+<!--     <link rel="stylesheet" href="http://openlayers.org/en/v3.0.0/css/ol.css" type="text/css"> -->
+	<script src="{{ url_for('static', filename='OpenLayers/OpenLayers.js') }}"></script>
+<!--     <script src="http://openlayers.org/en/v3.0.0/build/ol.js" type="text/javascript"></script> -->
 {% endblock %}
 {% set active_page = "wms" %}
 {% block content %}
 {% if wmsData %}
 	<script type="text/javascript">
 	$(document).ready(function(){
-	    // Add map.
-	    var map = new OpenLayers.Map('map');
+	    var geographic = new OpenLayers.Projection("EPSG:4326");
+    	var mercator = new OpenLayers.Projection("EPSG:900913");
+    	
+    	var options = {
+                projection: mercator,
+                displayProjection: geographic,
+                units: 'degrees'
+        };
+	    
+	    var map = new OpenLayers.Map('map',{projection: geographic});
 	    wms_name = "OSM-WMS worldwide";
 	    wms_url = "http://129.206.228.72/cached/osm?";
 	    wms_options = {layers:'osm_auto:all', srs:'EPSG:900913', format:'image/png'};
 	    var layerOSM = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
 	    map.addLayer(layerOSM);
 	    
-	    map.zoomToMaxExtent();
+	    arrayOSM = ["http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
+                    "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
+                    "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
+                    "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg"];
+        arrayAerial = ["http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+                        "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+                        "http://otile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+                        "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
+       
+        baseOSM = new OpenLayers.Layer.OSM("MapQuest-OSM Tiles", arrayOSM);
+        baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial Tiles", arrayAerial);
+      
+        map.addLayer(baseOSM);
+        map.addLayer(baseAerial);
+	    
+        map.addControl(new OpenLayers.Control.LayerSwitcher());
+        map.zoomToMaxExtent();
 	    map.zoomIn();
 	    
 	    layer = new OpenLayers.Layer.WMS("{{ req_var }} - {{ req_time }}", "{{ req_url.split('?')[0] }}?LAYERS={{ req_var }}{% if req_time != "" %}&TIME={{ req_time }}{% endif %}",
@@ -29,7 +55,50 @@
         layer.setOpacity(0.8);
         layer.setVisibility(true);
         map.addLayer(layer);
+        
+        $.ajax({
+            type: "GET",
+    		url: "{{ req_url }}",
+    		dataType: "xml",
+    		success: function(xml) {
+    			/*var wmsCapabilities = new OpenLayers.Format.WMSCapabilities();
+    			var capabilities = wmsCapabilities.read(content);
+    			alert(capabilities);*/
+    			alert(xml);
+    		}
+		});
 	});
+	/*$(document).ready(function(){	
+	var layer_src = new ol.source.TileWMS({
+		url: "{{ req_url.split('?')[0] }}",
+		params: { 
+			'VERSION': '1.1.1',
+			'SRS': 'EPSG:4326',
+			'LAYERS': '{{ req_var }}',
+			{% if req_time != "" %}
+			'TIME': '{{ req_time }}'
+			{% endif %}
+		}
+	});
+
+	var map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.MapQuest({layer: 'sat'})
+          }),
+          new ol.layer.Tile({
+        	  source: layer_src,
+        	  opacity: 0.8,
+        	  visible: true
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.transform([0, 0], 'EPSG:4326', 'EPSG:3857'),
+          zoom: 1
+        })
+      });
+	});*/
 	</script>
 {% endif %}
 	<div class="page-header">
@@ -61,7 +130,7 @@
 		<div class="row">
 		    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
 		    <div class="controls col-lg-4 col-md-5 col-sm-6">
-		        <select class='form-control' id="ncSelect" name="ncSelect" onchange="this.form.changedCtrl.value = 'ncSelect'; this.form.submit()">
+		        <select class='form-control' id="ncvarSelect" name="ncvarSelect" onchange="this.form.changedCtrl.value = 'ncvarSelect'; this.form.submit()">
 		        	{% for variable in nc_variables -%} 	
 		        	<option id="{{ variable[0] }}" value="{{ variable[1] }}" {% if variable[1] == req_var %}SELECTED{% endif %}>{{ variable[2] }}</option>
 		        	{%- endfor %}
@@ -84,8 +153,11 @@
 		{% endif %}
 		<br />
 		<div class="row">
-			<div class="span10">
-				<div id="map" style="width: 100%; height: 500px;"></div>
+			<div class="col-lg-10 col-md-10 col-sm-10 col-xs-9">
+				<div id="map" class="map well"></div>
+			</div>
+			<div class="well col-lg-2 col-md-2 col-sm-2 col-xs-2" style="background:#aaa; height: 500px">
+				<img alt="...loading colorbar..." src="{{ req_url.split('?')[0] }}?LAYERS={{ req_var }}{% if req_time != "" %}&TIME={{ req_time }}{% endif %}&REQUEST=GetColorbar" style="max-width:100px; width:100%"/>
 			</div>
 		</div>
 		{% else %}
