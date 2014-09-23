@@ -1,0 +1,109 @@
+{% from "_formhelper.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}NetCDF - DataViewer - WMS{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='OpenLayers/theme/default/style.css') }}" />
+	<script src="{{ url_for('static', filename='OpenLayers/OpenLayers.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/dataviewer.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/dataviewer-map.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/dataviewer-ui.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/jquery.splitter-0.14.0.js') }}"></script>
+    <link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>
+{% endblock %}
+{% set active_page = "wms" %}
+{% block content %}
+    <ul class="nav nav-tabs" id="mapTab" data-tabs="mapTab">
+		<li class="active"><a href="#tab-mapA" data-toggle="tab">Map A</a></li>
+		<li><a href="#tab-mapB" data-toggle="tab">Map B</a></li>
+	</ul>
+    <div class="tab-content">
+	  	<div class="tab-pane active" id="tab-mapA">
+	  		<div class="well form-group">
+	  			<div class="row">
+				</div>
+				<br />
+		    	<div class="row">
+					<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">WMS</div>
+				    <div class="controls col-lg-6 col-md-7 col-sm-8">
+						<select class='form-control' id="wmsSelectA" name="wmsSelectA" onchange="wmsChanged('A');">
+						</select>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
+				    <div class="controls col-lg-4 col-md-5 col-sm-6">
+				        <select class='form-control' id="ncvarSelectA" name="ncvarSelectA" onchange="ncvarChanged('A');">
+				        </select>
+				    </div>
+			    </div>
+				<br />
+				<div class="row">
+				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Time Positions</div>
+				    <div class="controls col-lg-4 col-md-5 col-sm-6">
+				        <select class='form-control' id="timeSelectA" name="timeSelectA" onchange="timeChanged('A');">
+				        </select>
+				    </div>
+					<div class="controls col-lg-4 col-md-5 col-sm-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-1">
+						<img id="imgColorbarA" alt=" " src="" style="max-width:300px; width:100%"/>
+					</div>
+			    </div>
+				<br />
+			</div>
+	  	</div>
+	  	<div class="tab-pane" id="tab-mapB">
+			<div class="well form-group">
+				<div class="row">
+					<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Show Map</div>
+					<div class="controls col-lg-6 col-md-7 col-sm-8">
+						<div class="btn-group">
+						  <button type="button" id="btn_disableMapB" class="btn btn-default active" onclick="disableMap('B')">Disabled</button>
+						  <button type="button" id="btn_overlayMapB" class="btn btn-default" onclick="addMapAsOverlay('B')">Overlay</button>
+						  <button type="button" id="btn_seperateMapB" class="btn btn-default" onclick="addMapSeperate('B')">Split Screen</button>
+						</div>
+					</div>
+				</div>
+				<br />
+		    	<div class="row">
+					<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">WMS</div>
+				    <div class="controls col-lg-6 col-md-7 col-sm-8">
+						<select class='form-control' id="wmsSelectB" name="wmsSelectB" onchange="wmsChanged('B');">
+						</select>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
+				    <div class="controls col-lg-4 col-md-5 col-sm-6">
+				        <select class='form-control' id="ncvarSelectB" name="ncvarSelectB" onchange="ncvarChanged('B');">
+				        </select>
+				    </div>
+			    </div>
+				<br />
+				<div class="row">
+				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Time Positions</div>
+				    <div class="controls col-lg-4 col-md-5 col-sm-6">
+				        <select class='form-control' id="timeSelectB" name="timeSelectB" onchange="timeChanged('B');">
+				        </select>
+				    </div>
+				    <div class="controls col-lg-4 col-md-5 col-sm-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-1">
+						<img id="imgColorbarB" alt=" " src="" style="max-width:300px; width:100%"/>
+					</div>
+			    </div>
+				<br />
+			</div>
+		</div>
+	</div>
+    
+	<div class="well">
+		<div id="splitcontainer" class="splitcontainer">
+			<div>
+				<div id="mapA" class="map"></div>
+			</div>
+			<div>
+				<div id="mapB" class="map"></div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

@@ -183,7 +183,7 @@ def getTimepositions(wmsData, varName):
         return []
 
 
-@app.route('/wms', methods=['GET', 'POST'])
+@app.route('/wmsold', methods=['GET', 'POST'])
 def wmsIndex():
     try:
         req_url = request.form['wmsSelect']
@@ -222,6 +222,10 @@ def wmsIndex():
                                    req_time=req_time)
 
     return render_template('wmsData.html', req_url=req_url)
+
+@app.route('/wms')
+def wmsJS():
+    return render_template('wmsDataJS.html')
 
 
 # run app
