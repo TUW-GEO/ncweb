@@ -11,13 +11,17 @@ function initMap(mapId) {
             units: 'degrees'
     };
     
+	// create map object
     maps[mapId] = new OpenLayers.Map('map'+mapId,{projection: geographic});
+    
+    // wms simple base layer
     var wms_name = "OSM-WMS worldwide";
     var wms_url = "http://129.206.228.72/cached/osm?";
     var wms_options = {layers:'osm_auto:all', srs:'EPSG:900913', format:'image/png'};
     var layerOSM = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
     maps[mapId].addLayer(layerOSM);
     
+    // mapquest layers different projection
     var arrayOSM = ["http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
                 "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
                 "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
@@ -38,10 +42,10 @@ function initMap(mapId) {
     maps[mapId].zoomIn();
 }
 
-function showWMSLayer(ncvar, time, url, mapId, targetMap) {
+function showWMSLayer(ncvar, time, url, mapId, targetMap) {	// (re-)draw the pydap wms layer
 	removeWMSLayer(mapId,targetMap);
 	var getmapurl = url+"?LAYERS="+ncvar;
-	if (time != null)
+	if (time != null) // if there are time positions, add time property
 		getmapurl += "&TIME="+time;
 	mylayers[mapId] = new OpenLayers.Layer.WMS('Pydap WMS Layer - Map '+mapId, getmapurl,
     		{layers: ncvar, TRANSPARENT: true},
@@ -51,7 +55,7 @@ function showWMSLayer(ncvar, time, url, mapId, targetMap) {
 	mylayers[mapId].setVisibility(true);
     
 	maps[targetMap].addLayer(mylayers[mapId]);
-    $("#imgColorbar"+mapId).attr("src",getmapurl + "&REQUEST=GetColorbar");
+    $("#imgColorbar"+mapId).attr("src",getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
     $("#imgColorbar"+mapId).attr("alt","--- loading colorbar ---");
 }
 

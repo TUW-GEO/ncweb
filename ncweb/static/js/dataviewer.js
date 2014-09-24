@@ -1,6 +1,7 @@
 var CAPABILITIES = new Array();
 
-function wmsRequest(mapId) {
+function wmsGetCapabilities(mapId) {
+	//GetCapabilities request for selected pydap handled file
 	var req_url = $("#wmsSelect"+mapId).val();
 	if (req_url) {
 		$.ajax({
@@ -10,23 +11,33 @@ function wmsRequest(mapId) {
 			success: function(xml) {
 				var wmsCapabilities = new OpenLayers.Format.WMSCapabilities();
 				CAPABILITIES[mapId] = wmsCapabilities.read(xml);
-					
-				loadVariables("#ncvarSelect"+mapId, mapId);
+				
+				//Get options for Variables Select
+				loadVariables("#ncvarSelect"+mapId, mapId); 
+				//Get options for Timepositions Select
 				loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, mapId);
-				if(mapId == 'A' || $("#btn_seperateMap"+mapId).hasClass('active') == true) {
-					showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,mapId);
-				}
-				else if(mapId != 'A' && $("#btn_overlayMap"+mapId).hasClass('active') == true) {
-					showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,'A');
-				}
+				
+				showLayerOnMap(mapId);
 			},
 			error: function() {
+				//reset controls if there is a problem with the wms request
 				resetControls(mapId);
 			}
 		});
 	}
 	else {
 		resetControls(mapId);
+	}
+}
+
+function showLayerOnMap(mapId) {
+	// show data on separate map
+	if(mapId == 'A' || $("#btn_separateMap"+mapId).hasClass('active') == true) {
+		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,mapId);
+	}
+	// show data as overlay on MapA
+	else if($("#btn_overlayMap"+mapId).hasClass('active') == true) {
+		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,'A');
 	}
 }
 
@@ -38,6 +49,7 @@ function resetControls(mapId) {
 
 function loadVariables(ncvar_ctrl, mapId) {
 	$(ncvar_ctrl).empty();
+	//read layer information
 	if(CAPABILITIES[mapId].capability && CAPABILITIES[mapId].capability.layers) {
 		for (var l in CAPABILITIES[mapId].capability.layers) {
 			var o = new Option(CAPABILITIES[mapId].capability.layers[l].title, l);
@@ -54,6 +66,7 @@ function loadVariables(ncvar_ctrl, mapId) {
 function loadTimepositions(time_ctrl, ncvar_ctrl, mapId) {
 	$(time_ctrl).empty();
 	var ncvar = $(ncvar_ctrl).val();
+	//read the layers time information
 	if(CAPABILITIES[mapId].capability && CAPABILITIES[mapId].capability.layers) {
 		var layer = CAPABILITIES[mapId].capability.layers[ncvar];
 		if (layer && layer.dimensions.time) {
@@ -70,95 +83,13 @@ function loadTimepositions(time_ctrl, ncvar_ctrl, mapId) {
 		$(time_ctrl).attr('disabled', true);
 }
 
-function wmsChanged(mapId) {
-	wmsRequest(mapId);
-}
-
-function ncvarChanged(mapId) {
-	loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, mapId);
-	
-	if(mapId == 'A' || $("#btn_seperateMap"+mapId).hasClass('active') == true) {
-		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,mapId);
-	}
-	else if(mapId != 'A' && $("#btn_overlayMap"+mapId).hasClass('active') == true) {
-		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,'A');
-	}
-}
-
-function timeChanged(mapId) {
-	if(mapId == 'A' || $("#btn_seperateMap"+mapId).hasClass('active') == true) {
-		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,mapId);
-	}
-	else if(mapId != 'A' && $("#btn_overlayMap"+mapId).hasClass('active') == true) {
-		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,'A');
-	}
-}
-
-function disableMap(mapId) {
-	if ($("#btn_disableMap"+mapId).hasClass('active')) {
-		return;
-	}
-	if ($("#btn_overlayMap"+mapId).hasClass('active')) {
-		removeWMSLayer(mapId, 'A');
-		$("#btn_overlayMap"+mapId).removeClass('active');
-	}
-	if ($("#btn_seperateMap"+mapId).hasClass('active')) {
-		$('#splitcontainer').split({orientation:'vertical', position: '100%'});
-		$('#mapB').hide();
-		$('.left_panel').width('100%');
-		$('.vsplitter').css('left','100%');
-		$('.vsplitter').hide();
-		$("#btn_seperateMap"+mapId).removeClass('active');
-	}
-	$("#btn_disableMap"+mapId).addClass('active');
-}
-
-function addMapAsOverlay(mapId) {
-	if ($("#btn_overlayMap"+mapId).hasClass('active')) {
-		return;
-	}
-	if ($("#btn_disableMap"+mapId).hasClass('active')) {
-		$("#btn_disableMap"+mapId).removeClass('active');
-	}
-	if ($("#btn_seperateMap"+mapId).hasClass('active')) {
-		$('#splitcontainer').split({orientation:'vertical', position: '100%'});
-		$('#mapB').hide();
-		$('.left_panel').width('100%');
-		$('.vsplitter').css('left','100%');
-		$('.vsplitter').hide();
-		$("#btn_seperateMap"+mapId).removeClass('active');
-	}
-	
-	showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId, 'A');
-	$("#btn_overlayMap"+mapId).addClass('active');
-}
-
-function addMapSeperate(mapId) {
-	if ($("#btn_seperateMap"+mapId).hasClass('active')) {
-		return;
-	}
-	if ($("#btn_overlayMap"+mapId).hasClass('active')) {
-		removeWMSLayer(mapId, 'A');
-		$("#btn_overlayMap"+mapId).removeClass('active');
-	}
-	if ($("#btn_disableMap"+mapId).hasClass('active')) {
-		$("#btn_disableMap"+mapId).removeClass('active');
-	}
-	
-	$('#splitcontainer').split({orientation:'vertical', position: '50%', limit: 100});
-	$('.left_panel').width('50%');
-	$('.vsplitter').css('left','50%');
-	$('.vsplitter').show();
-	$('#map'+mapId).show();
-	showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId, mapId);
-	$("#btn_seperateMap"+mapId).addClass('active');
-}
-
 $(document).ready(function(){
+	//Load all maps, but initially hide MapB
 	initMap('A');
 	initMap('B');
 	$('#mapB').hide();
 	
+	//Get Pydap handled files for requested url and add to WMS Select
 	$.ajax({
         type: "GET",
 		url: "http://127.0.0.1:8001/?REQUEST=GetFileList",
@@ -174,8 +105,8 @@ $(document).ready(function(){
 				$(o).html(json.files[f].name);
 				$("#wmsSelectB").append(o);
 			}
-			wmsRequest('A');
-			wmsRequest('B');
+			wmsGetCapabilities('A');
+			wmsGetCapabilities('B');
 		}
 	});
 });
