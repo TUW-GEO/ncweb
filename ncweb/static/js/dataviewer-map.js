@@ -42,9 +42,9 @@ function initMap(mapId) {
     maps[mapId].zoomIn();
 }
 
-function showWMSLayer(ncvar, time, url, mapId, targetMap) {	// (re-)draw the pydap wms layer
+function showWMSLayer(ncvar, time, url, cmap, mapId, targetMap) {	// (re-)draw the pydap wms layer
 	removeWMSLayer(mapId,targetMap);
-	var getmapurl = url+"?LAYERS="+ncvar;
+	var getmapurl = url+"?LAYERS="+ncvar+"&cmap="+cmap;
 	if (time != null) // if there are time positions, add time property
 		getmapurl += "&TIME="+time;
 	mylayers[mapId] = new OpenLayers.Layer.WMS('Pydap WMS Layer - Map '+mapId, getmapurl,

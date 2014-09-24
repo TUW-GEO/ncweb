@@ -33,11 +33,11 @@ function wmsGetCapabilities(mapId) {
 function showLayerOnMap(mapId) {
 	// show data on separate map
 	if(mapId == 'A' || $("#btn_separateMap"+mapId).hasClass('active') == true) {
-		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,mapId);
+		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], $("#cmapSelect"+mapId).val(), mapId,mapId);
 	}
 	// show data as overlay on MapA
 	else if($("#btn_overlayMap"+mapId).hasClass('active') == true) {
-		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], mapId,'A');
+		showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], $("#cmapSelect"+mapId).val(), mapId,'A');
 	}
 }
 

@@ -4,6 +4,7 @@
 {% block head %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='OpenLayers/theme/default/style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ol-style.css') }}" />
 	<script src="{{ url_for('static', filename='OpenLayers/OpenLayers.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-map.js') }}"></script>
@@ -12,6 +13,8 @@
     <link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>
 {% endblock %}
 {% set active_page = "wms" %}
+{% set init_cmap = "jet" %}
+{% set cmap_choices = ["Accent","Blues","BrBG","BuGn","BuPu","Dark2","GnBu","Greens","Greys","OrRd","Oranges","PRGn","Paired","Pastel1","Pastel2","PiYG","PuBu","PuBuGn","PuOr","PuRd","Purples","RdBu","RdGy","RdPu","RdYlBu","RdYlGn","Reds","Set1","Set2","Set3","Spectral","YlGn","YlGnBu","YlOrBr","YlOrRd","afmhot","autumn","binary","bone","brg","bwr","cool","copper","flag","gist_earth","gist_gray","gist_heat","gist_ncar","gist_rainbow","gist_yarg","gnuplot","gnuplot2","gray","hot","hsv","jet","ocean","pink","prism","rainbow","seismic","spectral","spring","summer","terrain","winter"] %}
 {% block content %}
     <ul class="nav nav-tabs" id="mapTab" data-tabs="mapTab">
 		<li class="active"><a href="#tab-mapA" data-toggle="tab">Map A</a></li>
@@ -22,7 +25,6 @@
 	  		<div class="well form-group">
 	  			<div class="row">
 				</div>
-				<br />
 		    	<div class="row">
 					<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">WMS</div>
 				    <div class="controls col-lg-6 col-md-7 col-sm-8">
@@ -30,26 +32,30 @@
 						</select>
 					</div>
 				</div>
-				<br />
 				<div class="row">
 				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
 				    <div class="controls col-lg-4 col-md-5 col-sm-6">
 				        <select class='form-control' id="ncvarSelectA" name="ncvarSelectA" onchange="ncvarChanged('A');">
 				        </select>
 				    </div>
+				    <div class="controls col-lg-2 col-md-2 col-sm-3 col-lg-offset-2 col-md-offset-2 col-sm-offset-3">
+						<select class='form-control' id="cmapSelectA" name="cmapSelectA" onchange="cmapChanged('A');">
+							{% for choice in cmap_choices -%} 	
+					    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+					    	{%- endfor %}
+				        </select>
+					</div>
 			    </div>
-				<br />
 				<div class="row">
 				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Time Positions</div>
 				    <div class="controls col-lg-4 col-md-5 col-sm-6">
 				        <select class='form-control' id="timeSelectA" name="timeSelectA" onchange="timeChanged('A');">
 				        </select>
 				    </div>
-					<div class="controls col-lg-4 col-md-5 col-sm-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-1">
-						<img id="imgColorbarA" alt=" " src="" style="max-width:300px; width:100%"/>
+					<div class="controls col-lg-4 col-md-5 col-sm-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-3">
+						<img id="imgColorbarA" alt=" " src="" class="colorbar"/>
 					</div>
 			    </div>
-				<br />
 			</div>
 	  	</div>
 	  	<div class="tab-pane" id="tab-mapB">
@@ -64,7 +70,6 @@
 						</div>
 					</div>
 				</div>
-				<br />
 		    	<div class="row">
 					<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">WMS</div>
 				    <div class="controls col-lg-6 col-md-7 col-sm-8">
@@ -72,26 +77,30 @@
 						</select>
 					</div>
 				</div>
-				<br />
 				<div class="row">
 				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
 				    <div class="controls col-lg-4 col-md-5 col-sm-6">
 				        <select class='form-control' id="ncvarSelectB" name="ncvarSelectB" onchange="ncvarChanged('B');">
 				        </select>
 				    </div>
+				    <div class="controls col-lg-2 col-md-2 col-sm-3 col-lg-offset-2 col-md-offset-2 col-sm-offset-3">
+						<select class='form-control' id="cmapSelectB" name="cmapSelectB" onchange="cmapChanged('B');">
+							{% for choice in cmap_choices -%} 	
+					    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+					    	{%- endfor %}
+				        </select>
+					</div>
 			    </div>
-				<br />
 				<div class="row">
 				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Time Positions</div>
 				    <div class="controls col-lg-4 col-md-5 col-sm-6">
 				        <select class='form-control' id="timeSelectB" name="timeSelectB" onchange="timeChanged('B');">
 				        </select>
 				    </div>
-				    <div class="controls col-lg-4 col-md-5 col-sm-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-1">
-						<img id="imgColorbarB" alt=" " src="" style="max-width:300px; width:100%"/>
+				    <div class="controls col-lg-4 col-md-5 col-sm-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-3">
+						<img id="imgColorbarB" alt=" " src="" class="colorbar"/>
 					</div>
 			    </div>
-				<br />
 			</div>
 		</div>
 	</div>
