@@ -7,7 +7,15 @@
 
 .splitcontainer {
 	width: 100%;
-	height: 500px;
+	min-height: 300px;
+}
+
+.right_panel {
+	min-height: 300px;
+}
+
+.left_panel {
+	min-height: 300px;
 }
 
 .row {
@@ -32,4 +40,38 @@ div.well {
 .nav-tabs {
 	margin-left: 5px;
 	margin-bottom: 0px;
+}
+
+/* Custom Bootstrap Style */
+.navbar-inner {
+	background-color: #09BDF8;
+	background-image: -moz-linear-gradient(center top , #03B8F2, #09BDF8);
+}
+
+.btn-navbar {
+	background-color: #01B6F0;
+	background-image: -moz-linear-gradient(center top , #03B8F2, #09BDF8);
+}
+
+.navbar .nav > li > a {
+	border-left: 1px solid #09BDF8;
+	border-right: 1px solid #01B2EA;
+}
+
+a:hover {
+    color: #01B3F8;
+    text-decoration: underline;
+}
+
+.btn-navbar:hover, .btn-navbar:active, .btn-navbar.active, .btn-navbar.disabled, .btn-navbar[disabled] {
+    background-color: #01B3F8;
+}
+
+a {
+    color: #09BDF8;
+    text-decoration: none;
+}
+
+.navbar .nav > li > a:hover {
+    background-color: #00B0E5;
 }

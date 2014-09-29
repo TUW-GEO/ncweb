@@ -1,7 +1,17 @@
+/**
+ * @file Core file. Manages data provisioning (requests and controls)
+ * @author Markus Pöchtrager
+ */
+
+/** @global 
+ * Stores WMS Capabilities for currently active selections */
 var CAPABILITIES = new Array();
 
+/** @function
+ * GetCapabilities request for a selected pydap handled file
+ * @name wmsGetCapabilities
+ * @param {string} mapId - Defines the map */
 function wmsGetCapabilities(mapId) {
-	//GetCapabilities request for selected pydap handled file
 	var req_url = $("#wmsSelect"+mapId).val();
 	if (req_url) {
 		$.ajax({
@@ -12,9 +22,9 @@ function wmsGetCapabilities(mapId) {
 				var wmsCapabilities = new OpenLayers.Format.WMSCapabilities();
 				CAPABILITIES[mapId] = wmsCapabilities.read(xml);
 				
-				//Get options for Variables Select
+				//Get options for Variables select-control
 				loadVariables("#ncvarSelect"+mapId, mapId); 
-				//Get options for Timepositions Select
+				//Get options for Timepositions select-control
 				loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, mapId);
 				
 				showLayerOnMap(mapId);
@@ -30,6 +40,36 @@ function wmsGetCapabilities(mapId) {
 	}
 }
 
+/** @function
+ * GetFileList request for a given directory
+ * @name wmsGetFileList
+ * @param {string} url - Specifies the directory on the pydap server */
+function wmsGetFileList(url) {
+	$.ajax({
+        type: "GET",
+		url: url+"?REQUEST=GetFileList",
+		dataType: "json",
+		success: function(json) {
+			$("#wmsSelectA").empty();
+			$("#wmsSelectB").empty();
+			for (var f in json.files) {
+				var o = new Option(json.files[f].name, json.location+json.files[f].name+".wms?service=WMS&REQUEST=GetCapabilities&version=1.1.1");
+				$(o).html(json.files[f].name);
+				$("#wmsSelectA").append(o);
+				var o = new Option(json.files[f].name, json.location+json.files[f].name+".wms?service=WMS&REQUEST=GetCapabilities&version=1.1.1");
+				$(o).html(json.files[f].name);
+				$("#wmsSelectB").append(o);
+			}
+			wmsGetCapabilities('A');
+			wmsGetCapabilities('B');
+		}
+	});
+}
+
+/** @function
+ * Show WMSLayer either as map overlay or as separate map
+ * @name showLayerOnMap
+ * @param {string} mapId - Specifies which map data are to be shown */
 function showLayerOnMap(mapId) {
 	// show data on separate map
 	if(mapId == 'A' || $("#btn_separateMap"+mapId).hasClass('active') == true) {
@@ -41,12 +81,21 @@ function showLayerOnMap(mapId) {
 	}
 }
 
+/** @function
+ * Clear the select controls
+ * @name myFunction 
+ * @param {string} mapId - Map tab where the controls needs to be reset */
 function resetControls(mapId) {
 	CAPABILITIES[mapId] = "";
 	loadVariables("#ncvarSelect"+mapId, mapId);
 	loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, mapId);
 }
 
+/** @function
+ * Set netcdf variables select control options
+ * @name myFunction 
+ * @param {string} ncvar_ctrl - Control-Id of the variables SELECT
+ * @param {string} mapId - Map tab where the variables SELECT gets loaded */
 function loadVariables(ncvar_ctrl, mapId) {
 	$(ncvar_ctrl).empty();
 	//read layer information
@@ -63,6 +112,12 @@ function loadVariables(ncvar_ctrl, mapId) {
 		$(ncvar_ctrl).attr('disabled', true);
 }
 
+/** @function
+ * Set timepositions select control options
+ * @name myFunction 
+ * @param {string} time_ctrl - Control-Id of the timepositions SELECT
+ * @param {string} ncvar_ctrl - Control-Id of the variables SELECT
+ * @param {string} mapId - Map tab where the timepositions SELECT gets loaded */
 function loadTimepositions(time_ctrl, ncvar_ctrl, mapId) {
 	$(time_ctrl).empty();
 	var ncvar = $(ncvar_ctrl).val();
@@ -83,31 +138,31 @@ function loadTimepositions(time_ctrl, ncvar_ctrl, mapId) {
 		$(time_ctrl).attr('disabled', true);
 }
 
+function resize() {
+	resizeMapDiv('#mapA');
+	resizeMapDiv('#mapB');
+	resizeMapDiv('#splitcontainer');
+	resizeMapDiv('.left_panel');
+	resizeMapDiv('.right_panel');
+	
+	maps['A'].updateSize();
+	maps['A'].zoomToMaxExtent();
+    maps['A'].zoomIn();
+    maps['B'].updateSize();
+	maps['B'].zoomToMaxExtent();
+    maps['B'].zoomIn();
+}
+
 $(document).ready(function(){
 	//Load all maps, but initially hide MapB
+	$("#cb_linkAB").attr("checked", false);
 	initMap('A');
 	initMap('B');
 	$('#mapB').hide();
 	
 	//Get Pydap handled files for requested url and add to WMS Select
-	$.ajax({
-        type: "GET",
-		url: "http://127.0.0.1:8001/?REQUEST=GetFileList",
-		dataType: "json",
-		success: function(json) {
-			$("#wmsSelectA").empty();
-			$("#wmsSelectB").empty();
-			for (var f in json.files) {
-				var o = new Option(json.files[f].name, json.location+json.files[f].name+".wms?service=WMS&REQUEST=GetCapabilities&version=1.1.1");
-				$(o).html(json.files[f].name);
-				$("#wmsSelectA").append(o);
-				var o = new Option(json.files[f].name, json.location+json.files[f].name+".wms?service=WMS&REQUEST=GetCapabilities&version=1.1.1");
-				$(o).html(json.files[f].name);
-				$("#wmsSelectB").append(o);
-			}
-			wmsGetCapabilities('A');
-			wmsGetCapabilities('B');
-		}
-	});
+	wmsGetFileList("http://127.0.0.1:8001/");
+	resize();
+	window.onresize = resize;
 });
 

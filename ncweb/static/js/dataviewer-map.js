@@ -1,6 +1,20 @@
+/**
+ * @file Manages the OpenLayers Objects and map changes
+ * @author Markus Pöchtrager
+ */
+
+/** @global 
+ * Stores OpenLayers Map Objects */
 var maps = new Array();
+/** @global 
+ * Stores the OpenLayers layers from pydap WMS requests */
 var mylayers = new Array();
 
+
+/** @function
+ * Create map object and load base layers
+ * @name initMap
+ * @param {string} mapId - Defines the map */
 function initMap(mapId) {
 	var geographic = new OpenLayers.Projection("EPSG:4326");
 	var mercator = new OpenLayers.Projection("EPSG:900913");
@@ -42,7 +56,16 @@ function initMap(mapId) {
     maps[mapId].zoomIn();
 }
 
-function showWMSLayer(ncvar, time, url, cmap, mapId, targetMap) {	// (re-)draw the pydap wms layer
+/** @function
+ * (Re-)Draw the pydap wms layer on the map
+ * @name showWMSLayer
+ * @param {string} ncvar - NetCDF Variable (LAYER) for the WMS request
+ * @param {string} time - Time position (TIME) for the WMS request
+ * @param {string} url - WMS Url (NetCDF File)
+ * @param {string} cmap - ColorMap for the WMS request
+ * @param {string} mapId - Defines the map tab where the data are from
+ * @param {string} targetMap - Target Map, where to (re-)draw the data */
+function showWMSLayer(ncvar, time, url, cmap, mapId, targetMap) {	
 	removeWMSLayer(mapId,targetMap);
 	var getmapurl = url+"?LAYERS="+ncvar+"&cmap="+cmap;
 	if (time != null) // if there are time positions, add time property
@@ -54,13 +77,65 @@ function showWMSLayer(ncvar, time, url, cmap, mapId, targetMap) {	// (re-)draw t
 	mylayers[mapId].setOpacity(0.8);
 	mylayers[mapId].setVisibility(true);
     
-	maps[targetMap].addLayer(mylayers[mapId]);
     $("#imgColorbar"+mapId).attr("src",getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
     $("#imgColorbar"+mapId).attr("alt","--- loading colorbar ---");
+	maps[targetMap].addLayer(mylayers[mapId]);
 }
 
+/** @function
+ * Remove the pydap wms layer from the map
+ * @name removeWMSLayer
+ * @param {string} mapId - Defines the map tab where the data are from
+ * @param {string} targetMap - Target Map, where to remove the data */
 function removeWMSLayer(mapId,targetMap) {
 	if (maps[targetMap].getLayersByName('Pydap WMS Layer - Map '+mapId).length>0) {
 		maps[targetMap].removeLayer(maps[targetMap].getLayersByName('Pydap WMS Layer - Map '+mapId)[0]);
 	}
+}
+
+/** @function
+ * Resize the map divs to make the document fit 100% (height)
+ * @name resizeMapDiv
+ * @param {string} divId - the div to resize */
+function resizeMapDiv(divId) {
+	var div = $(divId);
+	div.height(($(window).height() - $('#map-controls').height() - $('#footer').height() - $('.navbar').height() -100)
+	);
+}
+
+/** @function
+ * Link or unlink two maps
+ * @name registerLinkEvent
+ * @param {string} targetMap - Gets moved if source map is moved
+ * @param {string} sourceMap - Source map
+ * @param {boolean} register - Register or unregister event
+ *  */
+function registerLinkEvent(targetMap, sourceMap, register) {
+	var syncMapHandler = function() {
+		var targetCenter = maps[targetMap].getCenter();
+        var sourceCenter = maps[sourceMap].getCenter();
+        var targetZoom = maps[targetMap].getZoom();
+        var sourceZoom = maps[sourceMap].getZoom();
+
+        var coordsChanged = ((targetCenter.lat !== sourceCenter.lat) || (targetCenter.lon !== sourceCenter.lon));
+        if (coordsChanged || targetZoom !== sourceZoom) {
+			maps[targetMap].moveTo(maps[sourceMap].getCenter(),maps[sourceMap].getZoom(), {
+	            dragging: true
+	        });
+        }
+    };
+
+    if (register) {
+	    maps[sourceMap].events.on({
+	        'move': syncMapHandler,
+	        'zoomend': syncMapHandler,
+	        scope: this
+	    });
+	    syncMapHandler();
+    }
+    else {
+    	//TODO: Problem if more than 2 maps
+    	maps[sourceMap].events.remove('move');
+    	maps[sourceMap].events.remove('zoomend');
+    }
 }
