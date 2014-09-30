@@ -35,25 +35,50 @@ function initMap(mapId) {
     var layerOSM = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
     maps[mapId].addLayer(layerOSM);
     
-    // mapquest layers different projection
-    var arrayOSM = ["http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
-                "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
-                "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
-                "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg"];
-    var arrayAerial = ["http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-                    "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-                    "http://otile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-                    "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
-   
-    var baseOSM = new OpenLayers.Layer.OSM("MapQuest-OSM Tiles", arrayOSM);
-    var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial Tiles", arrayAerial);
+    var landwater = new OpenLayers.Layer.WMTS({
+        name: "Land / Water Map",
+        url: "https://map1c.vis.earthdata.nasa.gov/wmts-geo/wmts.cgi",
+        layer: "OSM_Land_Water_Map",
+        matrixSet: "EPSG4326_250m",
+        format: "image/png",
+        style: "",
+        transitionEffect: "resize",
+    	projection: "EPSG:4326",
+    	numZoomLevels: 9,
+    	maxResolution: 0.5625,
+    	'tileSize': new OpenLayers.Size(512, 512),
+        isBaseLayer: true
+    });  
+    var bluemarble = new OpenLayers.Layer.WMTS({
+        name: "Blue Marble",
+        url: "https://map1b.vis.earthdata.nasa.gov/wmts-geo/wmts.cgi?",
+        layer: "BlueMarble_ShadedRelief_Bathymetry",
+        matrixSet: "EPSG4326_500m",
+        format: "image/jpeg",
+        style: "",
+        transitionEffect: "resize",
+    	projection: "EPSG:4326",
+    	numZoomLevels: 9,
+    	maxResolution: 0.5625,
+    	'tileSize': new OpenLayers.Size(512, 512),
+        isBaseLayer: true
+    });  
   
-    maps[mapId].addLayer(baseOSM);
-    maps[mapId].addLayer(baseAerial);
+    maps[mapId].addLayer(landwater);
+    maps[mapId].addLayer(bluemarble);
     
     maps[mapId].addControl(new OpenLayers.Control.LayerSwitcher());
     maps[mapId].zoomToMaxExtent();
     maps[mapId].zoomIn();
+}
+
+/** @function
+ * Change the opacity for the wms layer
+ * @name setWMSOpacity
+ * @param {string} mapId - Defines the map, where to change the layer opacity
+ * @param {int} value - Opacity (0-100) */
+function setWMSOpacity(mapId, value) {
+	mylayers[mapId].setOpacity(value/100);
 }
 
 /** @function
@@ -74,7 +99,7 @@ function showWMSLayer(ncvar, time, url, cmap, mapId, targetMap) {
     		{layers: ncvar, TRANSPARENT: true},
             {isBaseLayer: false}
     	);
-	mylayers[mapId].setOpacity(0.8);
+	mylayers[mapId].setOpacity($("#slider-"+mapId).val()/100);
 	mylayers[mapId].setVisibility(true);
     
     $("#imgColorbar"+mapId).attr("src",getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src

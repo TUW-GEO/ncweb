@@ -6,11 +6,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='OpenLayers/theme/default/style.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ol-style.css') }}" />
 	<script src="{{ url_for('static', filename='OpenLayers/OpenLayers.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/bootstrap-slider.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-map.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-user.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/jquery.splitter-0.14.0.js') }}"></script>
     <link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='css/slider.css') }}" rel="stylesheet"/>
 {% endblock %}
 {% set active_page = "wms" %}
 {% set init_cmap = "jet" %}
@@ -25,83 +27,119 @@
     <div class="tab-content" id="tab-content">
 	  	<div class="tab-pane active" id="tab-mapA">
 	  		<div class="well form-group">
-	  			<div class="row">
-				</div>
-		    	<div class="row">
-					<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">WMS</div>
-				    <div class="controls col-lg-6 col-md-7 col-sm-8">
-						<select class='form-control' id="wmsSelectA" name="wmsSelectA" onchange="wmsChanged('A');">
-						</select>
+	  			<div class="col-sm-6">
+		  			<div class="row">
 					</div>
-				</div>
-				<div class="row">
-				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
-				    <div class="controls col-lg-4 col-md-5 col-sm-6">
-				        <select class='form-control' id="ncvarSelectA" name="ncvarSelectA" onchange="ncvarChanged('A');">
-				        </select>
+			    	<div class="row">
+						<div class="control-label col-sm-3" style="font-weight:bold;">WMS</div>
+					    <div class="controls col-sm-8">
+							<select class='form-control' id="wmsSelectA" name="wmsSelectA" onchange="wmsChanged('A');">
+							</select>
+						</div>
+					</div>
+					<div class="row">
+					    <div class="control-label col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
+					    <div class="controls col-sm-8">
+					        <select class='form-control' id="ncvarSelectA" name="ncvarSelectA" onchange="ncvarChanged('A');">
+					        </select>
+					    </div>
 				    </div>
-				    <div class="controls col-lg-2 col-md-2 col-sm-3 col-lg-offset-2 col-md-offset-2 col-sm-offset-3">
-						<select class='form-control' id="cmapSelectA" name="cmapSelectA" onchange="cmapChanged('A');">
-							{% for choice in cmap_choices -%} 	
-					    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
-					    	{%- endfor %}
-				        </select>
-					</div>
+					<div class="row">
+					    <div class="control-label col-sm-3" style="font-weight:bold;">Time Positions</div>
+					    <div class="controls col-sm-8">
+					        <select class='form-control' id="timeSelectA" name="timeSelectA" onchange="timeChanged('A');">
+					        </select>
+					    </div>
+				    </div>
 			    </div>
-				<div class="row">
-				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Time Positions</div>
-				    <div class="controls col-lg-4 col-md-5 col-sm-6">
-				        <select class='form-control' id="timeSelectA" name="timeSelectA" onchange="timeChanged('A');">
-				        </select>
-				    </div>
-					<div class="controls col-lg-4 col-md-5 col-sm-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-3">
-						<img id="imgColorbarA" alt=" " src="" class="colorbar"/>
+			    <div class="col-sm-6">
+		  			<div class="row">
 					</div>
+			    	<div class="row">
+						<div class="control-label col-sm-3" style="font-weight:bold;">Opacity</div>
+					    <div class="controls col-sm-4">
+							<input id="slider-A" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="5" data-slider-value="80"/>
+						</div>
+					</div>
+					<div class="row">
+					    <div class="control-label col-sm-3" style="font-weight:bold;">Colormap</div>
+					    <div class="controls col-sm-6 col-md-5 col-lg-4">
+							<select class='form-control' id="cmapSelectA" name="cmapSelectA" onchange="cmapChanged('A');">
+								{% for choice in cmap_choices -%} 	
+						    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+						    	{%- endfor %}
+					        </select>
+						</div>
+				    </div>
+					<div class="row">
+					    <div class="control-label col-sm-3" style="font-weight:bold;">Colorbar</div>
+						<div class="controls col-sm-6">
+							<img id="imgColorbarA" alt=" " src="" class="colorbar"/>
+						</div>
+				    </div>
 			    </div>
 			</div>
 	  	</div>
 	  	<div class="tab-pane" id="tab-mapB">
 			<div class="well form-group">
-				<div class="row">
-					<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Show Map</div>
-					<div class="controls col-lg-6 col-md-7 col-sm-8">
-						<div class="btn-group">
-						  <button type="button" id="btn_disableMapB" class="btn btn-default active" onclick="disableMap('B')">Disabled</button>
-						  <button type="button" id="btn_overlayMapB" class="btn btn-default" onclick="addMapAsOverlay('B')">Overlay</button>
-						  <button type="button" id="btn_separateMapB" class="btn btn-default" onclick="addMapSeparate('B')">Split Screen</button>
+				<div class="col-sm-6">
+					<div class="row">
+						<div class="control-label col-sm-3" style="font-weight:bold;">Show Map</div>
+						<div class="controls col-sm-8">
+							<div class="btn-group">
+							  <button type="button" id="btn_disableMapB" class="btn btn-default active" onclick="disableMap('B')">Disabled</button>
+							  <button type="button" id="btn_overlayMapB" class="btn btn-default" onclick="addMapAsOverlay('B')">Overlay</button>
+							  <button type="button" id="btn_separateMapB" class="btn btn-default" onclick="addMapSeparate('B')">Split Screen</button>
+							</div>
 						</div>
 					</div>
-				</div>
-		    	<div class="row">
-					<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">WMS</div>
-				    <div class="controls col-lg-6 col-md-7 col-sm-8">
-						<select class='form-control' id="wmsSelectB" name="wmsSelectB" onchange="wmsChanged('B');">
-						</select>
+			    	<div class="row">
+						<div class="control-label col-sm-3" style="font-weight:bold;">WMS</div>
+					    <div class="controls col-sm-8">
+							<select class='form-control' id="wmsSelectB" name="wmsSelectB" onchange="wmsChanged('B');">
+							</select>
+						</div>
 					</div>
-				</div>
-				<div class="row">
-				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
-				    <div class="controls col-lg-4 col-md-5 col-sm-6">
-				        <select class='form-control' id="ncvarSelectB" name="ncvarSelectB" onchange="ncvarChanged('B');">
-				        </select>
+					<div class="row">
+					    <div class="control-label col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
+					    <div class="controls col-sm-8">
+					        <select class='form-control' id="ncvarSelectB" name="ncvarSelectB" onchange="ncvarChanged('B');">
+					        </select>
+					    </div>
 				    </div>
-				    <div class="controls col-lg-2 col-md-2 col-sm-3 col-lg-offset-2 col-md-offset-2 col-sm-offset-3">
-						<select class='form-control' id="cmapSelectB" name="cmapSelectB" onchange="cmapChanged('B');">
-							{% for choice in cmap_choices -%} 	
-					    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
-					    	{%- endfor %}
-				        </select>
-					</div>
+					<div class="row">
+					    <div class="control-label col-sm-3" style="font-weight:bold;">Time Positions</div>
+					    <div class="controls col-sm-8">
+					        <select class='form-control' id="timeSelectB" name="timeSelectB" onchange="timeChanged('B');">
+					        </select>
+					    </div>
+				    </div>
 			    </div>
-				<div class="row">
-				    <div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Time Positions</div>
-				    <div class="controls col-lg-4 col-md-5 col-sm-6">
-				        <select class='form-control' id="timeSelectB" name="timeSelectB" onchange="timeChanged('B');">
-				        </select>
-				    </div>
-				    <div class="controls col-lg-4 col-md-5 col-sm-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-3">
-						<img id="imgColorbarB" alt=" " src="" class="colorbar"/>
+			    <div class="col-sm-6">
+		  			<div class="row">
 					</div>
+			    	<div class="row">
+						<div class="control-label col-sm-3" style="font-weight:bold;">Opacity</div>
+					    <div class="controls col-sm-4">
+							<input id="slider-B" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="5" data-slider-value="80"/>
+						</div>
+					</div>
+					<div class="row">
+					    <div class="control-label col-sm-3" style="font-weight:bold;">Colormap</div>
+					    <div class="controls col-sm-6 col-md-5 col-lg-4">
+							<select class='form-control' id="cmapSelectB" name="cmapSelectB" onchange="cmapChanged('B');">
+								{% for choice in cmap_choices -%} 	
+						    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+						    	{%- endfor %}
+					        </select>
+						</div>
+				    </div>
+					<div class="row">
+					    <div class="control-label col-sm-3" style="font-weight:bold;">Colorbar</div>
+						<div class="controls col-sm-6">
+							<img id="imgColorbarB" alt=" " src="" class="colorbar"/>
+						</div>
+				    </div>
 			    </div>
 			</div>
 		</div>
@@ -110,7 +148,7 @@
 		    	<div class="row">
 				</div>
 				<div class="row">
-					<div class="control-label col-lg-2 col-md-2 col-sm-3" style="font-weight:bold;">Link Maps</div>
+					<div class="control-label col-sm-2" style="font-weight:bold;">Link Maps</div>
 					<div class="controls col-lg-6 col-md-7 col-sm-8">
 						<label class="checkbox-inline">
 							<input type="checkbox" id="cb_linkAB" value="linkAB" onclick="toggleMapLink('A','B')"> Link A &lt;-&gt; B

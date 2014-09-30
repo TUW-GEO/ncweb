@@ -160,6 +160,17 @@ $(document).ready(function(){
 	initMap('B');
 	$('#mapB').hide();
 	
+	$("#slider-A").slider();
+	$("#slider-Ac").val(80); //set initial value
+	$("#slider-A").on("slide", function(slideEvt) {
+		setWMSOpacity('A',slideEvt.value);
+	});
+	$("#slider-B").slider();
+	$("#slider-B").val(80); //set initial value
+	$("#slider-B").on("slide", function(slideEvt) {
+		setWMSOpacity('B',slideEvt.value);
+	});
+	
 	//Get Pydap handled files for requested url and add to WMS Select
 	wmsGetFileList("http://127.0.0.1:8001/");
 	resize();

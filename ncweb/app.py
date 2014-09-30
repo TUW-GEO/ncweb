@@ -13,8 +13,8 @@ import urllib2
 
 
 class NetCdfForm(Form):
-    variables = SelectField('variables', choices=[])
-    files = SelectField('files', choices=[])
+    variables = SelectField('variables', choices = [])
+    files = SelectField('files', choices = [])
 
 def convert2GTiff(netcdfile, outdir, VarName):
     '''
@@ -23,10 +23,10 @@ def convert2GTiff(netcdfile, outdir, VarName):
     :param outdir:
     :param VarName:
     '''
-    
+
     try:
         nci = gdal.Open('NETCDF:{0}:{1}'.format(netcdfile, VarName))
-        ncd = netCDF4.Dataset(netcdfile, format='NETCDF4')
+        ncd = netCDF4.Dataset(netcdfile, format = 'NETCDF4')
         ncIris = iris.fileformats.cf.CFReader(netcdfile)
     except:
         print "Could not open input file: {0}\n".format(netcdfile)
@@ -58,17 +58,17 @@ def convert2GTiff(netcdfile, outdir, VarName):
         output_file = os.path.join(subdir, output_file)
         if os.path.exists(output_file):
             continue
-        
+
         # Create GTiff
         driver = gdal.GetDriverByName("GTiff")
-        
+
         dst_ds = driver.Create(output_file, x, y, 1, gdal.GDT_Int32)
 
         # top left x, w-e pixel resolution, rotation, top left y, rotation, n-s pixel resolution
         dst_ds.SetGeoTransform(geotransform)
-        # set the reference info 
+        # set the reference info
         dst_ds.SetProjection(projection)
-        
+
         # print raster
 
         # write the band
@@ -82,9 +82,9 @@ def readNetCDF(file):
     
     :param file:
     '''
-    
+
     try:
-        nc = netCDF4.Dataset(file, format='NETCDF4')
+        nc = netCDF4.Dataset(file, format = 'NETCDF4')
     except:
         print "Could not open input file: {0}".format(file)
         return
@@ -101,10 +101,10 @@ def readNetCDF(file):
 #     print 'wetland fraction:\n', wetland_arr
 
     # allVars = ('arid regions mask', 'topographic complexity', 'tropical forest mask', 'wetland fraction')
-    
+
     for var in nc.variables:
         try:
-            if (nc.variables[var].grid_mapping == unicode('crs') 
+            if (nc.variables[var].grid_mapping == unicode('crs')
                 and nc.variables[var].dimensions == tuple([unicode('lat'), unicode('lon')])):
                 # convert2GTiff(file, os.path.join("/home/pydev/GTiff"), str(var))
                 pass
@@ -124,7 +124,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    form = NetCdfForm(csrf_enabled=False)
+    form = NetCdfForm(csrf_enabled = False)
     path = os.path.join(root.x, "students", "mpoecht", "*.nc")
 
     netcdf_files = glob.glob(path)
@@ -142,7 +142,7 @@ def index():
     form.files.choices = filechoices
     form.variables.choices = allData[0][2]
     # return netcdfData[0].dataset_name
-    return render_template('netcdfData.html', form=form, netcdfData=netcdfData, allData=allData)
+    return render_template('netcdfData.html', form = form, netcdfData = netcdfData, allData = allData)
 
 
 @app.route('/hello')
@@ -183,7 +183,7 @@ def getTimepositions(wmsData, varName):
         return []
 
 
-@app.route('/wmsold', methods=['GET', 'POST'])
+@app.route('/wmsold', methods = ['GET', 'POST'])
 def wmsIndex():
     try:
         req_url = request.form['wmsSelect']
@@ -214,14 +214,14 @@ def wmsIndex():
                 timepositions = []
                 req_var = variablechoices[1]
                 req_time = ""
-            return render_template('wmsData.html', wmsData=wmsData,
-                                   nc_variables=variablechoices,
-                                   timepositions=timepositions,
-                                   req_url=req_url,
-                                   req_var=req_var,
-                                   req_time=req_time)
+            return render_template('wmsData.html', wmsData = wmsData,
+                                   nc_variables = variablechoices,
+                                   timepositions = timepositions,
+                                   req_url = req_url,
+                                   req_var = req_var,
+                                   req_time = req_time)
 
-    return render_template('wmsData.html', req_url=req_url)
+    return render_template('wmsData.html', req_url = req_url)
 
 @app.route('/wms')
 def wmsJS():
@@ -234,4 +234,5 @@ if __name__ == '__main__':
     # hostaddr = socket.gethostbyname(socket.gethostname())
     # local:
     # app.run(hostaddr, port=8082, debug=True)
-    app.run(debug=True)
+    app.run(debug = True)
+
