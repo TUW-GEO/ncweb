@@ -9,6 +9,9 @@ var maps = new Array();
 /** @global 
  * Stores the OpenLayers layers from pydap WMS requests */
 var mylayers = new Array();
+/** @global 
+ * Stores the Craticule layers */
+var graticule = new Array();
 
 
 /** @function
@@ -35,39 +38,44 @@ function initMap(mapId) {
     var layerOSM = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
     maps[mapId].addLayer(layerOSM);
     
-    var landwater = new OpenLayers.Layer.WMTS({
-        name: "Land / Water Map",
-        url: "https://map1c.vis.earthdata.nasa.gov/wmts-geo/wmts.cgi",
-        layer: "OSM_Land_Water_Map",
-        matrixSet: "EPSG4326_250m",
-        format: "image/png",
-        style: "",
-        transitionEffect: "resize",
-    	projection: "EPSG:4326",
-    	numZoomLevels: 9,
-    	maxResolution: 0.5625,
-    	'tileSize': new OpenLayers.Size(512, 512),
-        isBaseLayer: true
-    });  
-    var bluemarble = new OpenLayers.Layer.WMTS({
-        name: "Blue Marble",
-        url: "https://map1b.vis.earthdata.nasa.gov/wmts-geo/wmts.cgi?",
-        layer: "BlueMarble_ShadedRelief_Bathymetry",
-        matrixSet: "EPSG4326_500m",
-        format: "image/jpeg",
-        style: "",
-        transitionEffect: "resize",
-    	projection: "EPSG:4326",
-    	numZoomLevels: 9,
-    	maxResolution: 0.5625,
-    	'tileSize': new OpenLayers.Size(512, 512),
-        isBaseLayer: true
-    });  
-  
-    maps[mapId].addLayer(landwater);
-    maps[mapId].addLayer(bluemarble);
+    wms_name = "Opengeo BlueMarble";
+    wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+    wms_options = {layers:'bluemarble', tiled: true, srs:'EPSG:4326', format:'image/jpeg'};
+    var opengeo = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
+    maps[mapId].addLayer(opengeo);
+    
+    wms_name = "Opengeo OSM";
+    wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+    wms_options = {layers:'openstreetmap', tiled: true, srs:'EPSG:4326', format:'image/png'};
+    var opengeo1 = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
+    maps[mapId].addLayer(opengeo1);
+    
+    wms_name = "Opengeo Chalk";
+    wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+    wms_options = {layers:'chalk', tiled: true, srs:'EPSG:4326', format:'image/png'};
+    var opengeo2 = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
+    maps[mapId].addLayer(opengeo2);
+    
+    wms_name = "Opengeo Graphite";
+    wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+    wms_options = {layers:'graphite', tiled: true, srs:'EPSG:4326', format:'image/png'};
+    var opengeo3 = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
+    maps[mapId].addLayer(opengeo3);
+    
+    wms_name = "Opengeo Blue";
+    wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+    wms_options = {layers:'blue', tiled: true, srs:'EPSG:4326', format:'image/png'};
+    var opengeo4 = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
+    maps[mapId].addLayer(opengeo4);
     
     maps[mapId].addControl(new OpenLayers.Control.LayerSwitcher());
+    graticule[mapId] = new OpenLayers.Control.Graticule({
+        numPoints: 2, 
+        labelled: true,
+        visible: false
+    });
+    maps[mapId].addControl(graticule[mapId]);
+    maps[mapId].setLayerIndex(graticule[mapId].gratLayer,99);
     maps[mapId].zoomToMaxExtent();
     maps[mapId].zoomIn();
 }
@@ -105,6 +113,7 @@ function showWMSLayer(ncvar, time, url, cmap, mapId, targetMap) {
     $("#imgColorbar"+mapId).attr("src",getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
     $("#imgColorbar"+mapId).attr("alt","--- loading colorbar ---");
 	maps[targetMap].addLayer(mylayers[mapId]);
+	maps[targetMap].raiseLayer(graticule[targetMap].gratLayer,2);
 }
 
 /** @function
@@ -147,6 +156,8 @@ function registerLinkEvent(targetMap, sourceMap, register) {
 			maps[targetMap].moveTo(maps[sourceMap].getCenter(),maps[sourceMap].getZoom(), {
 	            dragging: true
 	        });
+			graticule[targetMap].deactivate();
+			graticule[targetMap].activate();
         }
     };
 

@@ -1,13 +1,26 @@
 /* OpenLayers Style Definitions */
 .olControlLayerSwitcher .layersDiv {
-	background-color: #DE4A18;
+	background-color: #01B6F0;
+	background-image: -moz-linear-gradient(center top , #03B8F2, #09BDF8);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#03B8F2), to(#09BDF8));
+	background-image: -webkit-linear-gradient(top, #03B8F2, #09BDF8);
+	background-image: -o-linear-gradient(#03B8F2, #09BDF8); 
+  	background-image: linear-gradient(#03B8F2, #09BDF8);
 	-moz-border-radius: 4px;
 	border-radius: 4px;
 }
 
 label.labelSpan.olButton {
 	color: #FFF;
+	float: none;
+	position: relative;
+	left: 5px;
 }
+
+input[type="checkbox"], input[type="radio"] {
+	float: left;
+}
+
 
 .map {
   width: 100%; 
