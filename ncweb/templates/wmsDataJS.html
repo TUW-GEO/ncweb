@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ol-style.css') }}" />
 	<script src="{{ url_for('static', filename='OpenLayers/OpenLayers.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/bootstrap-slider.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/dygraph-combined.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-map.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-user.js') }}"></script>
@@ -151,12 +152,18 @@
 					<div class="control-label col-sm-2" style="font-weight:bold;">Link Maps</div>
 					<div class="controls col-lg-6 col-md-7 col-sm-8">
 						<label class="checkbox-inline">
-							<input type="checkbox" id="cb_linkAB" value="linkAB" onclick="toggleMapLink('A','B')"> Link A &lt;-&gt; B
+							<input type="checkbox" id="cb_linkAB" value="linkAB" onclick="toggleMapLink('A','B')">Map A <i class="glyphicon glyphicon-link"></i> Map B
 						</label>
 					</div>
 				</div>
 				<div class="row">
-			    </div>
+					<div class="control-label col-sm-2" style="font-weight:bold;">Get Timeseries</div>
+					<div class="controls col-lg-6 col-md-7 col-sm-8">
+						<label class="checkbox-inline">
+							<input type="checkbox" id="cb_getTS" value="getTS" onclick="toggleGetTS()">activate <i class="glyphicon glyphicon-screenshot"></i>
+						</label>
+					</div>
+				</div>
 				<div class="row">
 			    </div>
 			</div>
@@ -167,10 +174,28 @@
 	<div class="well">
 		<div id="splitcontainer" class="splitcontainer">
 			<div>
+				<div style="position:relative;">
 				<div id="mapA" class="map"></div>
+				<div id="TimeSeriesContainerDiv_mapA" class="timeSeriesContainer">
+					<div class="close_Button" id="TSClose_mapA">
+						<a onclick="$('#TimeSeriesContainerDiv_mapA').hide();" href="#">X</a>
+					</div>
+					<div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapA">
+					</div>
+				</div>
+				</div>
 			</div>
-			<div>
+			<div >
+				<div style="position:relative;">
 				<div id="mapB" class="map"></div>
+				<div id="TimeSeriesContainerDiv_mapB" class="timeSeriesContainer">
+					<div class="close_Button" id="TSClose_mapB">
+						<a onclick="$('#TimeSeriesContainerDiv_mapB').hide();" href="#">X</a>
+					</div>
+					<div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapB">
+					</div>
+				</div>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -56,7 +56,7 @@ function disableMap(mapId) {
 		$('.vsplitter').hide();
 		maps['A'].setCenter(new OpenLayers.LonLat(0,0));
 		$("#btn_separateMap"+mapId).removeClass('active');
-		resize();
+		ncwebResize();
 	}
 	$("#btn_disableMap"+mapId).addClass('active');
 }
@@ -81,7 +81,7 @@ function addMapAsOverlay(mapId) {
 		$('.vsplitter').hide();
 		maps['A'].setCenter(new OpenLayers.LonLat(0,0));
 		$("#btn_separateMap"+mapId).removeClass('active');
-		resize();
+		ncwebResize();
 	}
 	// show data as overlay on mapA
 	showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], $("#cmapSelect"+mapId).val(), mapId, 'A');
@@ -106,11 +106,12 @@ function addMapSeparate(mapId) {
 	// split screen into two halves
 	$('#splitcontainer').split({orientation:'vertical', position: '50%', limit: 100});
 	$('.left_panel').width('50%');
+	//$('.right_panel').css('left','50%');
 	$('.vsplitter').css('left','50%');
 	$('.vsplitter').css('background-color','#FFF');
 	$('.vsplitter').show();
 	$('#map'+mapId).show();
-	resize();
+	ncwebResize();
 	// show data on separate map (mapId)
 	showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], $("#cmapSelect"+mapId).val(), mapId, mapId);
 	maps[mapId].setCenter(new OpenLayers.LonLat(0,0));
@@ -131,5 +132,23 @@ function toggleMapLink(mapId1, mapId2) {
 	else {
 		registerLinkEvent(mapId1,mapId2,false);
 		registerLinkEvent(mapId2,mapId1,false);
+	}
+}
+
+/** @function
+ * Handles the click event for the get timeseries checkbox
+ * @name toggleGetTS */
+function toggleGetTS() {
+	if($("#cb_getTS").is(':checked')) {
+		$('#mapA').css('cursor', 'crosshair');
+		$('#mapB').css('cursor', 'crosshair');
+		registerClickEvent('A',true);
+		registerClickEvent('B',true);
+	}
+	else {
+		$('#mapA').css('cursor', 'default');
+		$('#mapB').css('cursor', 'default');
+		registerClickEvent('A',false);
+		registerClickEvent('B',false);
 	}
 }

@@ -4,6 +4,10 @@
  */
 
 /** @global 
+ * Server URL */
+var SERVERURL = "http://127.0.0.1:8001/";
+
+/** @global 
  * Stores WMS Capabilities for currently active selections */
 var CAPABILITIES = new Array();
 
@@ -138,12 +142,29 @@ function loadTimepositions(time_ctrl, ncvar_ctrl, mapId) {
 		$(time_ctrl).attr('disabled', true);
 }
 
-function resize() {
+/** @function
+ * Resize all Map Controls on windows or div resize
+ * @name ncwebResize 
+ * There is a additional resizeDygraphs()-function in jquery.splitter-0.14.0.js to resize the dygraph div */
+function ncwebResize() {
 	resizeMapDiv('#mapA');
 	resizeMapDiv('#mapB');
 	resizeMapDiv('#splitcontainer');
 	resizeMapDiv('.left_panel');
 	resizeMapDiv('.right_panel');
+	
+	$("#TimeSeriesContainerDiv_mapA").css('top',$('#mapA').height()-210);
+	$("#TimeSeriesContainerDiv_mapB").css('top',$('#mapB').height()-210);
+	$("#TimeSeriesContainerDiv_mapA").css('width',$('#mapA').width()-10);
+	$("#TimeSeriesContainerDiv_mapB").css('width',$('#mapB').width()-20);
+	$("#TimeSeriesDiv_mapA").css('width',$('#mapA').width()-10);
+	$("#TimeSeriesDiv_mapB").css('width',$('#mapB').width()-20);
+	if(graph['A']) {
+		graph['A'].resize();
+	}
+	if(graph['B']) {
+		graph['B'].resize();
+	}
 	
 	maps['A'].updateSize();
 	maps['A'].zoomToMaxExtent();
@@ -154,14 +175,20 @@ function resize() {
 }
 
 $(document).ready(function(){
-	//Load all maps, but initially hide MapB
+	//deactivate all map options
 	$("#cb_linkAB").attr("checked", false);
+	$("#cb_getTS").attr("checked", false);
+	
+	//Initialize custom click control
+	initClickCtrl();
+	
+	//Load all maps, but initially hide MapB
 	initMap('A');
 	initMap('B');
 	$('#mapB').hide();
 	
 	$("#slider-A").slider();
-	$("#slider-Ac").val(80); //set initial value
+	$("#slider-A").val(80); //set initial value
 	$("#slider-A").on("slide", function(slideEvt) {
 		setWMSOpacity('A',slideEvt.value);
 	});
@@ -172,8 +199,8 @@ $(document).ready(function(){
 	});
 	
 	//Get Pydap handled files for requested url and add to WMS Select
-	wmsGetFileList("http://127.0.0.1:8001/");
-	resize();
-	window.onresize = resize;
+	wmsGetFileList(SERVERURL);
+	ncwebResize();
+	window.onresize = ncwebResize;
 });
 

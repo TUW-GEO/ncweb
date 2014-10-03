@@ -61,6 +61,20 @@
             splitter_id = null;
         }).insertAfter(panel_1);
         var position;
+        
+        function resizeDygraphs() {
+        	//resize ncweb dygraphs
+            if(graph['A']) {
+        		$("#TimeSeriesContainerDiv_mapA").css('width',$('#mapA').width()-10);
+        		$("#TimeSeriesDiv_mapA").css('width',$('#mapA').width()-10);
+        		graph['A'].resize();	
+        	}
+        	if(graph['B']) {
+        		$("#TimeSeriesContainerDiv_mapB").css('width',$('#mapB').width()-20);
+        		$("#TimeSeriesDiv_mapB").css('width',$('#mapB').width()-20);
+        		graph['B'].resize();
+        	}
+        }
 
         function get_position(position) {
             if (typeof position === 'number') {
@@ -270,6 +284,7 @@
                         }
                     }
                     current_splitter.settings.onDrag(e);
+                    resizeDygraphs();
                 }
             });
         }
