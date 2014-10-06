@@ -137,7 +137,10 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 		var layer = map.Capabilities.capability.layers[ncvar];
 		if (layer && layer.dimensions.time) {
 			for (var t in layer.dimensions.time.values) {
-				var o = new Option(layer.dimensions.time.values[t], layer.dimensions.time.values[t]);
+				/*var date = new Date(layer.dimensions.time.values[t]);
+				var utcdate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 
+						date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());*/
+				var o = new Option(layer.dimensions.time.values[t],layer.dimensions.time.values[t]);
 				$(o).html(layer.dimensions.time.values[t]);
 				$(time_ctrl).append(o);
 			}

@@ -107,33 +107,16 @@ IPFMap.prototype.initMap = function() {
 	    		dataType: "json",
 	    		success: function(json) {
 	    			$('#TimeSeriesContainerDiv_map'+source.MapName).show();
-	    			var mydata_test = [[new Date('1979/11/01 00:00:00'), 45.25], [new Date('1980/11/01 00:00:00'), 42.75], 
-	    			              [new Date('1981/11/01 00:00:00'), 47.5], [new Date('1982/11/01 00:00:00'), 47.75], 
-	    			              [new Date('1983/11/01 00:00:00'), 48.5], [new Date('1984/11/01 00:00:00'), 43.25], 
-	    			              [new Date('1985/11/01 00:00:00'), 48.0], [new Date('1986/11/01 00:00:00'), 38.0],
-	    			              [new Date('1987/11/01 00:00:00'), 50.5], [new Date('1988/11/01 00:00:00'), 56.25], 
-	    			              [new Date('1989/11/01 00:00:00'), 48.25], [new Date('1990/11/01 00:00:00'), 35.0], 
-	    			              [new Date('1991/11/01 00:00:00'), 99.0], [new Date('1992/11/01 00:00:00'), 104.25], 
-	    			              [new Date('1993/11/01 00:00:00'), 130.0], [new Date('1994/11/01 00:00:00'), 178.0], 
-	    			              [new Date('1995/11/01 00:00:00'), 158.75], [new Date('1996/11/01 00:00:00'), 147.75], 
-	    			              [new Date('1997/11/01 00:00:00'), 146.0], [new Date('1998/11/01 00:00:00'), 141.75], 
-	    			              [new Date('1999/11/01 00:00:00'), 136.75], [new Date('2000/11/01 00:00:00'), 101.75], 
-	    			              [new Date('2001/11/01 00:00:00'), 51.25], [new Date('2002/11/01 00:00:00'), 147.75], 
-	    			              [new Date('2003/11/01 00:00:00'), 207.0], [new Date('2004/11/01 00:00:00'), 207.75], 
-	    			              [new Date('2005/11/01 00:00:00'), 209.0], [new Date('2006/11/01 00:00:00'), 203.5], 
-	    			              [new Date('2007/11/01 00:00:00'), 284.0], [new Date('2008/11/01 00:00:00'), 290.75], 
-	    			              [new Date('2009/11/01 00:00:00'), 284.25], [new Date('2010/11/01 00:00:00'), 284.25], 
-	    			              [new Date('2011/11/01 00:00:00'), 277.5], [new Date('2012/11/01 00:00:00'), 236.0], 
-	    			              [new Date('2013/11/01 00:00:00'), 227.5]];
 	    			
 	    			var mydata = new Array();
 	    			for (var i in json.data) {
-	    				mydata[i]=[new Date(json.data[0][0]),parseFloat(json.data[0][1])];
+	    				var date = new Date(json.data[i][0]);
+	    				mydata[i]=[date,parseFloat(json.data[i][1])];
 	    			}
 	    			
 	    			source.DyGraph = new Dygraph(
     				    // containing div
-	    				document.getElementById("TimeSeriesDiv_map"+source.MapName), mydata_test,
+	    				document.getElementById("TimeSeriesDiv_map"+source.MapName), mydata,
     				    {
     						labels: json.labels,
     						
@@ -144,7 +127,7 @@ IPFMap.prototype.initMap = function() {
     						//changes time to clicked time
     						clickCallback:function(response,x,point){
     							//_self.clicked(response,x,point,_self);   
-    							alert(response+", "+x+", "+point);
+    							source.setTimePosition(x);
 					    	},
 					    	//errorBars: true,
 					    	axisLabelFontSize:10,  
@@ -167,6 +150,22 @@ IPFMap.prototype.initMap = function() {
  * @param {int} value - Opacity (0-100) */
 IPFMap.prototype.setWMSOpacity = function(value) {
 	this.WmsLayer.setOpacity(value/100);
+}
+
+/** @function
+ * Set the time position select control
+ * @name setWMSOpacity
+ * @param {Date} date - Set the new date */
+IPFMap.prototype.setTimePosition = function(date) {
+	date = new Date(date);
+	var datestr = date.getFullYear()+"-"+(date.getMonth() < 9 ? '0' : '')+
+	(date.getMonth()+1)+"-"+(date.getDate() < 10 ? '0' : '')+date.getDate()+"T"+
+	(date.getHours() < 10 ? '0' : '')+date.getHours()+":"+
+	(date.getMinutes() < 10 ? '0' : '')+date.getMinutes()+":"+
+	(date.getSeconds() < 10 ? '0' : '')+date.getSeconds();
+	
+	$("#timeSelect"+this.MapName+" option[value='"+datestr+"']").prop("selected", true);
+	timeChanged(this.MapName);
 }
 
 /** @function
