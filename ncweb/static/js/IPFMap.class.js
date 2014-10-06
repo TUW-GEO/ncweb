@@ -1,97 +1,100 @@
 /**
- * @file Manages the OpenLayers Objects and map changes
+ * @file Manages the OpenLayers Objects, WMSCapabilities and map changes
  * @author Markus Pöchtrager
  */
-
-/** @global 
- * Stores OpenLayers Map Objects */
-var maps = new Array();
-/** @global 
- * Stores the OpenLayers layers from pydap WMS requests */
-var mylayers = new Array();
-/** @global 
- * Stores the Craticule layers */
-var graticule = new Array();
-/** @global 
- * Stores the Click Controls for the maps */
-var clickCtrl = new Array();
-/** @global 
- * Stores the Dygraph Objects */
-var graph = new Array();
-
-
+function IPFMap(Name, Div){
+	
+	this.Projection = new OpenLayers.Projection("EPSG:4326");
+    
+	// OpenLayers map object
+    this.Map = null;
+    
+    // Map Name A,B,..
+    this.MapName = Name;
+    
+    // Id of the Map Div
+    this.MapDivId = Div
+	
+	// Stores the OpenLayers layers from pydap WMS requests 
+	this.WmsLayer = null;
+	
+	// WMS Capabilities
+	this.Capabilities = "";
+	
+	// Stores the Craticule layers 
+	this.Graticule = null;
+	
+	// Stores the Click Controls for the maps
+	this.ClickCtrl = null;
+	
+	// Stores the Dygraph Objects 
+	this.DyGraph = null;
+}
 
 /** @function
- * Create map object and load base layers
- * @name initMap
- * @param {string} mapId - Defines the map */
-function initMap(mapId) {
-	var geographic = new OpenLayers.Projection("EPSG:4326");
-	var mercator = new OpenLayers.Projection("EPSG:900913");
-	
-	var options = {
-            projection: mercator,
-            displayProjection: geographic,
-            units: 'degrees'
-    };
+ * Create map object and load base layers, graticule and click control
+ * @name initMap */
+IPFMap.prototype.initMap = function() {
+	// new map object
+    this.Map = new OpenLayers.Map("map"+this.MapName,{projection: this.Projection});
     
-	// create map object
-    maps[mapId] = new OpenLayers.Map('map'+mapId,{projection: geographic});
-    
-    // wms simple base layer
+    // Add some base layer
     var wms_name = "OSM-WMS worldwide";
     var wms_url = "http://129.206.228.72/cached/osm?";
     var wms_options = {layers:'osm_auto:all', srs:'EPSG:900913', format:'image/png'};
     var layerOSM = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
-    maps[mapId].addLayer(layerOSM);
+    this.Map.addLayer(layerOSM);
     
     wms_name = "Opengeo BlueMarble";
     wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
     wms_options = {layers:'bluemarble', tiled: true, srs:'EPSG:4326', format:'image/jpeg'};
     var opengeo = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
-    maps[mapId].addLayer(opengeo);
+    this.Map.addLayer(opengeo);
     
     wms_name = "Opengeo OSM";
     wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
     wms_options = {layers:'openstreetmap', tiled: true, srs:'EPSG:4326', format:'image/png'};
     var opengeo1 = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
-    maps[mapId].addLayer(opengeo1);
+    this.Map.addLayer(opengeo1);
     
     wms_name = "Opengeo Chalk";
     wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
     wms_options = {layers:'chalk', tiled: true, srs:'EPSG:4326', format:'image/png'};
     var opengeo2 = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
-    maps[mapId].addLayer(opengeo2);
+    this.Map.addLayer(opengeo2);
     
     wms_name = "Opengeo Graphite";
     wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
     wms_options = {layers:'graphite', tiled: true, srs:'EPSG:4326', format:'image/png'};
     var opengeo3 = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
-    maps[mapId].addLayer(opengeo3);
+    this.Map.addLayer(opengeo3);
     
     wms_name = "Opengeo Blue";
     wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
     wms_options = {layers:'blue', tiled: true, srs:'EPSG:4326', format:'image/png'};
     var opengeo4 = new OpenLayers.Layer.WMS( wms_name , wms_url , wms_options,{'buffer':1, transitionEffect:'resize', removeBackBufferDelay:0, className:'olLayerGridCustom'});
-    maps[mapId].addLayer(opengeo4);
+    this.Map.addLayer(opengeo4);
     
-    maps[mapId].addControl(new OpenLayers.Control.LayerSwitcher());
-    graticule[mapId] = new OpenLayers.Control.Graticule({
+    // Add Layer Switcher Control
+    this.Map.addControl(new OpenLayers.Control.LayerSwitcher());
+    // Initialise the graticule
+    this.Graticule = new OpenLayers.Control.Graticule({
         numPoints: 2, 
         labelled: true,
         visible: false
     });
-    maps[mapId].addControl(graticule[mapId]);
-    maps[mapId].setLayerIndex(graticule[mapId].gratLayer,99);
-    maps[mapId].zoomToMaxExtent();
-    maps[mapId].zoomIn();
+    this.Map.addControl(this.Graticule);
+    this.Map.setLayerIndex(this.Graticule.gratLayer,99);
+    this.Map.zoomToMaxExtent();
+    this.Map.zoomIn();
     
-    
-    clickCtrl[mapId] = new OpenLayers.Control.Click({
+    var source = this;
+    // Initialise ClickControl
+    this.ClickCtrl = new OpenLayers.Control.Click({
     	trigger: function(e) {
-	    	var lonlat = maps[mapId].getLonLatFromPixel(e.xy);
-	    	var ncvar = CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name;
-	    	var wmsurl = $("#wmsSelect"+mapId).val().split("?")[0];
+	    	var lonlat = source.Map.getLonLatFromPixel(e.xy);
+	    	var ncvar = source.Capabilities.capability.layers[$("#ncvarSelect"+source.MapName).val()].name;
+	    	var wmsurl = $("#wmsSelect"+source.MapName).val().split("?")[0];
 	    	var bboxstring = (lonlat.lon-0.00001).toString()+","+(lonlat.lat-0.00001).toString()+","+(lonlat.lon+0.00001).toString()+","+(lonlat.lat+0.00001).toString();
 	    	$.ajax({
 	            type: "GET",
@@ -103,7 +106,7 @@ function initMap(mapId) {
 	    		},
 	    		dataType: "json",
 	    		success: function(json) {
-	    			$('#TimeSeriesContainerDiv_map'+mapId).show();
+	    			$('#TimeSeriesContainerDiv_map'+source.MapName).show();
 	    			var mydata_test = [[new Date('1979/11/01 00:00:00'), 45.25], [new Date('1980/11/01 00:00:00'), 42.75], 
 	    			              [new Date('1981/11/01 00:00:00'), 47.5], [new Date('1982/11/01 00:00:00'), 47.75], 
 	    			              [new Date('1983/11/01 00:00:00'), 48.5], [new Date('1984/11/01 00:00:00'), 43.25], 
@@ -128,9 +131,9 @@ function initMap(mapId) {
 	    				mydata[i]=[new Date(json.data[0][0]),parseFloat(json.data[0][1])];
 	    			}
 	    			
-	    			graph[mapId] = new Dygraph(
+	    			source.DyGraph = new Dygraph(
     				    // containing div
-	    				document.getElementById("TimeSeriesDiv_map"+mapId), mydata_test,
+	    				document.getElementById("TimeSeriesDiv_map"+source.MapName), mydata_test,
     				    {
     						labels: json.labels,
     						
@@ -161,10 +164,9 @@ function initMap(mapId) {
 /** @function
  * Change the opacity for the wms layer
  * @name setWMSOpacity
- * @param {string} mapId - Defines the map, where to change the layer opacity
  * @param {int} value - Opacity (0-100) */
-function setWMSOpacity(mapId, value) {
-	mylayers[mapId].setOpacity(value/100);
+IPFMap.prototype.setWMSOpacity = function(value) {
+	this.WmsLayer.setOpacity(value/100);
 }
 
 /** @function
@@ -174,73 +176,61 @@ function setWMSOpacity(mapId, value) {
  * @param {string} time - Time position (TIME) for the WMS request
  * @param {string} url - WMS Url (NetCDF File)
  * @param {string} cmap - ColorMap for the WMS request
- * @param {string} mapId - Defines the map tab where the data are from
- * @param {string} targetMap - Target Map, where to (re-)draw the data */
-function showWMSLayer(ncvar, time, url, cmap, mapId, targetMap) {	
-	removeWMSLayer(mapId,targetMap);
+ * @param {IPFMap} targetMap - Target Map, where to (re-)draw the data */
+IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap) {	
+	this.removeWMSLayer(targetMap);
 	var getmapurl = url+"?LAYERS="+ncvar+"&cmap="+cmap;
 	if (time != null) // if there are time positions, add time property
 		getmapurl += "&TIME="+time;
-	mylayers[mapId] = new OpenLayers.Layer.WMS('Pydap WMS Layer - Map '+mapId, getmapurl,
+	this.WmsLayer = new OpenLayers.Layer.WMS('Pydap WMS Layer - Map '+this.MapName, getmapurl,
     		{layers: ncvar, TRANSPARENT: true},
             {isBaseLayer: false}
     	);
-	mylayers[mapId].setOpacity($("#slider-"+mapId).val()/100);
-	mylayers[mapId].setVisibility(true);
+	this.WmsLayer.setOpacity($("#slider-"+this.MapName).val()/100);
+	this.WmsLayer.setVisibility(true);
     
-    $("#imgColorbar"+mapId).attr("src",getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
-    $("#imgColorbar"+mapId).attr("alt","--- loading colorbar ---");
-	maps[targetMap].addLayer(mylayers[mapId]);
-	maps[targetMap].raiseLayer(graticule[targetMap].gratLayer,2);
+    $("#imgColorbar"+this.MapName).attr("src",getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
+    $("#imgColorbar"+this.MapName).attr("alt","--- loading colorbar ---");
+	targetMap.Map.addLayer(this.WmsLayer);
+	targetMap.Map.raiseLayer(targetMap.Graticule.gratLayer,2);
 }
 
 /** @function
  * Remove the pydap wms layer from the map
  * @name removeWMSLayer
- * @param {string} mapId - Defines the map tab where the data are from
- * @param {string} targetMap - Target Map, where to remove the data */
-function removeWMSLayer(mapId,targetMap) {
-	if (maps[targetMap].getLayersByName('Pydap WMS Layer - Map '+mapId).length>0) {
-		maps[targetMap].removeLayer(maps[targetMap].getLayersByName('Pydap WMS Layer - Map '+mapId)[0]);
+ * @param {IPFMap} targetMap - Target Map, where to remove the data */
+IPFMap.prototype.removeWMSLayer = function(targetMap) {
+	if (targetMap.Map.getLayersByName('Pydap WMS Layer - Map '+this.MapName).length>0) {
+		targetMap.Map.removeLayer(targetMap.Map.getLayersByName('Pydap WMS Layer - Map '+this.MapName)[0]);
 	}
-}
-
-/** @function
- * Resize the map divs to make the document fit 100% (height)
- * @name resizeMapDiv
- * @param {string} divId - the div to resize */
-function resizeMapDiv(divId) {
-	var div = $(divId);
-	div.height(($(window).height() - $('#map-controls').height() - $('#footer').height() - $('.navbar').height() -100)
-	);
 }
 
 /** @function
  * Link or unlink two maps
  * @name registerLinkEvent
- * @param {string} targetMap - Gets moved if source map is moved
- * @param {string} sourceMap - Source map
+ * @param {IPFMap} targetMap - Gets moved if source map is moved
  * @param {boolean} register - Register or unregister event
  *  */
-function registerLinkEvent(targetMap, sourceMap, register) {
+IPFMap.prototype.registerLinkEvent = function(targetMap, register) {
+	var sourceMap = this;
 	var syncMapHandler = function() {
-		var targetCenter = maps[targetMap].getCenter();
-        var sourceCenter = maps[sourceMap].getCenter();
-        var targetZoom = maps[targetMap].getZoom();
-        var sourceZoom = maps[sourceMap].getZoom();
+		var targetCenter = targetMap.Map.getCenter();
+        var sourceCenter = sourceMap.Map.getCenter();
+        var targetZoom = targetMap.Map.getZoom();
+        var sourceZoom = sourceMap.Map.getZoom();
 
         var coordsChanged = ((targetCenter.lat !== sourceCenter.lat) || (targetCenter.lon !== sourceCenter.lon));
         if (coordsChanged || targetZoom !== sourceZoom) {
-			maps[targetMap].moveTo(maps[sourceMap].getCenter(),maps[sourceMap].getZoom(), {
+			targetMap.Map.moveTo(sourceMap.Map.getCenter(),sourceMap.Map.getZoom(), {
 	            dragging: true
 	        });
-			graticule[targetMap].deactivate();
-			graticule[targetMap].activate();
+			targetMap.Graticule.deactivate();
+			targetMap.Graticule.activate();
         }
     };
 
     if (register) {
-	    maps[sourceMap].events.on({
+	    this.Map.events.on({
 	        'move': syncMapHandler,
 	        'zoomend': syncMapHandler,
 	        scope: this
@@ -249,16 +239,33 @@ function registerLinkEvent(targetMap, sourceMap, register) {
     }
     else {
     	//TODO: Problem when more than 2 maps
-    	maps[sourceMap].events.remove('move');
-    	maps[sourceMap].events.remove('zoomend');
+    	this.Map.events.remove('move');
+    	this.Map.events.remove('zoomend');
     }
 }
 
 /** @function
- * Initialises the Click Control for Time Series
+ * Click Event for Time Series
  * @name registerClickEvent
- * @param {string} mapId - map where to handle the event
  * @param {boolean} register - Register or unregister event
+ *  */
+IPFMap.prototype.registerClickEvent = function(register) {
+    if (register) {
+        this.Map.addControl(this.ClickCtrl);
+        if(!this.ClickCtrl.active)
+        	this.ClickCtrl.activate();
+    }
+    else {
+    	this.Map.removeControl(this.ClickCtrl);
+    	if(this.ClickCtrl.active)
+    		this.ClickCtrl.deactivate();
+    }
+}
+
+
+/** @function
+ * Initialises the Click Control for Time Series
+ * @name initClickCtrl
  *  */
 function initClickCtrl() {
 	OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
@@ -284,23 +291,4 @@ function initClickCtrl() {
             );
         }
     });
-}
-
-/** @function
- * Click Event for Time Series
- * @name registerClickEvent
- * @param {string} mapId - map where to handle the event
- * @param {boolean} register - Register or unregister event
- *  */
-function registerClickEvent(mapId, register) {
-    if (register) {
-        maps[mapId].addControl(clickCtrl[mapId]);
-        if(!clickCtrl[mapId].active)
-        	clickCtrl[mapId].activate();
-    }
-    else {
-    	maps[mapId].removeControl(clickCtrl[mapId]);
-    	if(clickCtrl[mapId].active)
-    		clickCtrl[mapId].deactivate();
-    }
 }

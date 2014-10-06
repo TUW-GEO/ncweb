@@ -8,7 +8,7 @@
  * @name wmsChanged
  * @param {string} mapId - Defines the map */
 function wmsChanged(mapId) {
-	wmsGetCapabilities(mapId);
+	IPFDV.GetWMSCapabilities(IPFDV.maps[mapId]);
 }
 
 /** @function
@@ -16,7 +16,7 @@ function wmsChanged(mapId) {
  * @name ncvarChanged
  * @param {string} mapId - Defines the map */
 function ncvarChanged(mapId) {
-	loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, mapId);
+	IPFDV.loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, IPFDV.maps[mapId]);
 	showLayerOnMap(mapId);
 }
 
@@ -25,7 +25,7 @@ function ncvarChanged(mapId) {
  * @name timeChanged
  * @param {string} mapId - Defines the map */
 function timeChanged(mapId) {
-	showLayerOnMap(mapId);
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId]);
 }
 
 /** @function
@@ -33,7 +33,7 @@ function timeChanged(mapId) {
  * @name cmapChanged
  * @param {string} mapId - Defines the map */
 function cmapChanged(mapId) {
-	showLayerOnMap(mapId);
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId]);
 }
 
 /** @function
@@ -45,7 +45,7 @@ function disableMap(mapId) {
 		return;
 	}
 	if ($("#btn_overlayMap"+mapId).hasClass('active')) {
-		removeWMSLayer(mapId, 'A');
+		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']); //Remove map on target map A
 		$("#btn_overlayMap"+mapId).removeClass('active');
 	}
 	if ($("#btn_separateMap"+mapId).hasClass('active')) {
@@ -54,9 +54,9 @@ function disableMap(mapId) {
 		$('.left_panel').width('100%');
 		$('.vsplitter').css('left','100%');
 		$('.vsplitter').hide();
-		maps['A'].setCenter(new OpenLayers.LonLat(0,0));
+		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
 		$("#btn_separateMap"+mapId).removeClass('active');
-		ncwebResize();
+		IPFDV.ncwebResize();
 	}
 	$("#btn_disableMap"+mapId).addClass('active');
 }
@@ -79,12 +79,14 @@ function addMapAsOverlay(mapId) {
 		$('.left_panel').width('100%');
 		$('.vsplitter').css('left','100%');
 		$('.vsplitter').hide();
-		maps['A'].setCenter(new OpenLayers.LonLat(0,0));
+		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
 		$("#btn_separateMap"+mapId).removeClass('active');
-		ncwebResize();
+		IPFDV.ncwebResize();
 	}
 	// show data as overlay on mapA
-	showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], $("#cmapSelect"+mapId).val(), mapId, 'A');
+	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
+			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
+			$("#cmapSelect"+mapId).val(), IPFDV.maps['A']);
 	$("#btn_overlayMap"+mapId).addClass('active');
 }
 
@@ -97,7 +99,7 @@ function addMapSeparate(mapId) {
 		return;
 	}
 	if ($("#btn_overlayMap"+mapId).hasClass('active')) {
-		removeWMSLayer(mapId, 'A');
+		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']);
 		$("#btn_overlayMap"+mapId).removeClass('active');
 	}
 	if ($("#btn_disableMap"+mapId).hasClass('active')) {
@@ -111,11 +113,13 @@ function addMapSeparate(mapId) {
 	$('.vsplitter').css('background-color','#FFF');
 	$('.vsplitter').show();
 	$('#map'+mapId).show();
-	ncwebResize();
+	IPFDV.ncwebResize();
 	// show data on separate map (mapId)
-	showWMSLayer(CAPABILITIES[mapId].capability.layers[$("#ncvarSelect"+mapId).val()].name, $("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], $("#cmapSelect"+mapId).val(), mapId, mapId);
-	maps[mapId].setCenter(new OpenLayers.LonLat(0,0));
-	maps['A'].setCenter(new OpenLayers.LonLat(0,0));
+	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
+			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
+			$("#cmapSelect"+mapId).val(), IPFDV.maps[mapId]);
+	IPFDV.maps[mapId].Map.setCenter(new OpenLayers.LonLat(0,0));
+	IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
 	$("#btn_separateMap"+mapId).addClass('active');
 }
 
@@ -126,12 +130,12 @@ function addMapSeparate(mapId) {
  * @param {string} mapId2 - Defines the source map */
 function toggleMapLink(mapId1, mapId2) {
 	if($("#cb_linkAB").is(':checked')) {
-		registerLinkEvent(mapId2,mapId1,true);
-		registerLinkEvent(mapId1,mapId2,true);
+		IPFDV.maps[mapId1].registerLinkEvent(IPFDV.maps[mapId2],true);
+		IPFDV.maps[mapId2].registerLinkEvent(IPFDV.maps[mapId1],true);
 	}
 	else {
-		registerLinkEvent(mapId1,mapId2,false);
-		registerLinkEvent(mapId2,mapId1,false);
+		IPFDV.maps[mapId1].registerLinkEvent(IPFDV.maps[mapId2],false);
+		IPFDV.maps[mapId2].registerLinkEvent(IPFDV.maps[mapId1],false);
 	}
 }
 
@@ -142,13 +146,13 @@ function toggleGetTS() {
 	if($("#cb_getTS").is(':checked')) {
 		$('#mapA').css('cursor', 'crosshair');
 		$('#mapB').css('cursor', 'crosshair');
-		registerClickEvent('A',true);
-		registerClickEvent('B',true);
+		IPFDV.maps['A'].registerClickEvent(true);
+		IPFDV.maps['B'].registerClickEvent(true);
 	}
 	else {
 		$('#mapA').css('cursor', 'default');
 		$('#mapB').css('cursor', 'default');
-		registerClickEvent('A',false);
-		registerClickEvent('B',false);
+		IPFDV.maps['A'].registerClickEvent(false);
+		IPFDV.maps['B'].registerClickEvent(false);
 	}
 }

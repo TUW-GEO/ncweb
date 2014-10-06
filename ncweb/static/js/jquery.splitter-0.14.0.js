@@ -64,15 +64,15 @@
         
         function resizeDygraphs() {
         	//resize ncweb dygraphs
-            if(graph['A']) {
-        		$("#TimeSeriesContainerDiv_mapA").css('width',$('#mapA').width()-10);
-        		$("#TimeSeriesDiv_mapA").css('width',$('#mapA').width()-10);
-        		graph['A'].resize();	
+            if(IPFDV.maps.A.DyGraph) {
+        		$("#TimeSeriesContainerDiv_mapA").css('width',$(IPFDV.maps.A.MapDivId).width()-10);
+        		$("#TimeSeriesDiv_mapA").css('width',$(IPFDV.maps.A.MapDivId).width()-10);
+        		IPFDV.maps.A.DyGraph.resize();	
         	}
-        	if(graph['B']) {
-        		$("#TimeSeriesContainerDiv_mapB").css('width',$('#mapB').width()-20);
-        		$("#TimeSeriesDiv_mapB").css('width',$('#mapB').width()-20);
-        		graph['B'].resize();
+        	if(IPFDV.maps.B.DyGraph) {
+        		$("#TimeSeriesContainerDiv_mapB").css('width',$(IPFDV.maps.B.MapDivId).width()-20);
+        		$("#TimeSeriesDiv_mapB").css('width',$(IPFDV.maps.B.MapDivId).width()-20);
+        		IPFDV.maps.B.DyGraph.resize();
         	}
         }
 
