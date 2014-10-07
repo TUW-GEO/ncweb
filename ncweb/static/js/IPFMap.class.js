@@ -107,9 +107,12 @@ IPFMap.prototype.initMap = function() {
 /** @function
  * Change the opacity for the wms layer
  * @name setWMSOpacity
+ * @param {IPFMap} source - Map where to change opacity
  * @param {int} value - Opacity (0-100) */
-IPFMap.prototype.setWMSOpacity = function(value) {
-	this.WmsLayer.setOpacity(value/100);
+IPFMap.prototype.setWMSOpacity = function(source, value) {
+	if(source.WmsLayer) {
+		source.WmsLayer.setOpacity(value/100);
+	}
 }
 
 /** @function

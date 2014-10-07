@@ -23,15 +23,16 @@ function IPFDataViewer(serverurl) {
 	this.maps.B.initMap();
 	$('#mapB').hide();
 	
+	var source = this;
 	$("#slider-A").slider();
 	$("#slider-A").val(80); //set initial value
 	$("#slider-A").on("slide", function(slideEvt) {
-		this.maps.A.setWMSOpacity(slideEvt.value);
+		source.maps.A.setWMSOpacity(source.maps.A, slideEvt.value);
 	});
 	$("#slider-B").slider();
 	$("#slider-B").val(80); //set initial value
 	$("#slider-B").on("slide", function(slideEvt) {
-		this.maps.B.setWMSOpacity(slideEvt.value);
+		source.maps.B.setWMSOpacity(source.maps.B, slideEvt.value);
 	});
 	
 	//Get Pydap handled files for requested url and add to WMS Select
