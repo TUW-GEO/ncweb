@@ -7,18 +7,18 @@ import netCDF4
 import glob
 from osgeo import gdal
 import datetime
-import iris.fileformats
 from owslib.wms import WebMapService
 import urllib2
 
 
 class NetCdfForm(Form):
-    variables = SelectField('variables', choices = [])
-    files = SelectField('files', choices = [])
+    variables = SelectField('variables', choices=[])
+    files = SelectField('files', choices=[])
+
 
 def convert2GTiff(netcdfile, outdir, VarName):
     '''
-    
+
     :param netcdfile:
     :param outdir:
     :param VarName:
@@ -26,8 +26,7 @@ def convert2GTiff(netcdfile, outdir, VarName):
 
     try:
         nci = gdal.Open('NETCDF:{0}:{1}'.format(netcdfile, VarName))
-        ncd = netCDF4.Dataset(netcdfile, format = 'NETCDF4')
-        ncIris = iris.fileformats.cf.CFReader(netcdfile)
+        ncd = netCDF4.Dataset(netcdfile, format='NETCDF4')
     except:
         print "Could not open input file: {0}\n".format(netcdfile)
         return
@@ -51,7 +50,8 @@ def convert2GTiff(netcdfile, outdir, VarName):
         raster = band.ReadAsArray()
         y, x = raster.shape
 
-        output_file = "{0}_{1}.tif".format(VarName, datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+        output_file = "{0}_{1}.tif".format(
+            VarName, datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
         subdir = os.path.join(outdir, VarName)
         if not os.path.exists(subdir):
             os.mkdir(subdir)
@@ -64,7 +64,8 @@ def convert2GTiff(netcdfile, outdir, VarName):
 
         dst_ds = driver.Create(output_file, x, y, 1, gdal.GDT_Int32)
 
-        # top left x, w-e pixel resolution, rotation, top left y, rotation, n-s pixel resolution
+        # top left x, w-e pixel resolution, rotation, top left y, rotation, n-s
+        # pixel resolution
         dst_ds.SetGeoTransform(geotransform)
         # set the reference info
         dst_ds.SetProjection(projection)
@@ -77,14 +78,15 @@ def convert2GTiff(netcdfile, outdir, VarName):
 
         dst_ds = None
 
+
 def readNetCDF(file):
     '''
-    
+
     :param file:
     '''
 
     try:
-        nc = netCDF4.Dataset(file, format = 'NETCDF4')
+        nc = netCDF4.Dataset(file, format='NETCDF4')
     except:
         print "Could not open input file: {0}".format(file)
         return
@@ -105,7 +107,7 @@ def readNetCDF(file):
     for var in nc.variables:
         try:
             if (nc.variables[var].grid_mapping == unicode('crs')
-                and nc.variables[var].dimensions == tuple([unicode('lat'), unicode('lon')])):
+                    and nc.variables[var].dimensions == tuple([unicode('lat'), unicode('lon')])):
                 # convert2GTiff(file, os.path.join("/home/pydev/GTiff"), str(var))
                 pass
         except:
@@ -122,9 +124,10 @@ def readNetCDF(file):
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def index():
-    form = NetCdfForm(csrf_enabled = False)
+    form = NetCdfForm(csrf_enabled=False)
     path = os.path.join(root.x, "students", "mpoecht", "*.nc")
 
     netcdf_files = glob.glob(path)
@@ -142,7 +145,7 @@ def index():
     form.files.choices = filechoices
     form.variables.choices = allData[0][2]
     # return netcdfData[0].dataset_name
-    return render_template('netcdfData.html', form = form, netcdfData = netcdfData, allData = allData)
+    return render_template('netcdfData.html', form=form, netcdfData=netcdfData, allData=allData)
 
 
 @app.route('/hello')
@@ -153,7 +156,7 @@ def hello():
 def wmsRequest(req_url):
     '''
     Returns the WMS Response and the netcdf Variables for a requested url
-    :param req_url:    WMS Request URL - 
+    :param req_url:    WMS Request URL -
                         e.g. http://pydap-file-url.wms?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.1.1'
     '''
     wmsData = WebMapService(req_url)
@@ -162,8 +165,10 @@ def wmsRequest(req_url):
     variablechoices = []
     try:
         for variable in wmsData.contents:
-            # Append the choice in a form, that the <select> option can handle it (id, name, value)
-            variablechoices.append((str(i), variable.encode('ascii', 'ignore'), wmsData.contents[variable].title))
+            # Append the choice in a form, that the <select> option can handle
+            # it (id, name, value)
+            variablechoices.append(
+                (str(i), variable.encode('ascii', 'ignore'), wmsData.contents[variable].title))
             i += 1
     except:
         pass
@@ -183,7 +188,7 @@ def getTimepositions(wmsData, varName):
         return []
 
 
-@app.route('/wmsold', methods = ['GET', 'POST'])
+@app.route('/wmsold', methods=['GET', 'POST'])
 def wmsIndex():
     try:
         req_url = request.form['wmsSelect']
@@ -191,37 +196,39 @@ def wmsIndex():
         req_url = ""
 
     if request.method == 'POST' and req_url != "":
-            wmsData, variablechoices = wmsRequest(request.form['wmsSelect'])
-            if len(variablechoices) > 0:
-                req_var = variablechoices[0][1]
-                if request.form['changedCtrl'] != 'wmsSelect':
+        wmsData, variablechoices = wmsRequest(request.form['wmsSelect'])
+        if len(variablechoices) > 0:
+            req_var = variablechoices[0][1]
+            if request.form['changedCtrl'] != 'wmsSelect':
+                try:
+                    req_var = request.form['ncvarSelect']
+                except:
+                    req_var = variablechoices[0][1]
+            timepositions = getTimepositions(wmsData, req_var)
+            if timepositions and len(timepositions) > 0:
+                req_time = timepositions[0]
+                if request.form['changedCtrl'] not in ('wmsSelect', 'ncvarSelect'):
                     try:
-                        req_var = request.form['ncvarSelect']
+                        req_time = request.form['timeSelect']
                     except:
-                        req_var = variablechoices[0][1]
-                timepositions = getTimepositions(wmsData, req_var)
-                if timepositions and len(timepositions) > 0:
-                    req_time = timepositions[0]
-                    if request.form['changedCtrl'] not in ('wmsSelect', 'ncvarSelect'):
-                        try:
-                            req_time = request.form['timeSelect']
-                        except:
-                            req_time = timepositions[0]
-                else:
-                    req_time = ""
+                        req_time = timepositions[0]
             else:
-                variablechoices = (0, 'noVarFound', 'WMS Response doesn\'t contain any variables')
-                timepositions = []
-                req_var = variablechoices[1]
                 req_time = ""
-            return render_template('wmsData.html', wmsData = wmsData,
-                                   nc_variables = variablechoices,
-                                   timepositions = timepositions,
-                                   req_url = req_url,
-                                   req_var = req_var,
-                                   req_time = req_time)
+        else:
+            variablechoices = (
+                0, 'noVarFound', 'WMS Response doesn\'t contain any variables')
+            timepositions = []
+            req_var = variablechoices[1]
+            req_time = ""
+        return render_template('wmsData.html', wmsData=wmsData,
+                               nc_variables=variablechoices,
+                               timepositions=timepositions,
+                               req_url=req_url,
+                               req_var=req_var,
+                               req_time=req_time)
 
-    return render_template('wmsData.html', req_url = req_url)
+    return render_template('wmsData.html', req_url=req_url)
+
 
 @app.route('/wms')
 def wmsJS():
@@ -234,5 +241,4 @@ if __name__ == '__main__':
     # hostaddr = socket.gethostbyname(socket.gethostname())
     # local:
     # app.run(hostaddr, port=8082, debug=True)
-    app.run(debug = True)
-
+    app.run(debug=True)
