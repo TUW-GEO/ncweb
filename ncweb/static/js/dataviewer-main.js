@@ -8,5 +8,7 @@ var IPFDV = null;
 
 $(document).ready(function(){
 	IPFDV = new IPFDataViewer(SERVERURL);
-	window.onresize = IPFDV.ncwebResize;
+	window.onresize = function(){
+		IPFDV.ncwebResize();
+	}
 });

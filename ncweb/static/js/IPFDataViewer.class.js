@@ -47,6 +47,7 @@ function IPFDataViewer(serverurl) {
 IPFDataViewer.prototype.GetWMSFileList = function(url) {
 	var mapA = this.maps["A"];
 	var mapB = this.maps["B"];
+	var ipfdv = this;
 	$.ajax({
         type: "GET",
 		url: url+"?REQUEST=GetFileList",
@@ -62,8 +63,8 @@ IPFDataViewer.prototype.GetWMSFileList = function(url) {
 				$(o).html(json.files[f].name);
 				$("#wmsSelectB").append(o);
 			}
-			IPFDV.GetWMSCapabilities(mapA);
-			IPFDV.GetWMSCapabilities(mapB);
+			ipfdv.GetWMSCapabilities(mapA);
+			ipfdv.GetWMSCapabilities(mapB);
 		}
 	});
 }
@@ -75,6 +76,7 @@ IPFDataViewer.prototype.GetWMSFileList = function(url) {
  * @param {IPFMap} map - Defines the map */
 IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 	var req_url = $("#wmsSelect"+map.MapName).val();
+	var ipfdv = this;
 	if (req_url) {
 		$.ajax({
 	        type: "GET",
@@ -85,20 +87,20 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 				map.Capabilities = wmsCapabilities.read(xml);
 				
 				//Get options for Variables select-control
-				IPFDV.loadVariables("#ncvarSelect"+map.MapName, map); 
+				ipfdv.loadVariables("#ncvarSelect"+map.MapName, map); 
 				//Get options for Timepositions select-control
-				IPFDV.loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
+				ipfdv.loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
 				
-				IPFDV.showLayerOnMap(map);
+				ipfdv.showLayerOnMap(map);
 			},
 			error: function() {
 				//reset controls if there is a problem with the wms request
-				IPFDV.resetControls(map);
+				ipfdv.resetControls(map);
 			}
 		});
 	}
 	else {
-		this.resetControls(map);
+		ipfdv.resetControls(map);
 	}
 }
 
@@ -177,13 +179,14 @@ IPFDataViewer.prototype.showLayerOnMap = function(map) {
  * @param {string} mapId - Map tab where the controls needs to be reset */
 IPFDataViewer.prototype.resetControls = function(map) {
 	map.Capabilities = "";
-	loadVariables("#ncvarSelect"+map.MapName, map);
-	loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
+	this.loadVariables("#ncvarSelect"+map.MapName, map);
+	this.loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
 }
 
 /** @function
  * Resize all Map Controls on windows or div resize
  * @name ncwebResize 
+ * @param {IPFDataViewer} ipfdv - IPFDataViewer as parameter
  * There is a additional resizeDygraphs()-function in jquery.splitter-0.14.0.js to resize the dygraph div */
 IPFDataViewer.prototype.ncwebResize = function() {
 	resizeDiv(this.maps.A.MapDivId);
@@ -207,10 +210,10 @@ IPFDataViewer.prototype.ncwebResize = function() {
 	
 	this.maps['A'].Map.updateSize();
 	this.maps['A'].Map.zoomToMaxExtent();
-    this.maps['A'].Map.zoomIn();
-    this.maps['B'].Map.updateSize();
+	this.maps['A'].Map.zoomIn();
+	this.maps['B'].Map.updateSize();
 	this.maps['B'].Map.zoomToMaxExtent();
-    this.maps['B'].Map.zoomIn();
+	this.maps['B'].Map.zoomIn();
 }
 
 /** @function

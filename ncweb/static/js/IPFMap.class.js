@@ -29,6 +29,9 @@ function IPFMap(Name, Div){
 	
 	// Stores the Dygraph Objects 
 	this.DyGraph = null;
+	
+	// Stores the OpenLayers Markers
+	this.Markers = null;
 }
 
 /** @function
@@ -88,58 +91,15 @@ IPFMap.prototype.initMap = function() {
     this.Map.zoomToMaxExtent();
     this.Map.zoomIn();
     
+    this.Markers = new OpenLayers.Layer.Markers( "Markers" );
+    this.Map.addLayer(this.Markers);
+    
     var source = this;
     // Initialise ClickControl
     this.ClickCtrl = new OpenLayers.Control.Click({
     	trigger: function(e) {
 	    	var lonlat = source.Map.getLonLatFromPixel(e.xy);
-	    	var ncvar = source.Capabilities.capability.layers[$("#ncvarSelect"+source.MapName).val()].name;
-	    	var wmsurl = $("#wmsSelect"+source.MapName).val().split("?")[0];
-	    	var bboxstring = (lonlat.lon-0.00001).toString()+","+(lonlat.lat-0.00001).toString()+","+(lonlat.lon+0.00001).toString()+","+(lonlat.lat+0.00001).toString();
-	    	$.ajax({
-	            type: "GET",
-	    		url: wmsurl,
-	    		data: {
-	    			'REQUEST': 	'GetTimeseries',
-	    			'LAYERS':	ncvar,
-	    			'BBOX':		bboxstring
-	    		},
-	    		dataType: "json",
-	    		success: function(json) {
-	    			$('#TimeSeriesContainerDiv_map'+source.MapName).show();
-	    			
-	    			var mydata = new Array();
-	    			for (var i in json.data) {
-	    				var date = new Date(json.data[i][0]);
-	    				mydata[i]=[date,parseFloat(json.data[i][1])];
-	    			}
-	    			
-	    			source.DyGraph = new Dygraph(
-    				    // containing div
-	    				document.getElementById("TimeSeriesDiv_map"+source.MapName), mydata,
-    				    {
-    						labels: json.labels,
-    						
-    						/*//paints the vertical line showing the current date
-    						underlayCallback:function(canvas,area,layout){
-    							//_self.showTimeUnderlay(canvas,area,layout);
-    						},  */  
-    						//changes time to clicked time
-    						clickCallback:function(response,x,point){
-    							//_self.clicked(response,x,point,_self);   
-    							source.setTimePosition(x);
-					    	},
-					    	//errorBars: true,
-					    	axisLabelFontSize:10,  
-						  
-					    	//valueRange: [50,125]
-    				    }
-    				);
-	    		},
-	    	    complete: function(xhr, textStatus) {
-	    	        console.log(xhr.status+", "+textStatus);
-	    	    } 
-	    	});
+	    	showDygraph(source,lonlat);
     	}
     });
 }
@@ -192,6 +152,9 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap) {
     $("#imgColorbar"+this.MapName).attr("alt","--- loading colorbar ---");
 	targetMap.Map.addLayer(this.WmsLayer);
 	targetMap.Map.raiseLayer(targetMap.Graticule.gratLayer,2);
+	if($('#TimeSeriesContainerDiv_map'+targetMap.MapName).is(':visible') && targetMap.Markers.markers.length>0) {
+		showDygraph(targetMap,targetMap.Markers.markers[0].lonlat);
+	}
 }
 
 /** @function
@@ -290,4 +253,74 @@ function initClickCtrl() {
             );
         }
     });
+}
+
+
+/** @function
+ * Add a new Map Marker to the map
+ * @name addMapMarker
+ * @param {IPFMap} map - Map where to add the marker
+ * @param {OpenLayers.LonLat} lonlat - Coordinates of the marker
+ *  */
+function addMapMarker(map, lonlat) {
+	map.Markers.clearMarkers();
+	map.Markers.addMarker(new OpenLayers.Marker(lonlat));
+	map.Map.raiseLayer(map.Markers,4);
+}
+
+/** @function
+ * Show the Dygraph Time Series plot for a given point
+ * @name showDygraph
+ * @param {IPFMap} source - Map where to show the Plot
+ * @param {OpenLayers.LonLat} lonlat - Coordinates of the TimeSeries
+ */
+function showDygraph(source, lonlat) {
+	var ncvar = source.Capabilities.capability.layers[$("#ncvarSelect"+source.MapName).val()].name;
+	var wmsurl = $("#wmsSelect"+source.MapName).val().split("?")[0];
+	var bboxstring = (lonlat.lon-0.00001).toString()+","+(lonlat.lat-0.00001).toString()+","+(lonlat.lon+0.00001).toString()+","+(lonlat.lat+0.00001).toString();
+	$.ajax({
+        type: "GET",
+		url: wmsurl,
+		data: {
+			'REQUEST': 	'GetTimeseries',
+			'LAYERS':	ncvar,
+			'BBOX':		bboxstring
+		},
+		dataType: "json",
+		success: function(json) {
+			$('#TimeSeriesContainerDiv_map'+source.MapName).show();
+			
+			var mydata = new Array();
+			for (var i in json.data) {
+				var date = new Date(json.data[i][0]);
+				mydata[i]=[date,parseFloat(json.data[i][1])];
+			}
+			
+			source.DyGraph = new Dygraph(
+			    // containing div
+				document.getElementById("TimeSeriesDiv_map"+source.MapName), mydata,
+			    {
+					labels: json.labels,
+					
+					/*//paints the vertical line showing the current date
+					underlayCallback:function(canvas,area,layout){
+						//_self.showTimeUnderlay(canvas,area,layout);
+					},  */  
+					//changes time to clicked time
+					clickCallback:function(response,x,point){
+						//_self.clicked(response,x,point,_self);   
+						source.setTimePosition(x);
+			    	},
+			    	//errorBars: true,
+			    	axisLabelFontSize:10,  
+				  
+			    	//valueRange: [50,125]
+			    }
+			);
+			addMapMarker(source,lonlat);
+		},
+	    complete: function(xhr, textStatus) {
+	        console.log(xhr.status+", "+textStatus);
+	    } 
+	});
 }

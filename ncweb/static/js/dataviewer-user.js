@@ -17,7 +17,7 @@ function wmsChanged(mapId) {
  * @param {string} mapId - Defines the map */
 function ncvarChanged(mapId) {
 	IPFDV.loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, IPFDV.maps[mapId]);
-	showLayerOnMap(mapId);
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId]);
 }
 
 /** @function
@@ -155,4 +155,13 @@ function toggleGetTS() {
 		IPFDV.maps['A'].registerClickEvent(false);
 		IPFDV.maps['B'].registerClickEvent(false);
 	}
+}
+
+/** @function
+ * Handles the click event for closing the Dygraph div
+ * @name closeDygraph
+ * @param {string} mapId - Defines the map */
+function closeDygraph(mapId) {
+	$('#TimeSeriesContainerDiv_map'+mapId).hide();
+	IPFDV.maps[mapId].Markers.clearMarkers();
 }
