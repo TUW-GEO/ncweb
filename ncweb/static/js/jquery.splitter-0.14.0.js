@@ -68,11 +68,13 @@
         		$("#TimeSeriesContainerDiv_mapA").css('width',$(IPFDV.maps.A.MapDivId).width()-10);
         		$("#TimeSeriesDiv_mapA").css('width',$(IPFDV.maps.A.MapDivId).width()-10);
         		IPFDV.maps.A.DyGraph.resize();	
+        		IPFDV.maps['A'].Map.updateSize();
         	}
         	if(IPFDV.maps.B.DyGraph) {
         		$("#TimeSeriesContainerDiv_mapB").css('width',$(IPFDV.maps.B.MapDivId).width()-20);
         		$("#TimeSeriesDiv_mapB").css('width',$(IPFDV.maps.B.MapDivId).width()-20);
         		IPFDV.maps.B.DyGraph.resize();
+        		IPFDV.maps['B'].Map.updateSize();
         	}
         }
 

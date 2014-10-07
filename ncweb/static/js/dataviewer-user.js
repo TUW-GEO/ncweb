@@ -51,6 +51,7 @@ function disableMap(mapId) {
 	if ($("#btn_separateMap"+mapId).hasClass('active')) {
 		$('#splitcontainer').split({orientation:'vertical', position: '100%'});
 		$('#mapB').hide();
+		closeDygraph('B');
 		$('.left_panel').width('100%');
 		$('.vsplitter').css('left','100%');
 		$('.vsplitter').hide();
@@ -76,6 +77,7 @@ function addMapAsOverlay(mapId) {
 		// remove splitter
 		$('#splitcontainer').split({orientation:'vertical', position: '100%'});
 		$('#mapB').hide();
+		closeDygraph('B');
 		$('.left_panel').width('100%');
 		$('.vsplitter').css('left','100%');
 		$('.vsplitter').hide();
