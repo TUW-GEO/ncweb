@@ -24,14 +24,20 @@ function IPFDataViewer(serverurl) {
 	$('#mapB').hide();
 	
 	var source = this;
-	$("#slider-A").slider();
-	$("#slider-A").val(80); //set initial value
-	$("#slider-A").on("slide", function(slideEvt) {
+	$("#opacityslider-A").slider();
+	$("#opacityslider-A").val(80); //set initial value
+	$("#opacityslider-A").on("slide", function(slideEvt) {
 		source.maps.A.setWMSOpacity(source.maps.A, slideEvt.value);
 	});
-	$("#slider-B").slider();
-	$("#slider-B").val(80); //set initial value
-	$("#slider-B").on("slide", function(slideEvt) {
+	$("#opacityslider-A").on("slideStop", function(slideEvt) {
+		source.maps.A.setWMSOpacity(source.maps.A, slideEvt.value);
+	});
+	$("#opacityslider-B").slider();
+	$("#opacityslider-B").val(80); //set initial value
+	$("#opacityslider-B").on("slide", function(slideEvt) {
+		source.maps.B.setWMSOpacity(source.maps.B, slideEvt.value);
+	});
+	$("#opacityslider-B").on("slideStop", function(slideEvt) {
 		source.maps.B.setWMSOpacity(source.maps.B, slideEvt.value);
 	});
 	
@@ -198,10 +204,10 @@ IPFDataViewer.prototype.ncwebResize = function() {
 	
 	$("#TimeSeriesContainerDiv_mapA").css('top',$(this.maps.A.MapDivId).height()-210);
 	$("#TimeSeriesContainerDiv_mapB").css('top',$(this.maps.B.MapDivId).height()-210);
-	$("#TimeSeriesContainerDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-10);
-	$("#TimeSeriesContainerDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-20);
-	$("#TimeSeriesDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-10);
-	$("#TimeSeriesDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-20);
+	$("#TimeSeriesContainerDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-40);
+	$("#TimeSeriesContainerDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-50);
+	$("#TimeSeriesDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-40);
+	$("#TimeSeriesDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-50);
 	if(this.maps.A.DyGraph) {
 		this.maps.A.DyGraph.resize();
 	}
@@ -222,5 +228,5 @@ IPFDataViewer.prototype.ncwebResize = function() {
  * @name resizeDiv */
 var resizeDiv = function(divId) {
 	var div = $(divId);
-	div.height(($(window).height() - $('#map-controls').height() - $('#footer').height() - $('.navbar').height() -100));
+	div.height(($(window).height() - $('#map-controls').height() - $('#footer').height() - $('.navbar').height() -60));
 }

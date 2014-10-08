@@ -148,7 +148,7 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap) {
     		{layers: ncvar, TRANSPARENT: true},
             {isBaseLayer: false}
     	);
-	this.WmsLayer.setOpacity($("#slider-"+this.MapName).val()/100);
+	this.WmsLayer.setOpacity($("#opacityslider-"+this.MapName).val()/100);
 	this.WmsLayer.setVisibility(true);
     
     $("#imgColorbar"+this.MapName).attr("src",getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
@@ -305,10 +305,11 @@ function showDygraph(source, lonlat) {
 			    {
 					labels: json.labels,
 					
-					/*//paints the vertical line showing the current date
+					//paints the vertical line showing the current date
 					underlayCallback:function(canvas,area,layout){
 						//_self.showTimeUnderlay(canvas,area,layout);
-					},  */  
+						//alert(canvas+" ---- "+area+" ---- "+layout);
+					},  
 					//changes time to clicked time
 					clickCallback:function(response,x,point){
 						//_self.clicked(response,x,point,_self);   
@@ -320,6 +321,25 @@ function showDygraph(source, lonlat) {
 			    	//valueRange: [50,125]
 			    }
 			);
+			if($("#timeSelect"+source.MapName)[0].length>0) {
+				$("#timeslider-"+source.MapName).slider();
+				$("#timeslider-"+source.MapName).slider('destroy');
+				$("#timeslider-"+source.MapName).attr("data-slider-step","1");
+				$("#timeslider-"+source.MapName).attr("data-slider-min","0");
+				$("#timeslider-"+source.MapName).attr("data-slider-max",$("#timeSelect"+source.MapName)[0].length-1);
+				$("#timeslider-"+source.MapName).attr("data-slider-value",$("#timeSelect"+source.MapName)[0].selectedIndex);
+				$("#timeslider-"+source.MapName).slider();
+				$("#timeslider-"+source.MapName).on("slideStop", function(slideEvt) {
+					$("#timeSelect"+source.MapName)[0].selectedIndex = slideEvt.value;
+					timeChanged(source.MapName);
+				});
+				$("#timeslider-"+source.MapName).val($("#timeSelect"+source.MapName)[0].selectedIndex); //set initial value
+				$("#TimeSliderDiv_map"+source.MapName+" .slider").width("100%");
+				$("#TimeSliderDiv_map"+source.MapName).show();
+			}
+			else {
+				$("#TimeSliderDiv_map"+source.MapName).hide();
+			}
 			addMapMarker(source,lonlat);
 		},
 	    complete: function(xhr, textStatus) {
