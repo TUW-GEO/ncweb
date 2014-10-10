@@ -29,9 +29,12 @@ function IPFMap(Name, Div){
 	
 	// Stores the Dygraph Objects 
 	this.DyGraph = null;
+	// Stores the AJAX Get Request
+	this.getDyGraph
 	
 	// Stores the OpenLayers Markers
 	this.Markers = null;
+	
 }
 
 /** @function
@@ -280,8 +283,20 @@ function addMapMarker(map, lonlat) {
 function showDygraph(source, lonlat) {
 	var ncvar = source.Capabilities.capability.layers[$("#ncvarSelect"+source.MapName).val()].name;
 	var wmsurl = $("#wmsSelect"+source.MapName).val().split("?")[0];
+	// @TODO: Find good bbox
 	var bboxstring = (lonlat.lon-0.00001).toString()+","+(lonlat.lat-0.00001).toString()+","+(lonlat.lon+0.00001).toString()+","+(lonlat.lat+0.00001).toString();
-	$.ajax({
+	
+	// Show DIV with Loading Overlay, Overlay will be hidden by new Dygraph() object
+	// Overlay instance gets created in html file
+	$(overlay_LOADING).appendTo($("#TimeSeriesDiv_map"+source.MapName));
+	$('#TimeSeriesContainerDiv_map'+source.MapName).show();
+	
+	// Abort Previous GET Request if not DONE
+	if(source.getDygraph && source.getDygraph.readystate != 4) { 
+		source.getDygraph.abort();
+	}
+	// New GET Request
+	source.getDygraph = $.ajax({
         type: "GET",
 		url: wmsurl,
 		data: {
@@ -291,9 +306,9 @@ function showDygraph(source, lonlat) {
 		},
 		dataType: "json",
 		success: function(json) {
-			$('#TimeSeriesContainerDiv_map'+source.MapName).show();
 			
 			var mydata = new Array();
+			// Parse Data to Date and Float
 			for (var i in json.data) {
 				var date = new Date(json.data[i][0]);
 				mydata[i]=[date,parseFloat(json.data[i][1])];
@@ -321,6 +336,7 @@ function showDygraph(source, lonlat) {
 			    	//valueRange: [50,125]
 			    }
 			);
+			// Create TimeSlider Object
 			if($("#timeSelect"+source.MapName)[0].length>0) {
 				$("#timeslider-"+source.MapName).slider();
 				$("#timeslider-"+source.MapName).slider('destroy');
@@ -340,6 +356,7 @@ function showDygraph(source, lonlat) {
 			else {
 				$("#TimeSliderDiv_map"+source.MapName).hide();
 			}
+			// Add Map Marker to the map
 			addMapMarker(source,lonlat);
 		},
 	    complete: function(xhr, textStatus) {

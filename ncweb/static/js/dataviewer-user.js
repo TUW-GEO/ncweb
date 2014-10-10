@@ -53,6 +53,7 @@ function disableMap(mapId) {
 		$('#mapB').hide();
 		closeDygraph('B');
 		$('.left_panel').width('100%');
+		$('.right_panel').width('0%');
 		$('.vsplitter').css('left','100%');
 		$('.vsplitter').hide();
 		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
@@ -79,6 +80,7 @@ function addMapAsOverlay(mapId) {
 		$('#mapB').hide();
 		closeDygraph('B');
 		$('.left_panel').width('100%');
+		$('.right_panel').width('0%');
 		$('.vsplitter').css('left','100%');
 		$('.vsplitter').hide();
 		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
@@ -110,6 +112,7 @@ function addMapSeparate(mapId) {
 	// split screen into two halves
 	$('#splitcontainer').split({orientation:'vertical', position: '50%', limit: 100});
 	$('.left_panel').width('50%');
+	$('.right_panel').width('50%');
 	//$('.right_panel').css('left','50%');
 	$('.vsplitter').css('left','50%');
 	$('.vsplitter').css('background-color','#FFF');
