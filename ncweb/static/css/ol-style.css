@@ -67,6 +67,8 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 .TSclose_Button {
-	z-index: 20;
+	z-index: 21;
 	position: relative;	
+	width: 20px;
+	text-align: center;
 }
