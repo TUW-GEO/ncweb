@@ -102,7 +102,7 @@ IPFMap.prototype.initMap = function() {
     this.ClickCtrl = new OpenLayers.Control.Click({
     	trigger: function(e) {
 	    	var lonlat = source.Map.getLonLatFromPixel(e.xy);
-	    	showDygraph(source,lonlat);
+	    	source.showDygraph(lonlat);
     	}
     });
 }
@@ -141,8 +141,9 @@ IPFMap.prototype.setTimePosition = function(date) {
  * @param {string} time - Time position (TIME) for the WMS request
  * @param {string} url - WMS Url (NetCDF File)
  * @param {string} cmap - ColorMap for the WMS request
- * @param {IPFMap} targetMap - Target Map, where to (re-)draw the data */
-IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap) {	
+ * @param {IPFMap} targetMap - Target Map, where to (re-)draw the data
+ * @param {boolean} reloadTS - Reload the TimeSeries Dygraph if True */
+IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap, reloadTS) {	
 	this.removeWMSLayer(targetMap);
 	var getmapurl = url+"?LAYERS="+ncvar+"&cmap="+cmap;
 	if (time != null) // if there are time positions, add time property
@@ -159,7 +160,13 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap) {
 	targetMap.Map.addLayer(this.WmsLayer);
 	targetMap.Map.raiseLayer(targetMap.Graticule.gratLayer,2);
 	if($('#TimeSeriesContainerDiv_map'+targetMap.MapName).is(':visible') && targetMap.Markers.markers.length>0) {
-		showDygraph(targetMap,targetMap.Markers.markers[0].lonlat);
+		if(reloadTS) {
+			targetMap.showDygraph(targetMap.Markers.markers[0].lonlat);
+		}
+		else {
+			targetMap.setTimeSlider(); //just refresh the time slider (don't refresh the dygraph - SLOW!)
+			targetMap.addMapMarker(targetMap.Markers.markers[0].lonlat);
+		}
 	}
 }
 
@@ -230,73 +237,73 @@ IPFMap.prototype.registerClickEvent = function(register) {
     }
 }
 
-
-/** @function
- * Initialises the Click Control for Time Series
- * @name initClickCtrl
- *  */
-function initClickCtrl() {
-	OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
-        defaultHandlerOptions: {
-            'single': true,
-            'double': false,
-            'pixelTolerance': 0,
-            'stopSingle': false,
-            'stopDouble': false
-        },
-
-        initialize: function(options) {
-            this.handlerOptions = OpenLayers.Util.extend(
-                {}, this.defaultHandlerOptions
-            );
-            OpenLayers.Control.prototype.initialize.apply(
-                this, arguments
-            ); 
-            this.handler = new OpenLayers.Handler.Click(
-                this, {
-                    'click': this.trigger
-                }, this.handlerOptions
-            );
-        }
-    });
-}
-
-
 /** @function
  * Add a new Map Marker to the map
  * @name addMapMarker
  * @param {IPFMap} map - Map where to add the marker
  * @param {OpenLayers.LonLat} lonlat - Coordinates of the marker
  *  */
-function addMapMarker(map, lonlat) {
-	map.Markers.clearMarkers();
-	map.Markers.addMarker(new OpenLayers.Marker(lonlat));
-	map.Map.raiseLayer(map.Markers,4);
+IPFMap.prototype.addMapMarker = function(lonlat) {
+	this.Markers.clearMarkers();
+	this.Markers.addMarker(new OpenLayers.Marker(lonlat));
+	this.Map.raiseLayer(this.Markers,4);
+}
+
+/** @function
+ * Set the time slider value to the selected Index
+ * @name setTimeSlider
+ */
+IPFMap.prototype.setTimeSlider = function() {
+	$("#timeslider-"+this.MapName).slider();
+	$("#timeslider-"+this.MapName).slider('destroy');
+	$("#timeslider-"+this.MapName).attr("data-slider-step","1");
+	$("#timeslider-"+this.MapName).attr("data-slider-min","0");
+	$("#timeslider-"+this.MapName).attr("data-slider-max",$("#timeSelect"+this.MapName)[0].length-1);
+	$("#timeslider-"+this.MapName).attr("data-slider-value",$("#timeSelect"+this.MapName)[0].selectedIndex);
+	$("#timeslider-"+this.MapName).slider();
+	$("#timeslider-"+this.MapName).on("slideStop", function(slideEvt) {
+		$("#timeSelect"+this.MapName)[0].selectedIndex = slideEvt.value;
+		timeChanged(this.MapName);
+	});
+	$("#timeslider-"+this.MapName).val($("#timeSelect"+this.MapName)[0].selectedIndex); //set initial value
+	
+	$("#TimeSliderDiv_map"+this.MapName+" .slider").width("100%");
 }
 
 /** @function
  * Show the Dygraph Time Series plot for a given point
  * @name showDygraph
- * @param {IPFMap} source - Map where to show the Plot
  * @param {OpenLayers.LonLat} lonlat - Coordinates of the TimeSeries
  */
-function showDygraph(source, lonlat) {
-	var ncvar = source.Capabilities.capability.layers[$("#ncvarSelect"+source.MapName).val()].name;
-	var wmsurl = $("#wmsSelect"+source.MapName).val().split("?")[0];
+IPFMap.prototype.showDygraph = function(lonlat) {
+	var ncvar = this.Capabilities.capability.layers[$("#ncvarSelect"+this.MapName).val()].name;
+	var wmsurl = $("#wmsSelect"+this.MapName).val().split("?")[0];
 	// @TODO: Find good bbox
 	var bboxstring = (lonlat.lon-0.00001).toString()+","+(lonlat.lat-0.00001).toString()+","+(lonlat.lon+0.00001).toString()+","+(lonlat.lat+0.00001).toString();
 	
 	// Show DIV with Loading Overlay, Overlay will be hidden by new Dygraph() object
 	// Overlay instance gets created in html file
-	$(overlay_LOADING).appendTo($("#TimeSeriesDiv_map"+source.MapName));
-	$('#TimeSeriesContainerDiv_map'+source.MapName).show();
+	$(overlay_LOADING).appendTo($("#TimeSeriesDiv_map"+this.MapName));
+	$('#TimeSeriesContainerDiv_map'+this.MapName).show();
+	// Create TimeSlider Object
+	if($("#timeSelect"+this.MapName)[0].length>0) {
+		this.setTimeSlider();
+		$("#TimeSliderDiv_map"+this.MapName).show();
+	}
+	else {
+		$("#TimeSliderDiv_map"+this.MapName).hide();
+	}
+	// Add Map Marker to the map
+	this.addMapMarker(lonlat);
 	
 	// Abort Previous GET Request if not DONE
-	if(source.getDygraph && source.getDygraph.readystate != 4) { 
-		source.getDygraph.abort();
+	if(this.getDygraph && this.getDygraph.readystate != 4) { 
+		this.getDygraph.abort();
 	}
+	
+	var source = this;
 	// New GET Request
-	source.getDygraph = $.ajax({
+	this.getDygraph = $.ajax({
         type: "GET",
 		url: wmsurl,
 		data: {
@@ -336,31 +343,39 @@ function showDygraph(source, lonlat) {
 			    	//valueRange: [50,125]
 			    }
 			);
-			// Create TimeSlider Object
-			if($("#timeSelect"+source.MapName)[0].length>0) {
-				$("#timeslider-"+source.MapName).slider();
-				$("#timeslider-"+source.MapName).slider('destroy');
-				$("#timeslider-"+source.MapName).attr("data-slider-step","1");
-				$("#timeslider-"+source.MapName).attr("data-slider-min","0");
-				$("#timeslider-"+source.MapName).attr("data-slider-max",$("#timeSelect"+source.MapName)[0].length-1);
-				$("#timeslider-"+source.MapName).attr("data-slider-value",$("#timeSelect"+source.MapName)[0].selectedIndex);
-				$("#timeslider-"+source.MapName).slider();
-				$("#timeslider-"+source.MapName).on("slideStop", function(slideEvt) {
-					$("#timeSelect"+source.MapName)[0].selectedIndex = slideEvt.value;
-					timeChanged(source.MapName);
-				});
-				$("#timeslider-"+source.MapName).val($("#timeSelect"+source.MapName)[0].selectedIndex); //set initial value
-				$("#TimeSliderDiv_map"+source.MapName+" .slider").width("100%");
-				$("#TimeSliderDiv_map"+source.MapName).show();
-			}
-			else {
-				$("#TimeSliderDiv_map"+source.MapName).hide();
-			}
-			// Add Map Marker to the map
-			addMapMarker(source,lonlat);
 		},
 	    complete: function(xhr, textStatus) {
-	        console.log(xhr.status+", "+textStatus);
+	        //console.log(xhr.status+", "+textStatus);
 	    } 
 	});
+}
+
+/** @function
+ * Initialises the Click Control for Time Series
+ * @name initClickCtrl
+ *  */
+function initClickCtrl() {
+	OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
+        defaultHandlerOptions: {
+            'single': true,
+            'double': false,
+            'pixelTolerance': 0,
+            'stopSingle': false,
+            'stopDouble': false
+        },
+
+        initialize: function(options) {
+            this.handlerOptions = OpenLayers.Util.extend(
+                {}, this.defaultHandlerOptions
+            );
+            OpenLayers.Control.prototype.initialize.apply(
+                this, arguments
+            ); 
+            this.handler = new OpenLayers.Handler.Click(
+                this, {
+                    'click': this.trigger
+                }, this.handlerOptions
+            );
+        }
+    });
 }

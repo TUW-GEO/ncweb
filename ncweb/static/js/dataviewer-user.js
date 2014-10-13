@@ -17,7 +17,7 @@ function wmsChanged(mapId) {
  * @param {string} mapId - Defines the map */
 function ncvarChanged(mapId) {
 	IPFDV.loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, IPFDV.maps[mapId]);
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId]);
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],true);
 }
 
 /** @function
@@ -25,7 +25,7 @@ function ncvarChanged(mapId) {
  * @name timeChanged
  * @param {string} mapId - Defines the map */
 function timeChanged(mapId) {
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId]);
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false);
 }
 
 /** @function
@@ -33,7 +33,7 @@ function timeChanged(mapId) {
  * @name cmapChanged
  * @param {string} mapId - Defines the map */
 function cmapChanged(mapId) {
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId]);
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false);
 }
 
 /** @function
@@ -90,7 +90,7 @@ function addMapAsOverlay(mapId) {
 	// show data as overlay on mapA
 	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
 			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
-			$("#cmapSelect"+mapId).val(), IPFDV.maps['A']);
+			$("#cmapSelect"+mapId).val(), IPFDV.maps['A'], false);
 	$("#btn_overlayMap"+mapId).addClass('active');
 }
 
@@ -122,7 +122,7 @@ function addMapSeparate(mapId) {
 	// show data on separate map (mapId)
 	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
 			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
-			$("#cmapSelect"+mapId).val(), IPFDV.maps[mapId]);
+			$("#cmapSelect"+mapId).val(), IPFDV.maps[mapId], false);
 	IPFDV.maps[mapId].Map.setCenter(new OpenLayers.LonLat(0,0));
 	IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
 	$("#btn_separateMap"+mapId).addClass('active');

@@ -98,7 +98,7 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 				//Get options for Timepositions select-control
 				ipfdv.loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
 				
-				ipfdv.showLayerOnMap(map);
+				ipfdv.showLayerOnMap(map,true);
 			},
 			error: function() {
 				//reset controls if there is a problem with the wms request
@@ -164,19 +164,19 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 /** @function
  * Show WMSLayer either as map overlay or as separate map
  * @name showLayerOnMap
- * @param {IPFMap} map - Specifies which map data are to be shown */
-IPFDataViewer.prototype.showLayerOnMap = function(map) {
+ * @param {boolean} reloadTS - Reload the TimeSeries Dygraph if True */
+IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS) {
 	// show data on separate map
 	if(map.MapName == 'A' || $("#btn_separateMap"+map.MapName).hasClass('active') == true) {
 		map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name, 
 				$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0], 
-				$("#cmapSelect"+map.MapName).val(), map);
+				$("#cmapSelect"+map.MapName).val(), map, reloadTS);
 	}
 	// show data as overlay on MapA
 	else if($("#btn_overlayMap"+map.MapName).hasClass('active') == true) {
 		map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name, 
 				$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0], 
-				$("#cmapSelect"+map.MapName).val(), this.maps["A"]);
+				$("#cmapSelect"+map.MapName).val(), this.maps["A"], reloadTS);
 	}
 }
 
