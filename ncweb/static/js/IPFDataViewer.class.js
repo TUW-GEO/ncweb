@@ -10,7 +10,8 @@ function IPFDataViewer(serverurl) {
 	
 	
 	//deactivate all map options
-	$("#cb_linkAB").attr("checked", false);
+	$("#cb_linkABgeo").attr("checked", false);
+	$("#cb_linkABtemp").attr("checked", false);
 	$("#cb_getTS").attr("checked", false);
 	
 	//Initialize custom click control
@@ -23,22 +24,26 @@ function IPFDataViewer(serverurl) {
 	this.maps.B.initMap();
 	$('#mapB').hide();
 	
-	var source = this;
+	var _self = this;
 	$("#opacityslider-A").slider();
 	$("#opacityslider-A").val(80); //set initial value
 	$("#opacityslider-A").on("slide", function(slideEvt) {
-		source.maps.A.setWMSOpacity(source.maps.A, slideEvt.value);
+		_self.maps.A.setWMSOpacity(_self.maps.A, slideEvt.value);
+		$("#opacityslider-A").val(slideEvt.value);
 	});
 	$("#opacityslider-A").on("slideStop", function(slideEvt) {
-		source.maps.A.setWMSOpacity(source.maps.A, slideEvt.value);
+		_self.maps.A.setWMSOpacity(_self.maps.A, slideEvt.value);
+		$("#opacityslider-A").val(slideEvt.value);
 	});
 	$("#opacityslider-B").slider();
 	$("#opacityslider-B").val(80); //set initial value
 	$("#opacityslider-B").on("slide", function(slideEvt) {
-		source.maps.B.setWMSOpacity(source.maps.B, slideEvt.value);
+		_self.maps.B.setWMSOpacity(_self.maps.B, slideEvt.value);
+		$("#opacityslider-B").val(slideEvt.value);
 	});
 	$("#opacityslider-B").on("slideStop", function(slideEvt) {
-		source.maps.B.setWMSOpacity(source.maps.B, slideEvt.value);
+		_self.maps.B.setWMSOpacity(_self.maps.B, slideEvt.value);
+		$("#opacityslider-B").val(slideEvt.value);
 	});
 	
 	//Get Pydap handled files for requested url and add to WMS Select
@@ -141,24 +146,34 @@ IPFDataViewer.prototype.loadVariables = function(ncvar_ctrl, map) {
 IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map) {
 	$(time_ctrl).empty();
 	var ncvar = $(ncvar_ctrl).val();
+	
+	var selectValue = -1;
+	var minDateDiff = -1;
+		
 	//read the layers time information
 	if(map.Capabilities.capability && map.Capabilities.capability.layers) {
 		var layer = map.Capabilities.capability.layers[ncvar];
 		if (layer && layer.dimensions.time) {
 			for (var t in layer.dimensions.time.values) {
-				/*var date = new Date(layer.dimensions.time.values[t]);
-				var utcdate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 
-						date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());*/
 				var o = new Option(layer.dimensions.time.values[t],layer.dimensions.time.values[t]);
 				$(o).html(layer.dimensions.time.values[t]);
 				$(time_ctrl).append(o);
+				
+				if(minDateDiff > Math.abs(map.Date - new Date(layer.dimensions.time.values[t])) || minDateDiff < 0) {
+					minDateDiff = Math.abs(map.Date - new Date(layer.dimensions.time.values[t]));
+					selectValue = layer.dimensions.time.values[t];
+				}
 			}
+			$(time_ctrl).val(selectValue);
 		}
 	}
-	if ($(time_ctrl)[0] && $(time_ctrl)[0].length>1)
+	if ($(time_ctrl)[0] && $(time_ctrl)[0].length>1) {
 		$(time_ctrl).removeAttr("disabled");
-	else
+		map.TempLinkEvent();
+	}
+	else {
 		$(time_ctrl).attr('disabled', true);
+	}
 }
 
 /** @function
@@ -166,17 +181,23 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
  * @name showLayerOnMap
  * @param {boolean} reloadTS - Reload the TimeSeries Dygraph if True */
 IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS) {
+	
+	var onTop = $("#btn_overlayTopMap"+map.MapName).hasClass('active');
+	
 	// show data on separate map
 	if(map.MapName == 'A' || $("#btn_separateMap"+map.MapName).hasClass('active') == true) {
+		
 		map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name, 
 				$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0], 
-				$("#cmapSelect"+map.MapName).val(), map, reloadTS);
+				$("#cmapSelect"+map.MapName).val(), map, onTop, reloadTS);
 	}
+	
 	// show data as overlay on MapA
-	else if($("#btn_overlayMap"+map.MapName).hasClass('active') == true) {
+	else if($("#btn_overlayTopMap"+map.MapName).hasClass('active') == true ||
+			$("#btn_overlayBottomMap"+map.MapName).hasClass('active') == true) {
 		map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name, 
 				$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0], 
-				$("#cmapSelect"+map.MapName).val(), this.maps["A"], reloadTS);
+				$("#cmapSelect"+map.MapName).val(), this.maps["A"], onTop, reloadTS);
 	}
 }
 

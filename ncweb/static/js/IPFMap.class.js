@@ -15,25 +15,31 @@ function IPFMap(Name, Div){
     // Id of the Map Div
     this.MapDivId = Div
 	
-	// Stores the OpenLayers layers from pydap WMS requests 
+	// OpenLayers layers from pydap WMS requests 
 	this.WmsLayer = null;
 	
 	// WMS Capabilities
 	this.Capabilities = "";
 	
-	// Stores the Craticule layers 
+	// Craticule layers 
 	this.Graticule = null;
 	
-	// Stores the Click Controls for the maps
+	// Click Controls for the maps
 	this.ClickCtrl = null;
 	
-	// Stores the Dygraph Objects 
+	// Dygraph Objects 
 	this.DyGraph = null;
-	// Stores the AJAX Get Request
+	// AJAX Get Request
 	this.getDyGraph
 	
-	// Stores the OpenLayers Markers
+	// OpenLayers Markers
 	this.Markers = null;
+	
+	// Event for Temporal Linking
+	this.TempLinkEvent = function() {};
+	
+	// Current Date of Interest
+	this.Date = new Date();
 	
 }
 
@@ -97,12 +103,12 @@ IPFMap.prototype.initMap = function() {
     this.Markers = new OpenLayers.Layer.Markers( "Markers" );
     this.Map.addLayer(this.Markers);
     
-    var source = this;
+    var _self = this;
     // Initialise ClickControl
     this.ClickCtrl = new OpenLayers.Control.Click({
     	trigger: function(e) {
-	    	var lonlat = source.Map.getLonLatFromPixel(e.xy);
-	    	source.showDygraph(lonlat);
+	    	var lonlat = _self.Map.getLonLatFromPixel(e.xy);
+	    	_self.showDygraph(lonlat);
     	}
     });
 }
@@ -142,8 +148,9 @@ IPFMap.prototype.setTimePosition = function(date) {
  * @param {string} url - WMS Url (NetCDF File)
  * @param {string} cmap - ColorMap for the WMS request
  * @param {IPFMap} targetMap - Target Map, where to (re-)draw the data
+ * @param {boolean} onTop - Specifies whether the Layer lies on top (true) or on bottom (false)
  * @param {boolean} reloadTS - Reload the TimeSeries Dygraph if True */
-IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap, reloadTS) {	
+IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap, onTop, reloadTS) {	
 	this.removeWMSLayer(targetMap);
 	var getmapurl = url+"?LAYERS="+ncvar+"&cmap="+cmap;
 	if (time != null) // if there are time positions, add time property
@@ -157,8 +164,24 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap, relo
     
     $("#imgColorbar"+this.MapName).attr("src",getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
     $("#imgColorbar"+this.MapName).attr("alt","--- loading colorbar ---");
+    
 	targetMap.Map.addLayer(this.WmsLayer);
-	targetMap.Map.raiseLayer(targetMap.Graticule.gratLayer,2);
+	// @TODO: Problem with Layer Order when Layer are Linked Temporal, or Map A gets refreshed
+	if(this.MapName != 'A') {
+		if(onTop) {
+			targetMap.Map.raiseLayer(targetMap.WmsLayer,-10);
+		}
+		else {
+			targetMap.Map.raiseLayer(this.WmsLayer,-10);
+		}
+	}
+	else {
+		if(onTop) {
+			targetMap.Map.raiseLayer(targetMap.WmsLayer,-10);
+		}
+	}
+	
+	targetMap.Map.raiseLayer(targetMap.Graticule.gratLayer,5);
 	if($('#TimeSeriesContainerDiv_map'+targetMap.MapName).is(':visible') && targetMap.Markers.markers.length>0) {
 		if(reloadTS) {
 			targetMap.showDygraph(targetMap.Markers.markers[0].lonlat);
@@ -181,12 +204,12 @@ IPFMap.prototype.removeWMSLayer = function(targetMap) {
 }
 
 /** @function
- * Link or unlink two maps
- * @name registerLinkEvent
+ * Link or unlink two maps (Geographic)
+ * @name registerGeoLinkEvent
  * @param {IPFMap} targetMap - Gets moved if source map is moved
  * @param {boolean} register - Register or unregister event
  *  */
-IPFMap.prototype.registerLinkEvent = function(targetMap, register) {
+IPFMap.prototype.registerGeoLinkEvent = function(targetMap, register) {
 	var sourceMap = this;
 	var syncMapHandler = function() {
 		var targetCenter = targetMap.Map.getCenter();
@@ -199,6 +222,8 @@ IPFMap.prototype.registerLinkEvent = function(targetMap, register) {
 			targetMap.Map.moveTo(sourceMap.Map.getCenter(),sourceMap.Map.getZoom(), {
 	            dragging: true
 	        });
+			
+			// Refresh Grid
 			targetMap.Graticule.deactivate();
 			targetMap.Graticule.activate();
         }
@@ -216,6 +241,41 @@ IPFMap.prototype.registerLinkEvent = function(targetMap, register) {
     	//TODO: Problem when more than 2 maps
     	this.Map.events.remove('move');
     	this.Map.events.remove('zoomend');
+    }
+}
+
+/** @function
+ * Link or unlink two maps (Temporal)
+ * @name registerTempLinkEvent
+ * @param {IPFMap} targetMap - Gets moved if source map is moved
+ * @param {boolean} register - Register or unregister event
+ *  */
+IPFMap.prototype.registerTempLinkEvent = function(targetMap, register) {
+	var sourceMap = this;
+	var synctempMapHandler = function() {
+		var selectValue = -1;
+		var minDateDiff = -1;
+		var options = $("#timeSelect"+targetMap.MapName+" option");
+		for (i=0; i<options.length; i++) {
+			var date = new Date(options[i].value);
+			if(minDateDiff > Math.abs(sourceMap.Date - date) || minDateDiff < 0) {
+				minDateDiff = Math.abs(sourceMap.Date - date);
+				selectValue = options[i].value;
+			}
+		}
+		if ($("#timeSelect"+targetMap.MapName).val != selectValue) {
+			$("#timeSelect"+targetMap.MapName).val(selectValue); //Sync Control
+			targetMap.Date = sourceMap.Date; //Sync internal Date
+			IPFDV.showLayerOnMap(targetMap,false);
+		}
+    };
+
+    if (register) {
+	    this.TempLinkEvent = synctempMapHandler;
+	    synctempMapHandler();
+    }
+    else {
+    	this.TempLinkEvent = function() {}; //Do Nothing
     }
 }
 
@@ -246,7 +306,7 @@ IPFMap.prototype.registerClickEvent = function(register) {
 IPFMap.prototype.addMapMarker = function(lonlat) {
 	this.Markers.clearMarkers();
 	this.Markers.addMarker(new OpenLayers.Marker(lonlat));
-	this.Map.raiseLayer(this.Markers,4);
+	this.Map.raiseLayer(this.Markers,6);
 }
 
 /** @function
@@ -261,9 +321,10 @@ IPFMap.prototype.setTimeSlider = function() {
 	$("#timeslider-"+this.MapName).attr("data-slider-max",$("#timeSelect"+this.MapName)[0].length-1);
 	$("#timeslider-"+this.MapName).attr("data-slider-value",$("#timeSelect"+this.MapName)[0].selectedIndex);
 	$("#timeslider-"+this.MapName).slider();
+	var _self = this;
 	$("#timeslider-"+this.MapName).on("slideStop", function(slideEvt) {
-		$("#timeSelect"+this.MapName)[0].selectedIndex = slideEvt.value;
-		timeChanged(this.MapName);
+		$("#timeSelect"+_self.MapName)[0].selectedIndex = slideEvt.value;
+		timeChanged(_self.MapName);
 	});
 	$("#timeslider-"+this.MapName).val($("#timeSelect"+this.MapName)[0].selectedIndex); //set initial value
 	
@@ -301,7 +362,7 @@ IPFMap.prototype.showDygraph = function(lonlat) {
 		this.getDygraph.abort();
 	}
 	
-	var source = this;
+	var _self = this;
 	// New GET Request
 	this.getDygraph = $.ajax({
         type: "GET",
@@ -321,9 +382,9 @@ IPFMap.prototype.showDygraph = function(lonlat) {
 				mydata[i]=[date,parseFloat(json.data[i][1])];
 			}
 			
-			source.DyGraph = new Dygraph(
+			_self.DyGraph = new Dygraph(
 			    // containing div
-				document.getElementById("TimeSeriesDiv_map"+source.MapName), mydata,
+				document.getElementById("TimeSeriesDiv_map"+_self.MapName), mydata,
 			    {
 					labels: json.labels,
 					
@@ -335,7 +396,7 @@ IPFMap.prototype.showDygraph = function(lonlat) {
 					//changes time to clicked time
 					clickCallback:function(response,x,point){
 						//_self.clicked(response,x,point,_self);   
-						source.setTimePosition(x);
+						_self.setTimePosition(x);
 			    	},
 			    	//errorBars: true,
 			    	axisLabelFontSize:10,  

@@ -16,7 +16,11 @@ function wmsChanged(mapId) {
  * @name ncvarChanged
  * @param {string} mapId - Defines the map */
 function ncvarChanged(mapId) {
-	IPFDV.loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, IPFDV.maps[mapId]);
+	//IPFDV.loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, IPFDV.maps[mapId]);
+	/*if ($("#timeSelect"+mapId)[0] && $("#timeSelect"+mapId)[0].length>0) {
+		IPFDV.maps[mapId].Date = new Date($("#timeSelect"+IPFDV.maps[mapId].MapName).val());
+		IPFDV.maps[mapId].TempLinkEvent();
+	}*/
 	IPFDV.showLayerOnMap(IPFDV.maps[mapId],true);
 }
 
@@ -26,6 +30,8 @@ function ncvarChanged(mapId) {
  * @param {string} mapId - Defines the map */
 function timeChanged(mapId) {
 	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false);
+	IPFDV.maps[mapId].Date = new Date($("#timeSelect"+IPFDV.maps[mapId].MapName).val());
+	IPFDV.maps[mapId].TempLinkEvent();
 }
 
 /** @function
@@ -44,9 +50,13 @@ function disableMap(mapId) {
 	if ($("#btn_disableMap"+mapId).hasClass('active')) {
 		return;
 	}
-	if ($("#btn_overlayMap"+mapId).hasClass('active')) {
+	if ($("#btn_overlayTopMap"+mapId).hasClass('active')) {
 		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']); //Remove map on target map A
-		$("#btn_overlayMap"+mapId).removeClass('active');
+		$("#btn_overlayTopMap"+mapId).removeClass('active');
+	}
+	if ($("#btn_overlayBottomMap"+mapId).hasClass('active')) {
+		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']); //Remove map on target map A
+		$("#btn_overlayBottomMap"+mapId).removeClass('active');
 	}
 	if ($("#btn_separateMap"+mapId).hasClass('active')) {
 		$('#splitcontainer').split({orientation:'vertical', position: '100%'});
@@ -66,9 +76,13 @@ function disableMap(mapId) {
 /** @function
  * Fires when button btn_overlayMap is clicked
  * @name addMapAsOverlay
- * @param {string} mapId - Defines the map */
-function addMapAsOverlay(mapId) {
-	if ($("#btn_overlayMap"+mapId).hasClass('active')) {
+ * @param {string} mapId - Defines the map
+ * @param {boolean} onTop - true if Layer should be on top, false if on Bottom */
+function addMapAsOverlay(mapId, onTop) {
+	if ($("#btn_overlayTopMap"+mapId).hasClass('active') && onTop) {
+		return;
+	}
+	if ($("#btn_overlayBottomMap"+mapId).hasClass('active') && !onTop) {
 		return;
 	}
 	if ($("#btn_disableMap"+mapId).hasClass('active')) {
@@ -90,8 +104,19 @@ function addMapAsOverlay(mapId) {
 	// show data as overlay on mapA
 	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
 			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
-			$("#cmapSelect"+mapId).val(), IPFDV.maps['A'], false);
-	$("#btn_overlayMap"+mapId).addClass('active');
+			$("#cmapSelect"+mapId).val(), IPFDV.maps['A'], onTop, false);
+	if (onTop) {
+		$("#btn_overlayTopMap"+mapId).addClass('active');
+		if ($("#btn_overlayBottomMap"+mapId).hasClass('active')) {
+			$("#btn_overlayBottomMap"+mapId).removeClass('active');
+		}
+	}
+	else {
+		$("#btn_overlayBottomMap"+mapId).addClass('active');
+		if ($("#btn_overlayTopMap"+mapId).hasClass('active')) {
+			$("#btn_overlayTopMap"+mapId).removeClass('active');
+		}
+	}
 }
 
 /** @function
@@ -102,9 +127,13 @@ function addMapSeparate(mapId) {
 	if ($("#btn_separateMap"+mapId).hasClass('active')) {
 		return;
 	}
-	if ($("#btn_overlayMap"+mapId).hasClass('active')) {
+	if ($("#btn_overlayTopMap"+mapId).hasClass('active')) {
 		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']);
-		$("#btn_overlayMap"+mapId).removeClass('active');
+		$("#btn_overlayTopMap"+mapId).removeClass('active');
+	}
+	if ($("#btn_overlayBottomMap"+mapId).hasClass('active')) {
+		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']);
+		$("#btn_overlayBottomMap"+mapId).removeClass('active');
 	}
 	if ($("#btn_disableMap"+mapId).hasClass('active')) {
 		$("#btn_disableMap"+mapId).removeClass('active');
@@ -122,7 +151,7 @@ function addMapSeparate(mapId) {
 	// show data on separate map (mapId)
 	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
 			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
-			$("#cmapSelect"+mapId).val(), IPFDV.maps[mapId], false);
+			$("#cmapSelect"+mapId).val(), IPFDV.maps[mapId], false, false);
 	IPFDV.maps[mapId].Map.setCenter(new OpenLayers.LonLat(0,0));
 	IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
 	$("#btn_separateMap"+mapId).addClass('active');
@@ -132,15 +161,45 @@ function addMapSeparate(mapId) {
  * Handles the click event for the map link checkbox
  * @name toggleMapLink
  * @param {string} mapId1 - Defines the target map 
- * @param {string} mapId2 - Defines the source map */
-function toggleMapLink(mapId1, mapId2) {
-	if($("#cb_linkAB").is(':checked')) {
-		IPFDV.maps[mapId1].registerLinkEvent(IPFDV.maps[mapId2],true);
-		IPFDV.maps[mapId2].registerLinkEvent(IPFDV.maps[mapId1],true);
+ * @param {string} mapId2 - Defines the source map 
+ * @param {string} type - "geo" or "temp" for geographic/temporal linking */
+function toggleMapLink(mapId1, mapId2, type) {
+	if(type=="geo") {
+		if($("#cb_linkABgeo").is(':checked')) {
+			IPFDV.maps[mapId1].registerGeoLinkEvent(IPFDV.maps[mapId2],true);
+			IPFDV.maps[mapId2].registerGeoLinkEvent(IPFDV.maps[mapId1],true);
+		}
+		else {
+			IPFDV.maps[mapId1].registerGeoLinkEvent(IPFDV.maps[mapId2],false);
+			IPFDV.maps[mapId2].registerGeoLinkEvent(IPFDV.maps[mapId1],false);
+		}
 	}
-	else {
-		IPFDV.maps[mapId1].registerLinkEvent(IPFDV.maps[mapId2],false);
-		IPFDV.maps[mapId2].registerLinkEvent(IPFDV.maps[mapId1],false);
+	else if(type=="temp") {
+		if($("#cb_linkABtemp").is(':checked')) {
+			// Set to MapA-Value
+			if ($("#timeSelect"+IPFDV.maps[mapId1].MapName)[0] && $("#timeSelect"+IPFDV.maps[mapId1].MapName)[0].length>1) {
+				IPFDV.maps[mapId1].Date = new Date($("#timeSelect"+IPFDV.maps[mapId1].MapName).val());
+				IPFDV.maps[mapId2].Date = new Date($("#timeSelect"+IPFDV.maps[mapId1].MapName).val());
+			}
+			// If MapA does not have a time position
+			else if ($("#timeSelect"+IPFDV.maps[mapId2].MapName)[0] && $("#timeSelect"+IPFDV.maps[mapId2].MapName)[0].length>1) {
+				IPFDV.maps[mapId1].Date = new Date($("#timeSelect"+IPFDV.maps[mapId2].MapName).val());
+				IPFDV.maps[mapId2].Date = new Date($("#timeSelect"+IPFDV.maps[mapId2].MapName).val());
+			}
+			// If MapA and MapB don't have time positions, set Today
+			else {
+				IPFDV.maps[mapId1].Date = new Date();
+				IPFDV.maps[mapId2].Date = new Date();
+			}
+			// Register Event
+			IPFDV.maps[mapId1].registerTempLinkEvent(IPFDV.maps[mapId2],true);
+			IPFDV.maps[mapId2].registerTempLinkEvent(IPFDV.maps[mapId1],true);
+		}
+		else {
+			// Unregister Event
+			IPFDV.maps[mapId1].registerTempLinkEvent(IPFDV.maps[mapId2],false);
+			IPFDV.maps[mapId2].registerTempLinkEvent(IPFDV.maps[mapId1],false);
+		}
 	}
 }
 
