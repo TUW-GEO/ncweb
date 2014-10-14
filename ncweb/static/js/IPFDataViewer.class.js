@@ -25,25 +25,25 @@ function IPFDataViewer(serverurl) {
 	$('#mapB').hide();
 	
 	var _self = this;
-	$("#opacityslider-A").slider();
-	$("#opacityslider-A").val(80); //set initial value
-	$("#opacityslider-A").on("slide", function(slideEvt) {
-		_self.maps.A.setWMSOpacity(_self.maps.A, slideEvt.value);
-		$("#opacityslider-A").val(slideEvt.value);
+	$("#opacityslider-A").slider({
+		min: 0,
+		max: 100,
+		range: "min",
+		step: 5,
+		value: 80,
+		slide: function(slideEvt, ui) {
+			_self.maps.A.setWMSOpacity(_self.maps.A, ui.value);
+		}
 	});
-	$("#opacityslider-A").on("slideStop", function(slideEvt) {
-		_self.maps.A.setWMSOpacity(_self.maps.A, slideEvt.value);
-		$("#opacityslider-A").val(slideEvt.value);
-	});
-	$("#opacityslider-B").slider();
-	$("#opacityslider-B").val(80); //set initial value
-	$("#opacityslider-B").on("slide", function(slideEvt) {
-		_self.maps.B.setWMSOpacity(_self.maps.B, slideEvt.value);
-		$("#opacityslider-B").val(slideEvt.value);
-	});
-	$("#opacityslider-B").on("slideStop", function(slideEvt) {
-		_self.maps.B.setWMSOpacity(_self.maps.B, slideEvt.value);
-		$("#opacityslider-B").val(slideEvt.value);
+	$("#opacityslider-B").slider({
+		min: 0,
+		max: 100,
+		range: "min",
+		step: 5,
+		value: 80,
+		slide: function(slideEvt, ui) {
+			_self.maps.B.setWMSOpacity(_self.maps.B, ui.value);
+		}
 	});
 	
 	//Get Pydap handled files for requested url and add to WMS Select
@@ -182,7 +182,9 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
  * @param {boolean} reloadTS - Reload the TimeSeries Dygraph if True */
 IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS) {
 	
-	var onTop = $("#btn_overlayTopMap"+map.MapName).hasClass('active');
+	//var onTop = $("#btn_overlayTopMap"+map.MapName).hasClass('active');
+	// @TODO: Only works with MapA and MapB
+	var onTop = $("#btn_overlayTopMapB").hasClass('active');
 	
 	// show data on separate map
 	if(map.MapName == 'A' || $("#btn_separateMap"+map.MapName).hasClass('active') == true) {

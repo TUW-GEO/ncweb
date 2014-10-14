@@ -159,25 +159,24 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap, onTo
     		{layers: ncvar, TRANSPARENT: true},
             {isBaseLayer: false}
     	);
-	this.WmsLayer.setOpacity($("#opacityslider-"+this.MapName).val()/100);
+	this.WmsLayer.setOpacity($("#opacityslider-"+this.MapName).slider("value")/100);
 	this.WmsLayer.setVisibility(true);
     
     $("#imgColorbar"+this.MapName).attr("src",getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
     $("#imgColorbar"+this.MapName).attr("alt","--- loading colorbar ---");
     
 	targetMap.Map.addLayer(this.WmsLayer);
-	// @TODO: Problem with Layer Order when Layer are Linked Temporal, or Map A gets refreshed
-	if(this.MapName != 'A') {
-		if(onTop) {
-			targetMap.Map.raiseLayer(targetMap.WmsLayer,-10);
+	// @TODO: Works only with MapA and MapB
+	if(onTop) {
+		if(targetMap.Map.getLayerIndex(IPFDV.maps.B.WmsLayer)>0) {
+			targetMap.Map.setLayerIndex(IPFDV.maps.B.WmsLayer,0);
 		}
-		else {
-			targetMap.Map.raiseLayer(this.WmsLayer,-10);
-		}
+		targetMap.Map.setLayerIndex(targetMap.WmsLayer,0);
 	}
 	else {
-		if(onTop) {
-			targetMap.Map.raiseLayer(targetMap.WmsLayer,-10);
+		targetMap.Map.setLayerIndex(targetMap.WmsLayer,0);
+		if(targetMap.Map.getLayerIndex(IPFDV.maps.B.WmsLayer)>0) {
+			targetMap.Map.setLayerIndex(IPFDV.maps.B.WmsLayer,0);
 		}
 	}
 	
@@ -314,20 +313,18 @@ IPFMap.prototype.addMapMarker = function(lonlat) {
  * @name setTimeSlider
  */
 IPFMap.prototype.setTimeSlider = function() {
-	$("#timeslider-"+this.MapName).slider();
-	$("#timeslider-"+this.MapName).slider('destroy');
-	$("#timeslider-"+this.MapName).attr("data-slider-step","1");
-	$("#timeslider-"+this.MapName).attr("data-slider-min","0");
-	$("#timeslider-"+this.MapName).attr("data-slider-max",$("#timeSelect"+this.MapName)[0].length-1);
-	$("#timeslider-"+this.MapName).attr("data-slider-value",$("#timeSelect"+this.MapName)[0].selectedIndex);
-	$("#timeslider-"+this.MapName).slider();
 	var _self = this;
-	$("#timeslider-"+this.MapName).on("slideStop", function(slideEvt) {
-		$("#timeSelect"+_self.MapName)[0].selectedIndex = slideEvt.value;
-		timeChanged(_self.MapName);
-	});
-	$("#timeslider-"+this.MapName).val($("#timeSelect"+this.MapName)[0].selectedIndex); //set initial value
 	
+	$("#timeslider-"+this.MapName).slider({
+		min: 0,
+		max: $("#timeSelect"+this.MapName)[0].length-1,
+		step: 1,
+		value: $("#timeSelect"+this.MapName)[0].selectedIndex,
+		stop: function(slideEvt, ui) {
+			$("#timeSelect"+_self.MapName)[0].selectedIndex = ui.value;
+			timeChanged(_self.MapName);
+		}
+	});	
 	$("#TimeSliderDiv_map"+this.MapName+" .slider").width("100%");
 }
 

@@ -63,7 +63,7 @@ input[type="checkbox"], input[type="radio"] {
     box-sizing: border-box; 
 	float: right;
 	z-index: 20;
-	top: -20px;
+	top: -15px;
 }
 
 .TSclose_Button {
