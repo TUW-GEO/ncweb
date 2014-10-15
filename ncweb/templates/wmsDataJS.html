@@ -10,6 +10,7 @@
 	<script src="{{ url_for('static', filename='js/dygraph-combined.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/IPFMap.class.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/IPFDataViewer.class.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/IPFDyGraph.class.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-main.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-user.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/jquery.splitter-0.14.0.js') }}"></script>
@@ -195,12 +196,9 @@
 				<div id="TimeSeriesContainerDiv_mapA" class="timeSeriesContainer">
 					<div class="TimeSeriesTopBar">
 						<div class="TSclose_Button" id="TSClose_mapA"><a onclick="closeDygraph('A')" href="#">X</a></div>
-							<div id="TimeSliderDiv_mapA" class="time-slider">
-								<div id="timeslider-A"></div>
-							</div>
-<!-- 						<div id="TimeSliderDiv_mapA" class="time-slider"> -->
-<!-- 							<input id="timeslider-A" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="5" data-slider-value="80"/> -->
-<!-- 						</div> -->
+						<div id="TimeSliderDiv_mapA" class="time-slider">
+							<div id="timeslider-A"></div>
+						</div>
 					</div>
 					<div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapA">
 					</div>
@@ -213,12 +211,9 @@
 				<div id="TimeSeriesContainerDiv_mapB" class="timeSeriesContainer">
 					<div class="TimeSeriesTopBar">
 						<div class="TSclose_Button" id="TSClose_mapB"><a onclick="closeDygraph('B')" href="#">X</a></div>
-							<div id="TimeSliderDiv_mapB" class="time-slider">
-								<div id="timeslider-B"></div>
-							</div>
-<!-- 						<div id="TimeSliderDiv_mapB" class="time-slider"> -->
-<!-- 							<input id="timeslider-B" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="5" data-slider-value="80"/> -->
-<!-- 						</div> -->
+						<div id="TimeSliderDiv_mapB" class="time-slider">
+							<div id="timeslider-B"></div>
+						</div>
 					</div>
 					<div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapB">
 					</div>

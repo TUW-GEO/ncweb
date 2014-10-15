@@ -47,15 +47,18 @@ function cmapChanged(mapId) {
  * @name disableMap
  * @param {string} mapId - Defines the map */
 function disableMap(mapId) {
+	var refreshMapA = false;
 	if ($("#btn_disableMap"+mapId).hasClass('active')) {
 		return;
 	}
 	if ($("#btn_overlayTopMap"+mapId).hasClass('active')) {
 		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']); //Remove map on target map A
+		refreshMapA = true;
 		$("#btn_overlayTopMap"+mapId).removeClass('active');
 	}
 	if ($("#btn_overlayBottomMap"+mapId).hasClass('active')) {
 		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']); //Remove map on target map A
+		refreshMapA = true;
 		$("#btn_overlayBottomMap"+mapId).removeClass('active');
 	}
 	if ($("#btn_separateMap"+mapId).hasClass('active')) {
@@ -71,6 +74,14 @@ function disableMap(mapId) {
 		IPFDV.ncwebResize();
 	}
 	$("#btn_disableMap"+mapId).addClass('active');
+	
+	if (refreshMapA) {
+		// refresh Dygraph on Map A (if visible)
+		if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
+				&& IPFDV.maps.A.Markers.markers.length > 0) {
+			IPFDV.maps.A.IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+		}
+	}
 }
 
 /** @function
@@ -105,6 +116,7 @@ function addMapAsOverlay(mapId, onTop) {
 	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
 			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
 			$("#cmapSelect"+mapId).val(), IPFDV.maps['A'], onTop, false);
+	
 	if (onTop) {
 		$("#btn_overlayTopMap"+mapId).addClass('active');
 		if ($("#btn_overlayBottomMap"+mapId).hasClass('active')) {
@@ -117,6 +129,12 @@ function addMapAsOverlay(mapId, onTop) {
 			$("#btn_overlayTopMap"+mapId).removeClass('active');
 		}
 	}
+	
+	// refresh Dygraph if visible
+	if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
+			&& IPFDV.maps.A.Markers.markers.length > 0) {
+		IPFDV.maps.A.IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+	}
 }
 
 /** @function
@@ -124,15 +142,22 @@ function addMapAsOverlay(mapId, onTop) {
  * @name addMapSeparate
  * @param {string} mapId - Defines the map */
 function addMapSeparate(mapId) {
+	var refreshMapA = false;
 	if ($("#btn_separateMap"+mapId).hasClass('active')) {
 		return;
 	}
 	if ($("#btn_overlayTopMap"+mapId).hasClass('active')) {
 		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']);
+		
+		refreshMapA = true;
+		
 		$("#btn_overlayTopMap"+mapId).removeClass('active');
 	}
 	if ($("#btn_overlayBottomMap"+mapId).hasClass('active')) {
 		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']);
+		
+		refreshMapA = true;
+		
 		$("#btn_overlayBottomMap"+mapId).removeClass('active');
 	}
 	if ($("#btn_disableMap"+mapId).hasClass('active')) {
@@ -152,9 +177,25 @@ function addMapSeparate(mapId) {
 	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
 			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
 			$("#cmapSelect"+mapId).val(), IPFDV.maps[mapId], false, false);
+	
 	IPFDV.maps[mapId].Map.setCenter(new OpenLayers.LonLat(0,0));
 	IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
+	
 	$("#btn_separateMap"+mapId).addClass('active');
+	
+	if (refreshMapA) {
+		// refresh Dygraph on Map A (if visible)
+		if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
+				&& IPFDV.maps.A.Markers.markers.length > 0) {
+			IPFDV.maps.A.IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+		}
+	}
+	
+	// show Dygraph if visible on Map A
+	if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
+			&& IPFDV.maps.A.Markers.markers.length > 0) {
+		IPFDV.maps[mapId].IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+	}
 }
 
 /** @function

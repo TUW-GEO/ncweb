@@ -231,11 +231,11 @@ IPFDataViewer.prototype.ncwebResize = function() {
 	$("#TimeSeriesContainerDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-50);
 	$("#TimeSeriesDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-40);
 	$("#TimeSeriesDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-50);
-	if(this.maps.A.DyGraph) {
-		this.maps.A.DyGraph.resize();
+	if(this.maps.A.IPFDyGraph.DyGraph) {
+		this.maps.A.IPFDyGraph.DyGraph.resize();
 	}
-	if(this.maps.B.DyGraph) {
-		this.maps.B.DyGraph.resize();
+	if(this.maps.B.IPFDyGraph.DyGraph) {
+		this.maps.B.IPFDyGraph.DyGraph.resize();
 	}
 	
 	this.maps['A'].Map.updateSize();
