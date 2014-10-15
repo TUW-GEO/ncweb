@@ -12,6 +12,7 @@ function IPFDataViewer(serverurl) {
 	//deactivate all map options
 	$("#cb_linkABgeo").attr("checked", false);
 	$("#cb_linkABtemp").attr("checked", false);
+	$("#cb_linkABmarker").attr("checked", false);
 	$("#cb_getTS").attr("checked", false);
 	
 	//Initialize custom click control

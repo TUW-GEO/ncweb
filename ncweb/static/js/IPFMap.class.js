@@ -172,6 +172,14 @@ IPFMap.prototype.initMap = function() {
 		trigger : function(e) {
 			var lonlat = _self.Map.getLonLatFromPixel(e.xy);
 			_self.IPFDyGraph.showDyGraph(lonlat);
+			if ($("#cb_linkABmarker").is(':checked') && $("#btn_separateMapB").hasClass('active')) {
+				if (_self.MapName == 'A') {
+					IPFDV.maps.B.IPFDyGraph.showDyGraph(lonlat);
+				}
+				else if (_self.MapName == 'B') {
+					IPFDV.maps.A.IPFDyGraph.showDyGraph(lonlat);
+				}
+			}
 		}
 	});
 }

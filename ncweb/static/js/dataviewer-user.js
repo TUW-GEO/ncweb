@@ -203,7 +203,7 @@ function addMapSeparate(mapId) {
  * @name toggleMapLink
  * @param {string} mapId1 - Defines the target map 
  * @param {string} mapId2 - Defines the source map 
- * @param {string} type - "geo" or "temp" for geographic/temporal linking */
+ * @param {string} type - "geo", "temp" or "marker" for geographic/temporal/marker linking */
 function toggleMapLink(mapId1, mapId2, type) {
 	if(type=="geo") {
 		if($("#cb_linkABgeo").is(':checked')) {
@@ -240,6 +240,18 @@ function toggleMapLink(mapId1, mapId2, type) {
 			// Unregister Event
 			IPFDV.maps[mapId1].registerTempLinkEvent(IPFDV.maps[mapId2],false);
 			IPFDV.maps[mapId2].registerTempLinkEvent(IPFDV.maps[mapId1],false);
+		}
+	}
+	else if(type=="marker") {
+		if ($("#cb_linkABmarker").is(':checked') && $("#btn_separateMap"+mapId2).hasClass('active')) {
+			if ($('#TimeSeriesContainerDiv_map' + mapId1).is(':visible')
+					&& IPFDV.maps[mapId1].Markers.markers.length > 0) {
+				IPFDV.maps[mapId2].IPFDyGraph.showDyGraph(IPFDV.maps[mapId1].Markers.markers[0].lonlat);
+			}
+			else if ($('#TimeSeriesContainerDiv_map' + mapId2).is(':visible')
+					&& IPFDV.maps[mapId2].Markers.markers.length > 0) {
+				IPFDV.maps[mapId1].IPFDyGraph.showDyGraph(IPFDV.maps[mapId2].Markers.markers[0].lonlat);
+			}
 		}
 	}
 }
