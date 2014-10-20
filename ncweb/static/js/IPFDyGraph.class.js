@@ -51,7 +51,14 @@ IPFDyGraph.prototype.showDyGraph = function(lonlat) {
 		    	_self.showTimeUnderlay(canvas,area,layout,_self);
 		    },
 			clickCallback : function(response, x, point) {
-				_self.map.setTimePosition(x);
+				_self.map.syncDateTime(x);
+				_self.map.TempLinkEvent();
+				if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
+						IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_bottom) {
+					IPFDV.maps.B.syncDateTime(x);
+				}
+				_self.DyGraph.updateOptions({});
+				_self.DyGraph.resize();
 			}
 		});
 	}
@@ -228,7 +235,7 @@ IPFDyGraph.prototype.drawDyGraph = function() {
 	}
 	
 	dygraphData = getDyGraphDataArray(dygraphData, _self);
-	labels.push(this.DyGraphLabels[1]);
+	labels.push("Map"+_self.map.MapName+": "+this.DyGraphLabels[1]);
 	if(this.DyGraphData.length < 50) {
 		showPointsArr.push(true);
 	}
@@ -240,7 +247,7 @@ IPFDyGraph.prototype.drawDyGraph = function() {
 	if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
 			IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_bottom) {
 		dygraphData = getDyGraphDataArray(dygraphData, IPFDV.maps.B.IPFDyGraph);
-		labels.push(IPFDV.maps.B.IPFDyGraph.DyGraphLabels[1]);
+		labels.push("MapB: "+IPFDV.maps.B.IPFDyGraph.DyGraphLabels[1]);
 		if(IPFDV.maps.B.IPFDyGraph.DyGraphData.length < 50) {
 			showPointsArr.push(true);
 		}
@@ -281,7 +288,7 @@ IPFDyGraph.prototype.showTimeUnderlay=function(canvas,area,layout,_self){
 	    	two_highlights = true;
 	    }
 	}
-    var highlightTime = _self.map.Date;
+    var highlightTime = new Date($("#timeSelect"+_self.map.MapName).val());
     if (highlightTime == null && two_highlights == false)	return;
     var coordStart = _self.DyGraph.toDomCoords(highlightTime.getTime(),0);
     var coordEnd = _self.DyGraph.toDomCoords(highlightTime.getTime(),0);
@@ -291,7 +298,7 @@ IPFDyGraph.prototype.showTimeUnderlay=function(canvas,area,layout,_self){
     canvas.fillRect(left-1,area.y,right-left+1,area.h);
     
     if (two_highlights) {
-    	var highlightTime2 = IPFDV.maps.B.Date;
+    	var highlightTime2 = new Date($("#timeSelect"+IPFDV.maps.B.MapName).val());
         var coordStart2 = _self.DyGraph.toDomCoords(highlightTime2.getTime(),0);
         var coordEnd2 = _self.DyGraph.toDomCoords(highlightTime2.getTime(),0);
         var left2 = coordStart2[0];

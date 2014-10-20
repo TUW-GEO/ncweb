@@ -341,22 +341,7 @@ IPFMap.prototype.registerGeoLinkEvent = function(targetMap, register) {
 IPFMap.prototype.registerTempLinkEvent = function(targetMap, register) {
 	var sourceMap = this;
 	var synctempMapHandler = function() {
-		var selectValue = -1;
-		var minDateDiff = -1;
-		var options = $("#timeSelect" + targetMap.MapName + " option");
-		for (i = 0; i < options.length; i++) {
-			var date = new Date(options[i].value);
-			if (minDateDiff > Math.abs(sourceMap.Date - date)
-					|| minDateDiff < 0) {
-				minDateDiff = Math.abs(sourceMap.Date - date);
-				selectValue = options[i].value;
-			}
-		}
-		if ($("#timeSelect" + targetMap.MapName).val != selectValue) {
-			$("#timeSelect" + targetMap.MapName).val(selectValue); // Sync Control
-			targetMap.Date = sourceMap.Date; // Sync internal Date
-			IPFDV.showLayerOnMap(targetMap, false);
-		}
+		targetMap.syncDateTime(sourceMap.Date);
 	};
 
 	if (register) {
@@ -365,6 +350,36 @@ IPFMap.prototype.registerTempLinkEvent = function(targetMap, register) {
 	} else {
 		this.TempLinkEvent = function() {
 		}; // Do Nothing
+	}
+}
+
+
+/**
+ * @function Set the internal date and the control date to the nearest time position to syncdate
+ * @name syncDateTime
+ * @param {Date} syncdate - time position
+ */
+IPFMap.prototype.syncDateTime = function(syncdate) {
+	var selectValue = -1;
+	var minDateDiff = -1;
+	var options = $("#timeSelect" + this.MapName + " option");
+	for (var i = 0; i < options.length; i++) {
+		var date = new Date(options[i].value);
+		if (minDateDiff > Math.abs(syncdate - date)
+				|| minDateDiff < 0) {
+			minDateDiff = Math.abs(syncdate - date);
+			selectValue = options[i].value;
+		}
+	}
+	if ($("#timeSelect" + this.MapName).val != selectValue) {
+		$("#timeSelect" + this.MapName).val(selectValue); // Sync Control
+		this.Date = syncdate; // Sync internal Date
+		IPFDV.showLayerOnMap(this, false);
+	}
+	
+	if (this.IPFDyGraph.DyGraph != null) {
+		this.IPFDyGraph.DyGraph.updateOptions({});
+		this.IPFDyGraph.DyGraph.resize();
 	}
 }
 
