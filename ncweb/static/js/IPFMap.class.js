@@ -353,8 +353,7 @@ IPFMap.prototype.registerTempLinkEvent = function(targetMap, register) {
 			}
 		}
 		if ($("#timeSelect" + targetMap.MapName).val != selectValue) {
-			$("#timeSelect" + targetMap.MapName).val(selectValue); // Sync
-																	// Control
+			$("#timeSelect" + targetMap.MapName).val(selectValue); // Sync Control
 			targetMap.Date = sourceMap.Date; // Sync internal Date
 			IPFDV.showLayerOnMap(targetMap, false);
 		}

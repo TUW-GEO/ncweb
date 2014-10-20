@@ -162,6 +162,7 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 				$(o).html(layer.dimensions.time.values[t]);
 				$(time_ctrl).append(o);
 				
+				// get the time next to map.Date
 				if(minDateDiff > Math.abs(map.Date - new Date(layer.dimensions.time.values[t])) || minDateDiff < 0) {
 					minDateDiff = Math.abs(map.Date - new Date(layer.dimensions.time.values[t]));
 					selectValue = layer.dimensions.time.values[t];
