@@ -7,6 +7,8 @@ function IPFDataViewer(serverurl) {
 	
 	this.maps = {};
 	
+	this.ViewStates = Object.freeze({"disabled":0, "overlay_top":1, "overlay_bottom":2, "separate":3});
+	
 	
 	
 	//deactivate all map options
@@ -183,12 +185,14 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
  * @param {boolean} reloadTS - Reload the TimeSeries Dygraph if True */
 IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS) {
 	
-	//var onTop = $("#btn_overlayTopMap"+map.MapName).hasClass('active');
 	// @TODO: Only works with MapA and MapB
-	var onTop = $("#btn_overlayTopMapB").hasClass('active');
+	var onTop = false;
+	if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top) {
+		onTop = true;
+	}
 	
 	// show data on separate map
-	if(map.MapName == 'A' || $("#btn_separateMap"+map.MapName).hasClass('active') == true) {
+	if(map.MapName == 'A' || map.ViewState == IPFDV.ViewStates.separate) {
 		
 		map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name, 
 				$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0], 
@@ -196,8 +200,8 @@ IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS) {
 	}
 	
 	// show data as overlay on MapA
-	else if($("#btn_overlayTopMap"+map.MapName).hasClass('active') == true ||
-			$("#btn_overlayBottomMap"+map.MapName).hasClass('active') == true) {
+	else if(map.ViewState == IPFDV.ViewStates.overlay_top ||
+			map.ViewState == IPFDV.ViewStates.overlay_bottom) {
 		map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name, 
 				$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0], 
 				$("#cmapSelect"+map.MapName).val(), this.maps["A"], onTop, reloadTS);

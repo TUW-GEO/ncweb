@@ -5,6 +5,10 @@
 function IPFMap(Name, Div) {
 
 	this.Projection = new OpenLayers.Projection("EPSG:4326");
+	
+	// IPFDataViewer ViewState 
+	// (0 - disabled, 1 - overlay_top, 2 - overlay_bottom, 3 - splitscreen)
+	this.ViewState = 0;
 
 	// OpenLayers map object
 	this.Map = null;
@@ -172,7 +176,7 @@ IPFMap.prototype.initMap = function() {
 		trigger : function(e) {
 			var lonlat = _self.Map.getLonLatFromPixel(e.xy);
 			_self.IPFDyGraph.showDyGraph(lonlat);
-			if ($("#cb_linkABmarker").is(':checked') && $("#btn_separateMapB").hasClass('active')) {
+			if ($("#cb_linkABmarker").is(':checked') && IPFDV.maps.B.ViewState == IPFDV.ViewStates.separate) {
 				if (_self.MapName == 'A') {
 					IPFDV.maps.B.IPFDyGraph.showDyGraph(lonlat);
 				}
