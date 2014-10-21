@@ -57,24 +57,9 @@ IPFMap.prototype.initMap = function() {
 	});
 
 	// Add some base layer
-	var wms_name = "OSM-WMS worldwide";
-	var wms_url = "http://129.206.228.72/cached/osm?";
+	var wms_name = "Opengeo BlueMarble";
+	var wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
 	var wms_options = {
-		layers : 'osm_auto:all',
-		srs : 'EPSG:900913',
-		format : 'image/png'
-	};
-	var layerOSM = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
-		'buffer' : 1,
-		transitionEffect : 'resize',
-		removeBackBufferDelay : 0,
-		className : 'olLayerGridCustom'
-	});
-	this.Map.addLayer(layerOSM);
-
-	wms_name = "Opengeo BlueMarble";
-	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
-	wms_options = {
 		layers : 'bluemarble',
 		tiled : true,
 		srs : 'EPSG:4326',
@@ -87,6 +72,21 @@ IPFMap.prototype.initMap = function() {
 		className : 'olLayerGridCustom'
 	});
 	this.Map.addLayer(opengeo);
+	
+	wms_name = "OSM-WMS worldwide";
+	wms_url = "http://129.206.228.72/cached/osm?";
+	wms_options = {
+		layers : 'osm_auto:all',
+		srs : 'EPSG:900913',
+		format : 'image/png'
+	};
+	var layerOSM = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
+		'buffer' : 1,
+		transitionEffect : 'resize',
+		removeBackBufferDelay : 0,
+		className : 'olLayerGridCustom'
+	});
+	this.Map.addLayer(layerOSM);
 
 	wms_name = "Opengeo OSM";
 	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";

@@ -51,14 +51,16 @@ IPFDyGraph.prototype.showDyGraph = function(lonlat) {
 		    	_self.showTimeUnderlay(canvas,area,layout,_self);
 		    },
 			clickCallback : function(response, x, point) {
-				_self.map.syncDateTime(x);
-				_self.map.TempLinkEvent();
-				if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
-						IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_bottom) {
-					IPFDV.maps.B.syncDateTime(x);
+				if(response.ctrlKey){
+					_self.map.syncDateTime(x);
+					_self.map.TempLinkEvent();
+					if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
+							IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_bottom) {
+						IPFDV.maps.B.syncDateTime(x);
+					}
+					_self.DyGraph.updateOptions({});
+					_self.DyGraph.resize();
 				}
-				_self.DyGraph.updateOptions({});
-				_self.DyGraph.resize();
 			}
 		});
 	}
