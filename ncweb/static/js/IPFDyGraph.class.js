@@ -31,13 +31,7 @@ IPFDyGraph.prototype.showDyGraph = function(lonlat) {
 	$("#TimeSeriesOverlay_map" + this.map.MapName).html($(overlay_LOADING));
 	$("#TimeSeriesOverlay_map" + this.map.MapName).show();
 	$('#TimeSeriesContainerDiv_map' + this.map.MapName).show();
-	// Create TimeSlider Object
-	if ($("#timeSelect" + this.map.MapName)[0].length > 0) {
-		this.setTimeSlider();
-		$("#TimeSliderDiv_map" + this.map.MapName).show();
-	} else {
-		$("#TimeSliderDiv_map" + this.map.MapName).hide();
-	}
+
 	// Add Map Marker to the map
 	this.map.addMapMarker(lonlat);
 	var _self = this;
@@ -244,7 +238,6 @@ IPFDyGraph.prototype.drawDyGraph = function() {
 	else {
 		showPointsArr.push(false);
 	}
-	$("#TimeSliderDiv_map" + _self.map.MapName).css('padding-right','4px');
 	
 	if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
 			IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_bottom) {
@@ -256,7 +249,6 @@ IPFDyGraph.prototype.drawDyGraph = function() {
 		else {
 			showPointsArr.push(false);
 		}
-		$("#TimeSliderDiv_map" + _self.map.MapName).css('padding-right','62px');
 	}
 	
 	if(dygraphData.length!=0){
@@ -308,24 +300,4 @@ IPFDyGraph.prototype.showTimeUnderlay=function(canvas,area,layout,_self){
         canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
         canvas.fillRect(left2-1,area.y,right2-left2+1,area.h);
     }
-}
-
-/**
- * @function Set the time slider value to the selected Index
- * @name setTimeSlider
- */
-IPFDyGraph.prototype.setTimeSlider = function() {
-	var _self = this;
-
-	$("#timeslider-" + this.map.MapName).slider({
-		min : 0,
-		max : $("#timeSelect" + this.map.MapName)[0].length - 1,
-		step : 1,
-		value : $("#timeSelect" + this.map.MapName)[0].selectedIndex,
-		stop : function(slideEvt, ui) {
-			$("#timeSelect" + _self.map.MapName)[0].selectedIndex = ui.value;
-			timeChanged(_self.map.MapName);
-		}
-	});
-	$("#TimeSliderDiv_map" + this.map.MapName + " .slider").width("100%");
 }

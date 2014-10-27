@@ -227,6 +227,10 @@ IPFDataViewer.prototype.resetControls = function(map) {
 IPFDataViewer.prototype.ncwebResize = function() {
 	resizeDiv(this.maps.A.MapDivId);
 	resizeDiv(this.maps.B.MapDivId);
+	resizeDiv("#mapSettingsContainerDiv_mapA");
+	resizeDiv("#mapSettingsContainerDiv_mapB");
+	resizeDiv("#showMapSettingsButton_mapA");
+	resizeDiv("#showMapSettingsButton_mapB");
 	resizeDiv('#splitcontainer');
 	resizeDiv('.left_panel');
 	resizeDiv('.right_panel');
@@ -257,5 +261,5 @@ IPFDataViewer.prototype.ncwebResize = function() {
  * @name resizeDiv */
 var resizeDiv = function(divId) {
 	var div = $(divId);
-	div.height(($(window).height() - $('#map-controls').height() - $('#footer').height() - $('.navbar').height() -60));
+	div.height(($(window).height() - $('#footer').height() - $('.navbar').height() -60));
 }

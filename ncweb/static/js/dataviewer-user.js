@@ -286,3 +286,13 @@ function closeDygraph(mapId) {
 	$('#TimeSeriesContainerDiv_map'+mapId).hide();
 	IPFDV.maps[mapId].Markers.clearMarkers();
 }
+
+/** @function
+ * Toogles the Map Settings Control
+ * @name toggleCtrl
+ * @param {string} mapId - Defines the map, where to toggle the div */
+function toggleCtrl(mapId) {
+	$('#mapSettingsContainerDiv_map'+mapId).toggle('slide', {
+	    direction: 'left'
+	}, 1000);
+}

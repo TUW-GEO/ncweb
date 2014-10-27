@@ -277,8 +277,7 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 		if (reloadTS) {
 			targetMap.IPFDyGraph.showDyGraph(targetMap.Markers.markers[0].lonlat);
 		} else {
-			targetMap.IPFDyGraph.setTimeSlider(); // just refresh the time slider (don't
-										// refresh the dygraph - SLOW!)
+			// Not necessary to reload dygraph here
 			targetMap.addMapMarker(targetMap.Markers.markers[0].lonlat);
 		}
 	}

@@ -28,185 +28,205 @@
 			'<i class="glyphicon glyphicon-warning-sign"></i>' + 
 			'&nbsp; Error while requesting time series data.</div>';
 	</script>
-	
-	<div id="map-controls">
-    <ul class="nav nav-tabs" id="mapTab" data-tabs="mapTab">
-		<li class="active"><a href="#tab-mapA" data-toggle="tab">Map A</a></li>
-		<li><a href="#tab-mapB" data-toggle="tab">Map B</a></li>
-		<li><a href="#tab-mapOptions" data-toggle="tab">Map Options</a></li>
-	</ul>
-    <div class="tab-content" id="tab-content">
-	  	<div class="tab-pane active" id="tab-mapA">
-	  		<div class="well form-group">
-	  			<div class="col-sm-6">
-		  			<div class="row">
-					</div>
-			    	<div class="row">
-						<div class="control-label col-sm-3" style="font-weight:bold;">WMS</div>
-					    <div class="controls col-sm-8">
-							<select class='form-control' id="wmsSelectA" name="wmsSelectA" onchange="wmsChanged('A');">
-							</select>
-						</div>
-					</div>
-					<div class="row">
-					    <div class="control-label col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
-					    <div class="controls col-sm-8">
-					        <select class='form-control' id="ncvarSelectA" name="ncvarSelectA" onchange="ncvarChanged('A');">
-					        </select>
-					    </div>
-				    </div>
-					<div class="row">
-					    <div class="control-label col-sm-3" style="font-weight:bold;">Time Positions</div>
-					    <div class="controls col-sm-8">
-					        <select class='form-control' id="timeSelectA" name="timeSelectA" onchange="timeChanged('A');">
-					        </select>
-					    </div>
-				    </div>
-			    </div>
-			    <div class="col-sm-6">
-		  			<div class="row">
-					</div>
-			    	<div class="row">
-						<div class="control-label col-sm-3" style="font-weight:bold;">Opacity</div>
-					    <div class="controls col-sm-4">
-					    	<div id="opacityslider-A"></div>
-<!-- 							<input id="opacityslider-A" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="5" data-slider-value="80"/> -->
-						</div>
-					</div>
-					<div class="row">
-					    <div class="control-label col-sm-3" style="font-weight:bold;">Colormap</div>
-					    <div class="controls col-sm-6 col-md-5 col-lg-4">
-							<select class='form-control' id="cmapSelectA" name="cmapSelectA" onchange="cmapChanged('A');">
-								{% for choice in cmap_choices -%} 	
-						    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
-						    	{%- endfor %}
-					        </select>
-						</div>
-				    </div>
-					<div class="row">
-					    <div class="control-label col-sm-3" style="font-weight:bold;">Colorbar</div>
-						<div class="controls col-sm-6">
-							<img id="imgColorbarA" alt=" " src="" class="colorbar"/>
-						</div>
-				    </div>
-			    </div>
-			</div>
-	  	</div>
-	  	<div class="tab-pane" id="tab-mapB">
-			<div class="well form-group">
-				<div class="col-sm-6">
-					<div class="row">
-						<div class="control-label col-sm-3" style="font-weight:bold;">Show Map</div>
-						<div class="controls col-sm-8">
-							<div class="btn-group">
-							  <button type="button" id="btn_disableMapB" class="btn btn-default active" onclick="disableMap('B')">Disabled</button>
-							  <button type="button" id="btn_overlayTopMapB" class="btn btn-default" onclick="addMapAsOverlay('B',true)">Overlay (top)</button>
-							  <button type="button" id="btn_overlayBottomMapB" class="btn btn-default" onclick="addMapAsOverlay('B',false)">Overlay (bottom)</button>
-							  <button type="button" id="btn_separateMapB" class="btn btn-default" onclick="addMapSeparate('B')">Split Screen</button>
-							</div>
-						</div>
-					</div>
-			    	<div class="row">
-						<div class="control-label col-sm-3" style="font-weight:bold;">WMS</div>
-					    <div class="controls col-sm-8">
-							<select class='form-control' id="wmsSelectB" name="wmsSelectB" onchange="wmsChanged('B');">
-							</select>
-						</div>
-					</div>
-					<div class="row">
-					    <div class="control-label col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
-					    <div class="controls col-sm-8">
-					        <select class='form-control' id="ncvarSelectB" name="ncvarSelectB" onchange="ncvarChanged('B');">
-					        </select>
-					    </div>
-				    </div>
-					<div class="row">
-					    <div class="control-label col-sm-3" style="font-weight:bold;">Time Positions</div>
-					    <div class="controls col-sm-8">
-					        <select class='form-control' id="timeSelectB" name="timeSelectB" onchange="timeChanged('B');">
-					        </select>
-					    </div>
-				    </div>
-			    </div>
-			    <div class="col-sm-6">
-		  			<div class="row">
-					</div>
-			    	<div class="row">
-						<div class="control-label col-sm-3" style="font-weight:bold;">Opacity</div>
-					    <div class="controls col-sm-4">
-					    	<div id="opacityslider-B"></div>
-<!-- 							<input id="opacityslider-B" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="5" data-slider-value="80"/> -->
-						</div>
-					</div>
-					<div class="row">
-					    <div class="control-label col-sm-3" style="font-weight:bold;">Colormap</div>
-					    <div class="controls col-sm-6 col-md-5 col-lg-4">
-							<select class='form-control' id="cmapSelectB" name="cmapSelectB" onchange="cmapChanged('B');">
-								{% for choice in cmap_choices -%} 	
-						    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
-						    	{%- endfor %}
-					        </select>
-						</div>
-				    </div>
-					<div class="row">
-					    <div class="control-label col-sm-3" style="font-weight:bold;">Colorbar</div>
-						<div class="controls col-sm-6">
-							<img id="imgColorbarB" alt=" " src="" class="colorbar"/>
-						</div>
-				    </div>
-			    </div>
-			</div>
-		</div>
-		<div class="tab-pane" id="tab-mapOptions">
-			<div class="well form-group">
-				<div class="row">
-					<div class="control-label col-sm-2" style="font-weight:bold;">Link Maps</div>
-					<div class="controls col-lg-4 col-md-5 col-sm-6">
-						<label class="checkbox-inline">
-							<input type="checkbox" id="cb_linkABgeo" value="linkABgeo" onclick="toggleMapLink('A','B','geo')">Map A <i class="glyphicon glyphicon-link"></i> Map B (geographic)
-						</label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="control-label col-sm-2"></div>
-					<div class="controls col-lg-4 col-md-5 col-sm-6">
-						<label class="checkbox-inline">
-							<input type="checkbox" id="cb_linkABtemp" value="linkABtemp" onclick="toggleMapLink('A','B','temp')">Map A <i class="glyphicon glyphicon-link"></i> Map B (temporal)
-						</label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="control-label col-sm-2" style="font-weight:bold;">Get Timeseries</div>
-					<div class="controls col-lg-4 col-md-5 col-sm-6">
-						<label class="checkbox-inline">
-							<input type="checkbox" id="cb_getTS" value="getTS" onclick="toggleGetTS()">activate <i class="glyphicon glyphicon-screenshot"></i>
-						</label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="control-label col-sm-2"></div>
-					<div class="controls col-lg-4 col-md-5 col-sm-6">
-						<label class="checkbox-inline">
-							<input type="checkbox" id="cb_linkABmarker" value="linkABmarker" onclick="toggleMapLink('A','B','marker')">Map A <i class="glyphicon glyphicon-link"></i> Map B (marker)
-						</label>
-					</div>
-			    </div>
-			</div>
-		</div>
-	</div>
-	</div>
     
 	<div class="well">
 		<div id="splitcontainer" class="splitcontainer">
 			<div>
 				<div style="position:relative;">
 				<div id="mapA" class="map"></div>
+				<div id="mapSettingsContainerDiv_mapA" class="mapSettingsContainer col-sm-4">
+					<div id="map-controls" style="background: #d4d4d4; height: 100%; width: 100%;">
+					    <ul class="nav nav-tabs" id="mapTab" data-tabs="mapTab">
+							<li class="active"><a href="#tab-mapA" data-toggle="tab">Map A</a></li>
+							<li><a href="#tab-mapB" data-toggle="tab">Map B</a></li>
+							<li><a href="#tab-mapOptions" data-toggle="tab">Map Options</a></li>
+						</ul>
+					    <div class="tab-content" id="tab-content">
+						  	<div class="tab-pane active" id="tab-mapA">
+								<div id="mapCtrlGroup_mapA" class="mapCtrlGroup form-group form-group-sm">
+						  			<div class="col">
+						  				<div class="row">
+										</div>
+						  				<div class="row">
+						  				</div>
+								    	<div class="row">
+											<div class="control-label col-sm-3" style="font-weight:bold;">WMS</div>
+										    <div class="controls col-sm-8">
+												<select class='form-control-sm' id="wmsSelectA" name="wmsSelectA" onchange="wmsChanged('A');">
+												</select>
+											</div>
+										</div>
+										<div class="row">
+										    <div class="control-label col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
+										    <div class="controls col-sm-8">
+										        <select class='form-control-sm' id="ncvarSelectA" name="ncvarSelectA" onchange="ncvarChanged('A');">
+										        </select>
+										    </div>
+									    </div>
+										<div class="row">
+										    <div class="control-label col-sm-3" style="font-weight:bold;">Time Positions</div>
+										    <div class="controls col-sm-8">
+										        <select class='form-control-sm' id="timeSelectA" name="timeSelectA" onchange="timeChanged('A');">
+										        </select>
+										    </div>
+									    </div>
+									    <div class="row">
+										</div>
+								    	<div class="row">
+											<div class="control-label col-sm-3" style="font-weight:bold;">Opacity</div>
+										    <div class="controls col-xs-6 col-sm-6">
+										    	<div class="form-control-sm" id="opacityslider-A"></div>
+											</div>
+										</div>
+										<div class="row">
+										    <div class="control-label col-sm-3" style="font-weight:bold;">Colormap</div>
+										    <div class="controls col-sm-8">
+												<select class='form-control-sm' id="cmapSelectA" name="cmapSelectA" onchange="cmapChanged('A');">
+													{% for choice in cmap_choices -%} 	
+											    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+											    	{%- endfor %}
+										        </select>
+											</div>
+									    </div>
+										<div class="row">
+										    <div class="control-label col-sm-3" style="font-weight:bold;">Colorbar</div>
+											<div class="controls col-sm-8">
+												<img id="imgColorbarA" alt=" " src="" class="colorbar"/>
+											</div>
+									    </div>
+									    <div class="row">
+										</div>
+							  			<div class="row">
+							  			</div>
+								    </div>
+								</div>
+							</div>
+							<div class="tab-pane" id="tab-mapB">
+								<div id="mapCtrlGroup_mapB" class="mapCtrlGroup form-group form-group-sm">
+									<div class="col">
+										<div class="row">
+											<div class="control-label col-sm-12" style="font-weight:bold;">Show Map B</div>
+										</div>
+										<div class="row">
+											<div class="controls col-sm-12" style="padding-right: 0px;">
+												<div class="btn-group btn-group-sm">
+												  <button type="button" id="btn_disableMapB" class="btn btn-default active" onclick="disableMap('B')">Disabled</button>
+												  <button type="button" id="btn_overlayTopMapB" class="btn btn-default" onclick="addMapAsOverlay('B',true)">Overlay (Top)</button>
+												  <button type="button" id="btn_overlayBottomMapB" class="btn btn-default" onclick="addMapAsOverlay('B',false)">Overlay (Bottom)</button>
+												  <button type="button" id="btn_separateMapB" class="btn btn-default" onclick="addMapSeparate('B')">Split Screen</button>
+												</div>
+											</div>
+										</div>
+								    	<div class="row">
+											<div class="control-label col-sm-3" style="font-weight:bold;">WMS</div>
+										    <div class="controls col-sm-8">
+												<select class='form-control-sm' id="wmsSelectB" name="wmsSelectB" onchange="wmsChanged('B');">
+												</select>
+											</div>
+										</div>
+										<div class="row">
+										    <div class="control-label col-sm-3" style="font-weight:bold;">NetCDF Variables</div>
+										    <div class="controls col-sm-8">
+										        <select class='form-control-sm' id="ncvarSelectB" name="ncvarSelectB" onchange="ncvarChanged('B');">
+										        </select>
+										    </div>
+									    </div>
+										<div class="row">
+										    <div class="control-label col-sm-3" style="font-weight:bold;">Time Positions</div>
+										    <div class="controls col-sm-8">
+										        <select class='form-control-sm' id="timeSelectB" name="timeSelectB" onchange="timeChanged('B');">
+										        </select>
+										    </div>
+									    </div>
+							  			<div class="row">
+										</div>
+								    	<div class="row">
+											<div class="control-label col-sm-3" style="font-weight:bold;">Opacity</div>
+										    <div class="controls col-xs-6 col-sm-6">
+										    	<div id="opacityslider-B"></div>
+											</div>
+										</div>
+										<div class="row">
+										    <div class="control-label col-sm-3" style="font-weight:bold;">Colormap</div>
+										    <div class="controls col-sm-8">
+												<select class='form-control-sm' id="cmapSelectB" name="cmapSelectB" onchange="cmapChanged('B');">
+													{% for choice in cmap_choices -%} 	
+											    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+											    	{%- endfor %}
+										        </select>
+											</div>
+									    </div>
+										<div class="row">
+										    <div class="control-label col-sm-3" style="font-weight:bold;">Colorbar</div>
+											<div class="controls col-sm-6">
+												<img id="imgColorbarB" alt=" " src="" class="colorbar"/>
+											</div>
+									    </div>
+									    <div class="row">
+										</div>
+							  			<div class="row">
+							  			</div>
+								    </div>
+								</div>
+							</div>
+							<div class="tab-pane" id="tab-mapOptions">
+								<div class="mapCtrlGroup form-group form-group-sm">
+									<div class="row">
+									</div>
+						  			<div class="row">
+						  			</div>
+									<div class="row">
+										<div class="control-label col-sm-3" style="font-weight:bold;">Link Maps</div>
+										<div class="controls col-sm-8">
+											<label class="checkbox-inline">
+												<input type="checkbox" id="cb_linkABgeo" value="linkABgeo" onclick="toggleMapLink('A','B','geo')">Map A <i class="glyphicon glyphicon-link"></i> Map B (geographic)
+											</label>
+										</div>
+									</div>
+									<div class="row">
+										<div class="control-label col-sm-3"></div>
+										<div class="controls col-sm-8">
+											<label class="checkbox-inline">
+												<input type="checkbox" id="cb_linkABtemp" value="linkABtemp" onclick="toggleMapLink('A','B','temp')">Map A <i class="glyphicon glyphicon-link"></i> Map B (temporal)
+											</label>
+										</div>
+									</div>
+									<div class="row">
+										<div class="control-label col-sm-3" style="font-weight:bold;">Get Timeseries</div>
+										<div class="controls col-sm-8">
+											<label class="checkbox-inline">
+												<input type="checkbox" id="cb_getTS" value="getTS" onclick="toggleGetTS()">activate <i class="glyphicon glyphicon-screenshot"></i>
+											</label>
+										</div>
+									</div>
+									<div class="row">
+										<div class="control-label col-sm-3"></div>
+										<div class="controls col-sm-8">
+											<label class="checkbox-inline">
+												<input type="checkbox" id="cb_linkABmarker" value="linkABmarker" onclick="toggleMapLink('A','B','marker')">Map A <i class="glyphicon glyphicon-link"></i> Map B (marker)
+											</label>
+										</div>
+								    </div>
+								    <div class="row">
+									</div>
+						  			<div class="row">
+						  			</div>
+								</div>
+							</div>
+						</div>
+					</div>	
+					<a href="javascript:void(0);" onclick="toggleCtrl('A');"><div id="mapCtrl_btnclose" class="mapSettingsToggleCtrl" style="right: -24px;">
+				    	<i class="glyphicon glyphicon-chevron-left"></i>
+					</div></a>
+				</div>
+				<div id="showMapSettingsButton_mapA" class="showMapSettingsButton">
+					<a href="javascript:void(0);" onclick="toggleCtrl('A');"><div id="mapCtrl_btnopen" class="mapSettingsToggleCtrl" style="left: 0px;">
+				    	<i class="glyphicon glyphicon-chevron-right"></i>
+					</div></a>
+				</div>
 				<div id="TimeSeriesContainerDiv_mapA" class="timeSeriesContainer">
 					<div class="TimeSeriesTopBar">
 						<div class="TSclose_Button" id="TSClose_mapA"><a onclick="closeDygraph('A')" href="#">X</a></div>
-						<div id="TimeSliderDiv_mapA" class="time-slider">
-							<div id="timeslider-A"></div>
-						</div>
 					</div>
 					<div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapA">
 					</div>
@@ -221,9 +241,6 @@
 				<div id="TimeSeriesContainerDiv_mapB" class="timeSeriesContainer">
 					<div class="TimeSeriesTopBar">
 						<div class="TSclose_Button" id="TSClose_mapB"><a onclick="closeDygraph('B')" href="#">X</a></div>
-						<div id="TimeSliderDiv_mapB" class="time-slider">
-							<div id="timeslider-B"></div>
-						</div>
 					</div>
 					<div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapB">
 					</div>
