@@ -34,12 +34,15 @@
 			<div>
 				<div style="position:relative;">
 				<div id="mapA" class="map"></div>
+				<div id="mapLabelContainer_mapA" class="mapOverlayDiv mapLabel">
+					<div id="mapLabel_mapA_mapA"></div>
+					<div id="mapLabel_mapA_mapB"></div>
+				</div>
 				<div id="mapSettingsContainerDiv_mapA" class="mapSettingsContainer col-sm-4">
 					<div id="map-controls" style="background: #d4d4d4; height: 100%; width: 100%;">
 					    <ul class="nav nav-tabs" id="mapTab" data-tabs="mapTab">
 							<li class="active"><a href="#tab-mapA" data-toggle="tab">Map A</a></li>
 							<li><a href="#tab-mapB" data-toggle="tab">Map B</a></li>
-							<li><a href="#tab-mapOptions" data-toggle="tab">Map Options</a></li>
 						</ul>
 					    <div class="tab-content" id="tab-content">
 						  	<div class="tab-pane active" id="tab-mapA">
@@ -158,7 +161,7 @@
 									    </div>
 										<div class="row">
 										    <div class="control-label col-sm-3" style="font-weight:bold;">Colorbar</div>
-											<div class="controls col-sm-6">
+											<div class="controls col-sm-8">
 												<img id="imgColorbarB" alt=" " src="" class="colorbar"/>
 											</div>
 									    </div>
@@ -169,53 +172,22 @@
 								    </div>
 								</div>
 							</div>
-							<div class="tab-pane" id="tab-mapOptions">
-								<div class="mapCtrlGroup form-group form-group-sm">
-									<div class="row">
-									</div>
-						  			<div class="row">
-						  			</div>
-									<div class="row">
-										<div class="control-label col-sm-3" style="font-weight:bold;">Link Maps</div>
-										<div class="controls col-sm-8">
-											<label class="checkbox-inline">
-												<input type="checkbox" id="cb_linkABgeo" value="linkABgeo" onclick="toggleMapLink('A','B','geo')">Map A <i class="glyphicon glyphicon-link"></i> Map B (geographic)
-											</label>
-										</div>
-									</div>
-									<div class="row">
-										<div class="control-label col-sm-3"></div>
-										<div class="controls col-sm-8">
-											<label class="checkbox-inline">
-												<input type="checkbox" id="cb_linkABtemp" value="linkABtemp" onclick="toggleMapLink('A','B','temp')">Map A <i class="glyphicon glyphicon-link"></i> Map B (temporal)
-											</label>
-										</div>
-									</div>
-									<div class="row">
-										<div class="control-label col-sm-3" style="font-weight:bold;">Get Timeseries</div>
-										<div class="controls col-sm-8">
-											<label class="checkbox-inline">
-												<input type="checkbox" id="cb_getTS" value="getTS" onclick="toggleGetTS()">activate <i class="glyphicon glyphicon-screenshot"></i>
-											</label>
-										</div>
-									</div>
-									<div class="row">
-										<div class="control-label col-sm-3"></div>
-										<div class="controls col-sm-8">
-											<label class="checkbox-inline">
-												<input type="checkbox" id="cb_linkABmarker" value="linkABmarker" onclick="toggleMapLink('A','B','marker')">Map A <i class="glyphicon glyphicon-link"></i> Map B (marker)
-											</label>
-										</div>
+						</div>
+						<div class="row">
+
+						    <div class="controls col" style="float: left;">
+						        <label class="checkbox-inline">
+						            <input id="cb_getTS" type="checkbox" value="getTS" onclick="toggleGetTS()"></input>
+						            <i class="glyphicon glyphicon-screenshot" style="font-size: 20px;"></i>
+						            <div style="float:right">
+								    	&nbsp; get time series on map click
 								    </div>
-								    <div class="row">
-									</div>
-						  			<div class="row">
-						  			</div>
-								</div>
-							</div>
+						        </label>
+						    </div>
+						
 						</div>
 					</div>	
-					<a href="javascript:void(0);" onclick="toggleCtrl('A');"><div id="mapCtrl_btnclose" class="mapSettingsToggleCtrl" style="right: -24px;">
+					<a href="javascript:void(0);" onclick="toggleCtrl('A');"><div id="mapCtrl_btnclose" class="mapSettingsToggleCtrl" style="right: -26px;">
 				    	<i class="glyphicon glyphicon-chevron-left"></i>
 					</div></a>
 				</div>
@@ -238,6 +210,39 @@
 			<div >
 				<div style="position:relative;">
 				<div id="mapB" class="map"></div>
+				<div id="mapLabelContainer_mapB" class="mapOverlayDiv mapLabel">
+					<div id="mapLabel_mapB_mapB"></div>
+					<div id="mapLabel_mapB_mapA"></div>
+				</div>
+				<div id="linkMapsCtrlGroup_mapB" class="mapOverlayDiv linkMapsCtrlGroup">
+					<div class="row">
+						<div class="controls col" style="float: left;">
+							<label class="checkbox-inline">
+								<input id="cb_linkABgeo" type="checkbox" onclick="toggleMapLink('A','B','geo')" value="linkABgeo"></input>
+								<i class="glyphicon glyphicon-move" style="font-size: 20px;"></i>
+							</label>
+						</div>
+						<div class="ctrlLabel col">&nbsp; link maps geographic</div>
+					</div>
+					<div class="row">
+						<div class="controls col" style="float: left;">
+							<label class="checkbox-inline">
+								<input id="cb_linkABtemp" type="checkbox" onclick="toggleMapLink('A','B','temp')" value="linkABtemp"></input>
+								<i class="glyphicon glyphicon-time" style="font-size: 20px;"></i>
+							</label>
+						</div>
+						<div class="ctrlLabel col">&nbsp; link maps temporal</div>
+					</div>
+					<div class="row">
+						<div class="controls col" style="float: left;">
+							<label class="checkbox-inline">
+							    <input id="cb_linkABmarker" type="checkbox" onclick="toggleMapLink('A','B','marker')" value="linkABmarker"></input>
+							    <i class="glyphicon glyphicon-map-marker" style="font-size: 20px;"></i>
+							</label>
+						</div>
+						<div class="ctrlLabel">&nbsp; link map marker</div>
+				    </div>
+				</div>
 				<div id="TimeSeriesContainerDiv_mapB" class="timeSeriesContainer">
 					<div class="TimeSeriesTopBar">
 						<div class="TSclose_Button" id="TSClose_mapB"><a onclick="closeDygraph('B')" href="#">X</a></div>

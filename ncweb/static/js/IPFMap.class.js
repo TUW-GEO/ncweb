@@ -255,6 +255,12 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 	$("#imgColorbar" + this.MapName).attr("src",
 			getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
 	$("#imgColorbar" + this.MapName).attr("alt", "--- loading colorbar ---");
+	
+	var maplabel = "Map"+this.MapName+": "+url+" | "+ncvar;
+	if(time!=null) {
+		maplabel += " | "+time;
+	}
+	$("#mapLabel_map"+targetMap.MapName+"_map"+this.MapName).html(maplabel);
 
 	targetMap.Map.addLayer(this.WmsLayer);
 	// @TODO: Works only with MapA and MapB

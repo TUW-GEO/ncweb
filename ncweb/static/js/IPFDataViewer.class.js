@@ -16,6 +16,13 @@ function IPFDataViewer(serverurl) {
 	$("#cb_linkABtemp").attr("checked", false);
 	$("#cb_linkABmarker").attr("checked", false);
 	$("#cb_getTS").attr("checked", false);
+	$( "#linkMapsCtrlGroup_mapB" ).hide();
+	$(".ctrlLabel").hide();
+	$( "#linkMapsCtrlGroup_mapB" ).mouseenter(function() {
+		$(".ctrlLabel").show();
+	}).mouseleave(function() {
+		$(".ctrlLabel").hide();
+	});
 	
 	//Initialize custom click control
 	initClickCtrl();
@@ -228,9 +235,7 @@ IPFDataViewer.prototype.ncwebResize = function() {
 	resizeDiv(this.maps.A.MapDivId);
 	resizeDiv(this.maps.B.MapDivId);
 	resizeDiv("#mapSettingsContainerDiv_mapA");
-	resizeDiv("#mapSettingsContainerDiv_mapB");
 	resizeDiv("#showMapSettingsButton_mapA");
-	resizeDiv("#showMapSettingsButton_mapB");
 	resizeDiv('#splitcontainer');
 	resizeDiv('.left_panel');
 	resizeDiv('.right_panel');
@@ -258,7 +263,8 @@ IPFDataViewer.prototype.ncwebResize = function() {
 
 /** @function
  * Resize the divs to make the document fit 100% (height)
- * @name resizeDiv */
+ * @name resizeDiv 
+ * @param {string} divId - IPFDataViewer as parameter */
 var resizeDiv = function(divId) {
 	var div = $(divId);
 	div.height(($(window).height() - $('#footer').height() - $('.navbar').height() -60));

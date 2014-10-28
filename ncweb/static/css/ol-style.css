@@ -47,6 +47,7 @@ input[type="checkbox"], input[type="radio"] {
 	left: 0px;
 	height: 300px;
 	padding: 0px;
+	border-right: 2px solid #09BDF8;
 }
 
 .mapSettingsToggleCtrl {
@@ -62,6 +63,9 @@ input[type="checkbox"], input[type="radio"] {
 	-moz-border-radius-bottomright: 5px;
 	border-top-right-radius: 5px;
 	border-bottom-right-radius: 5px;
+	border-top: 2px solid #09BDF8;
+	border-bottom: 2px solid #09BDF8;
+	border-right: 2px solid #09BDF8;
 }
 
 .showMapSettingsButton {
@@ -80,6 +84,37 @@ input[type="checkbox"], input[type="radio"] {
 	height: 100%;
 	width: 100%;
 	overflow: auto;
+}
+
+.mapOverlayDiv {
+	background: #eee; 
+	padding: 5px; 
+	margin: 0px; 
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.mapLabel {
+	position: absolute;
+	top: 10px;
+	left: 50px;
+	font-size: 10pt;
+	padding: 1px;
+	max-width: 90%;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.linkMapsCtrlGroup {
+	position: absolute; 
+	top: 65px; 
+	left: 10px;
+}
+
+.ctrlLabel {
+	display: none;	
+	width: 200px;
 }
 
 .timeSeriesContainer {
