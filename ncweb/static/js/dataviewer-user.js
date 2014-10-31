@@ -21,6 +21,7 @@ function ncvarChanged(mapId) {
 		IPFDV.maps[mapId].Date = new Date($("#timeSelect"+IPFDV.maps[mapId].MapName).val());
 		IPFDV.maps[mapId].TempLinkEvent();
 	}*/
+	setColorbarRangeValues(IPFDV.maps[mapId], IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name);
 	IPFDV.showLayerOnMap(IPFDV.maps[mapId],true);
 }
 
@@ -40,6 +41,32 @@ function timeChanged(mapId) {
  * @param {string} mapId - Defines the map */
 function cmapChanged(mapId) {
 	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false);
+}
+
+/** @function
+ * 
+ * @name setColorbarRangeValues
+ * @param {IPFMap} map - Map Object
+ * @param {string} ncvar - Specifies the netcdf variable, which is shown
+ */
+function setColorbarRangeValues(map,ncvar) {
+	if(map.Capabilities) {
+		var actRange = map.Capabilities.capability.layers.filter(function(obj) { 
+			return obj.name == ncvar;
+		})[0].actualrange;
+		if (actRange && actRange.length==3) {
+			$("#tbMin_map"+map.MapName).val(actRange[0]);
+			$("#tbMax_map"+map.MapName).val(actRange[1]);
+			$("#tbMin_map"+map.MapName).css("display","unset");
+			$("#tbMax_map"+map.MapName).css("display","unset");
+		}
+		else {
+			$("#tbMin_map"+map.MapName).val("");
+			$("#tbMax_map"+map.MapName).val("");
+			$("#tbMin_map"+map.MapName).css("display","none");
+			$("#tbMax_map"+map.MapName).css("display","none");
+		}
+	}
 }
 
 /** @function

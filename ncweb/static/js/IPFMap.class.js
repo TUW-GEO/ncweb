@@ -237,11 +237,28 @@ IPFMap.prototype.setTimePosition = function(date) {
 IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTop, reloadTS) {
 	
 	this.removeWMSLayer(targetMap);
+	
 	var getmapurl = url + "?LAYERS=" + ncvar + "&cmap=" + cmap;
 	
 	if (time != null) // if there are time positions, add time property
 		getmapurl += "&TIME=" + time;
 	
+	if (isNaN($("#tbMin_map"+this.MapName).val()) || isNaN($("#tbMax_map"+this.MapName).val())) {
+		// Don't add colorbarrange to the get request
+	}
+	else {
+		getmapurl += "&COLORBARRANGE=" + $("#tbMin_map"+this.MapName).val()+","+$("#tbMax_map"+this.MapName).val();
+	}
+	
+	// Colorbar-Requests
+	$("#imgColorbar" + this.MapName).attr("src",
+			getmapurl + "&REQUEST=GetColorbar"); // set the settings colorbar src
+	$("#imgColorbar" + this.MapName).attr("alt", "--- loading colorbar ---");
+	$("#imgColorbar_map" + this.MapName).attr("src",
+			getmapurl + "&REQUEST=GetColorbar"); // set the map overlay colorbar src
+	$("#imgColorbar_map" + this.MapName).attr("alt", "--- loading colorbar ---");
+	
+	// Set WMS Layer - WMS Requests are done here
 	this.WmsLayer = new OpenLayers.Layer.WMS('Pydap WMS Layer - Map ' + this.MapName, getmapurl, {
 		layers : ncvar,
 		TRANSPARENT : true
@@ -251,10 +268,6 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 	this.WmsLayer.setOpacity($("#opacityslider-" + this.MapName)
 			.slider("value") / 100);
 	this.WmsLayer.setVisibility(true);
-
-	$("#imgColorbar" + this.MapName).attr("src",
-			getmapurl + "&REQUEST=GetColorbar"); // set the colorbar src
-	$("#imgColorbar" + this.MapName).attr("alt", "--- loading colorbar ---");
 	
 	var maplabel = "Map"+this.MapName+": "+url+" | "+ncvar;
 	if(time!=null) {
@@ -263,7 +276,8 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 	$("#mapLabel_map"+targetMap.MapName+"_map"+this.MapName).html(maplabel);
 
 	targetMap.Map.addLayer(this.WmsLayer);
-	// @TODO: Works only with MapA and MapB
+	
+	//Set Layer Order
 	if (onTop) {
 		if (targetMap.Map.getLayerIndex(IPFDV.maps.B.WmsLayer) > 0) {
 			targetMap.Map.setLayerIndex(IPFDV.maps.B.WmsLayer, 0);
@@ -278,6 +292,7 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 	}
 
 	targetMap.Map.raiseLayer(targetMap.Graticule.gratLayer, 5);
+	// Reload Dygraph if necessary
 	if ($('#TimeSeriesContainerDiv_map' + targetMap.MapName).is(':visible')
 			&& targetMap.Markers.markers.length > 0) {
 		if (reloadTS) {

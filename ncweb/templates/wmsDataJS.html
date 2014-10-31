@@ -38,6 +38,9 @@
 					<div id="mapLabel_mapA_mapA"></div>
 					<div id="mapLabel_mapA_mapB"></div>
 				</div>
+				<div class="mapOverlayDiv mapColorbarContainer">
+					<img id="imgColorbar_mapA" alt=" " src="" class="colorbar"/>
+				</div>
 				<div id="mapSettingsContainerDiv_mapA" class="mapSettingsContainer col-sm-4">
 					<div id="map-controls" style="background: #d4d4d4; height: 100%; width: 100%;">
 					    <ul class="nav nav-tabs" id="mapTab" data-tabs="mapTab">
@@ -93,9 +96,11 @@
 									    </div>
 										<div class="row">
 										    <div class="control-label col-sm-3" style="font-weight:bold;">Colorbar</div>
-											<div class="controls col-sm-8">
-												<img id="imgColorbarA" alt=" " src="" class="colorbar"/>
-											</div>
+										    <div class="controls col-sm-8">
+										    	<input id="tbMin_mapA" type="text" class="tbColorbarRange form-control-sm"></input>
+												<img id="imgColorbarA" alt=" " src="" class="colorbar" style="width:calc(100% - 90px)"/>
+												<input id="tbMax_mapA" type="text" class="tbColorbarRange form-control-sm"></input>
+										    </div>
 									    </div>
 									    <div class="row">
 										</div>
@@ -162,7 +167,11 @@
 										<div class="row">
 										    <div class="control-label col-sm-3" style="font-weight:bold;">Colorbar</div>
 											<div class="controls col-sm-8">
-												<img id="imgColorbarB" alt=" " src="" class="colorbar"/>
+												<div class="controls col-sm">
+											    	<input id="tbMin_mapB" type="text" class="tbColorbarRange form-control-sm" ></input>
+													<img id="imgColorbarB" alt=" " src="" class="colorbar" style="width:calc(100% - 90px)"/>
+													<input id="tbMax_mapB" type="text" class="tbColorbarRange form-control-sm" ></input>
+										    	</div>
 											</div>
 									    </div>
 									    <div class="row">
@@ -196,7 +205,7 @@
 				    	<i class="glyphicon glyphicon-chevron-right"></i>
 					</div></a>
 				</div>
-				<div id="TimeSeriesContainerDiv_mapA" class="timeSeriesContainer">
+				<div id="TimeSeriesContainerDiv_mapA" class="mapOverlayDiv timeSeriesContainer">
 					<div class="TimeSeriesTopBar">
 						<div class="TSclose_Button" id="TSClose_mapA"><a onclick="closeDygraph('A')" href="#">X</a></div>
 					</div>
@@ -213,6 +222,9 @@
 				<div id="mapLabelContainer_mapB" class="mapOverlayDiv mapLabel">
 					<div id="mapLabel_mapB_mapB"></div>
 					<div id="mapLabel_mapB_mapA"></div>
+				</div>
+				<div class="mapOverlayDiv mapColorbarContainer">
+					<img id="imgColorbar_mapB" alt=" " src="" class="colorbar"/>
 				</div>
 				<div id="linkMapsCtrlGroup_mapB" class="mapOverlayDiv linkMapsCtrlGroup">
 					<div class="row">
@@ -243,7 +255,7 @@
 						<div class="ctrlLabel">&nbsp; link map marker</div>
 				    </div>
 				</div>
-				<div id="TimeSeriesContainerDiv_mapB" class="timeSeriesContainer">
+				<div id="TimeSeriesContainerDiv_mapB" class="mapOverlayDiv timeSeriesContainer">
 					<div class="TimeSeriesTopBar">
 						<div class="TSclose_Button" id="TSClose_mapB"><a onclick="closeDygraph('B')" href="#">X</a></div>
 					</div>

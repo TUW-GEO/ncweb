@@ -1,4 +1,7 @@
-/* OpenLayers Style Definitions */
+/* OpenLayers Style Definitions 
+
+Including all styles for Map Controls and Map Overlays
+*/
 .olControlLayerSwitcher .layersDiv {
 	background-color: #01B6F0;
 	background-image: -moz-linear-gradient(center top , #03B8F2, #09BDF8);
@@ -76,7 +79,7 @@ input[type="checkbox"], input[type="radio"] {
 	left: 0px;
 	height: 300px;
 	padding: 0px;
-	width: 25px;
+	width: 0px;
 }
 
 .mapCtrlGroup {
@@ -101,9 +104,15 @@ input[type="checkbox"], input[type="radio"] {
 	left: 50px;
 	font-size: 10pt;
 	padding: 1px;
-	max-width: 90%;
+	max-width: calc(100% - 100px);
 	padding-left: 4px;
 	padding-right: 4px;
+}
+
+.mapColorbarContainer {
+	position: absolute;
+	top: 80px;
+	left: 10px;
 }
 
 .linkMapsCtrlGroup {
@@ -123,8 +132,8 @@ input[type="checkbox"], input[type="radio"] {
 	display: none; 
 	background-color:#eee; 
 	position: absolute; 
-	bottom: 200px; 
 	left: 10px;
+	padding: 0px;
 }
 
 .TS_overlay { 
@@ -146,4 +155,5 @@ input[type="checkbox"], input[type="radio"] {
 	position: relative;	
 	width: 20px;
 	text-align: center;
+	left: calc(100% - 20px);
 }

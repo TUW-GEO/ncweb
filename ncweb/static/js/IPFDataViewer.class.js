@@ -108,11 +108,24 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 				var wmsCapabilities = new OpenLayers.Format.WMSCapabilities();
 				map.Capabilities = wmsCapabilities.read(xml);
 				
+				for (var i=0; i<$(xml).find("Layer").length; i++) {
+					if($(xml).find("Layer").eq(i).find("ActualRange").length>0 //Got Actual Range in child node
+							&& $(xml).find("Layer").eq(i).find("Layer").length == 0) { //Got no Layer-Node in child nodes
+						var guess = false;
+						if ($(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("guess")==true) {
+							guess = true;
+						}
+						map.Capabilities.capability.layers.filter(function(obj) { // Write actualrange to capabilities
+							return obj.name ==$(xml).find("Layer").eq(i).children("Name")[0].innerHTML;
+						})[0].actualrange = [$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("min"),$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("max"),guess];
+					}
+				}
+				
 				//Get options for Variables select-control
 				ipfdv.loadVariables("#ncvarSelect"+map.MapName, map); 
 				//Get options for Timepositions select-control
 				ipfdv.loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
-				
+				setColorbarRangeValues(map, map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name);
 				ipfdv.showLayerOnMap(map,true);
 			},
 			error: function() {
@@ -141,10 +154,12 @@ IPFDataViewer.prototype.loadVariables = function(ncvar_ctrl, map) {
 			$(ncvar_ctrl).append(o);
 		}
 	}
-	if ($(ncvar_ctrl)[0] && $(ncvar_ctrl)[0].length>1)
+	if ($(ncvar_ctrl)[0] && $(ncvar_ctrl)[0].length>1) {
 		$(ncvar_ctrl).removeAttr("disabled");
-	else
+	}
+	else {
 		$(ncvar_ctrl).attr('disabled', true);
+	}
 }
 
 /** @function
@@ -242,6 +257,7 @@ IPFDataViewer.prototype.ncwebResize = function() {
 	
 	$("#TimeSeriesContainerDiv_mapA").css('top',$(this.maps.A.MapDivId).height()-210);
 	$("#TimeSeriesContainerDiv_mapB").css('top',$(this.maps.B.MapDivId).height()-210);
+	$(".mapColorbarContainer").css('top',$(this.maps.A.MapDivId).height()-75);
 	$("#TimeSeriesContainerDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-40);
 	$("#TimeSeriesContainerDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-50);
 	$("#TimeSeriesDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-40);
