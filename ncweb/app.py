@@ -1,4 +1,4 @@
-from flask import Flask, url_for, render_template, request
+from flask import Flask, url_for, render_template, request, jsonify
 from flask_wtf import Form
 from wtforms import SelectField
 import os
@@ -8,8 +8,9 @@ import glob
 from osgeo import gdal
 import datetime
 from owslib.wms import WebMapService
+from thredds_crawler.crawl import Crawl
+from urlparse import urlparse
 import urllib2
-
 
 class NetCdfForm(Form):
     variables = SelectField('variables', choices=[])
@@ -71,7 +72,7 @@ def convert2GTiff(netcdfile, outdir, VarName):
         dst_ds.SetProjection(projection)
 
         # print raster
-
+        #
         # write the band
         outBand = dst_ds.GetRasterBand(1)
         outBand.WriteArray(raster)
@@ -192,6 +193,7 @@ def getTimepositions(wmsData, varName):
 def wmsIndex():
     try:
         req_url = request.form['wmsSelect']
+        print(req_url)
     except:
         req_url = ""
 
@@ -233,6 +235,42 @@ def wmsIndex():
 @app.route('/wms')
 def wmsJS():
     return render_template('wmsDataJS.html')
+
+@app.route('/wms/GetFileList', methods=['GET'])
+def getFileList():
+
+    url = request.args.get('url')
+    print('URL: '+url)
+    # url = "http://localhost:8080/thredds/catalog/testAll/catalog.html"
+    c = Crawl(str(url))
+    print c.datasets
+    filelist = {}
+    l = []
+
+    for i in c.datasets:
+        element = {}
+        element['name'] = i.name
+        l.append(element)
+        print element
+
+
+    parsed = urlparse(url)
+    filelist['files'] = l
+    filelist['root'] = parsed.scheme+'://'+parsed.netloc
+    # filelist['location'] = filelist['root']+parsed.path.split('.',1)[0]+'/'
+    filelist['location'] = filelist['root']+"/thredds/wms/testAll/"
+    print filelist
+
+    return jsonify(files=filelist['files'], location=filelist['location'])
+
+@app.route('/love')
+def marry():
+    a = request.args.get('a')
+    b = request.args.get('b')
+    result = a+" is happily married to "+b
+    # result = "Love is in the air with "+b
+    # result = "Come on Bitches"
+    return jsonify(results = result)
 
 
 # run app

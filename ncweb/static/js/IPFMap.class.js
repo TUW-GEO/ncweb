@@ -238,7 +238,7 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 	
 	this.removeWMSLayer(targetMap);
 	
-	var getmapurl = url + "?LAYERS=" + ncvar + "&cmap=" + cmap;
+	var getmapurl = url + "?LAYERS=" + ncvar + "&STYLES=boxfill/" + cmap+ "&COLORSCALERANGE=auto";
 	
 	if (time != null) // if there are time positions, add time property
 		getmapurl += "&TIME=" + time;
@@ -247,15 +247,15 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 		// Don't add colorbarrange to the get request
 	}
 	else {
-		getmapurl += "&COLORBARRANGE=" + $("#tbMin_map"+this.MapName).val()+","+$("#tbMax_map"+this.MapName).val();
+//		getmapurl += "&COLORBARRANGE=" + $("#tbMin_map"+this.MapName).val()+","+$("#tbMax_map"+this.MapName).val();
 	}
 	
 	// Colorbar-Requests
 	$("#imgColorbar" + this.MapName).attr("src",
-			getmapurl + "&REQUEST=GetColorbar"); // set the settings colorbar src
+			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=200&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the settings colorbar src
 	$("#imgColorbar" + this.MapName).attr("alt", "--- loading colorbar ---");
 	$("#imgColorbar_map" + this.MapName).attr("src",
-			getmapurl + "&REQUEST=GetColorbar"); // set the map overlay colorbar src
+			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=200&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the map overlay colorbar src
 	$("#imgColorbar_map" + this.MapName).attr("alt", "--- loading colorbar ---");
 	
 	// Set WMS Layer - WMS Requests are done here

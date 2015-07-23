@@ -1,6 +1,6 @@
 /** @global 
  * Server URL */
-var SERVERURL = "http://127.0.0.1:8001/";
+var SERVERURL = "http://localhost:8080/thredds/catalog/testAll/catalog.html";
 
 /** @global 
  * Global DataViewer Object */
