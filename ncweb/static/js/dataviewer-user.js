@@ -21,8 +21,10 @@ function ncvarChanged(mapId) {
 		IPFDV.maps[mapId].Date = new Date($("#timeSelect"+IPFDV.maps[mapId].MapName).val());
 		IPFDV.maps[mapId].TempLinkEvent();
 	}*/
+	lock=false;
+	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
 	setColorbarRangeValues(IPFDV.maps[mapId], IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name);
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],true);
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],true, lock);
 }
 
 /** @function
@@ -30,7 +32,9 @@ function ncvarChanged(mapId) {
  * @name timeChanged
  * @param {string} mapId - Defines the map */
 function timeChanged(mapId) {
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false);
+	lock=false;
+	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false, lock);
 	IPFDV.maps[mapId].Date = new Date($("#timeSelect"+IPFDV.maps[mapId].MapName).val());
 	IPFDV.maps[mapId].TempLinkEvent();
 }
@@ -40,8 +44,45 @@ function timeChanged(mapId) {
  * @name cmapChanged
  * @param {string} mapId - Defines the map */
 function cmapChanged(mapId) {
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false);
+	lock=false;
+	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false, lock);
 }
+
+/** @function
+ * Fires when tbColorbarRange is changed
+ * @name cmapScaleChanged
+ * @param {string} mapId - Defines the map */
+function cmapScaleChanged(mapId) {
+	console.log("Scale Changed! "+$("#tbMax_map"+IPFDV.maps[mapId].MapName).val());
+
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false,true);
+}
+
+/** @function
+ * Fires when lock is clicked
+ * @name scaleLock
+ * @param {string} mapId - Defines the map */
+function scaleLock(mapId) {
+	console.log("locked! "+$("#lock"+IPFDV.maps[mapId].MapName).val());
+
+	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="lock"){
+		$("#lock"+IPFDV.maps[mapId].MapName).val("unlock");
+		$("#lock"+IPFDV.maps[mapId].MapName).text("unlock");
+		$("#tbMax_map"+IPFDV.maps[mapId].MapName).attr('disabled', 'disabled');
+		$("#tbMin_map"+IPFDV.maps[mapId].MapName).attr('disabled', 'disabled');
+	}
+	else{
+		$("#lock"+IPFDV.maps[mapId].MapName).val("lock");
+		$("#lock"+IPFDV.maps[mapId].MapName).text("lock");
+		$("#tbMax_map"+IPFDV.maps[mapId].MapName).removeAttr('disabled');
+		$("#tbMin_map"+IPFDV.maps[mapId].MapName).removeAttr('disabled');
+	}
+
+
+//	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false,true);
+}
+
 
 /** @function
  * 
@@ -51,7 +92,7 @@ function cmapChanged(mapId) {
  */
 function setColorbarRangeValues(map,ncvar) {
 	if(map.Capabilities) {
-		var actRange = map.Capabilities.capability.layers.filter(function(obj) { 
+		var actRange = map.Capabilities.capability.layers.filter(function(obj) {
 			return obj.name == ncvar;
 		})[0].actualrange;
 		if (actRange && actRange.length==3) {

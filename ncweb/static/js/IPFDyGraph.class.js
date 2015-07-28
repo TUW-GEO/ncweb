@@ -135,7 +135,7 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 				mydata[i] = [ date, parseFloat(json.data[i][1]) ];
 			}
 			map.IPFDyGraph.DyGraphLabels = json.labels;
-			map.IPFDyGraph.DyGraphDates = dates
+			map.IPFDyGraph.DyGraphDates = dates;
 			map.IPFDyGraph.DyGraphData = mydata;
 		},
 		complete : function(xhr, textStatus) {

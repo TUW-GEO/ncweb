@@ -238,7 +238,7 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 	
 	this.removeWMSLayer(targetMap);
 	
-	var getmapurl = url + "?LAYERS=" + ncvar + "&STYLES=boxfill/" + cmap+ "&COLORSCALERANGE=auto";
+	var getmapurl = url + "?LAYERS=" + ncvar + "&STYLES=boxfill/" + cmap;
 	
 	if (time != null) // if there are time positions, add time property
 		getmapurl += "&TIME=" + time;
@@ -247,17 +247,20 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 		// Don't add colorbarrange to the get request
 	}
 	else {
-//		getmapurl += "&COLORBARRANGE=" + $("#tbMin_map"+this.MapName).val()+","+$("#tbMax_map"+this.MapName).val();
+		getmapurl += "&COLORSCALERANGE=" + $("#tbMin_map"+this.MapName).val()+","+$("#tbMax_map"+this.MapName).val();
+		console.log("set COLORSCALERANGE min,max="+ $("#tbMin_map"+this.MapName).val()+","+$("#tbMax_map"+this.MapName).val());
 	}
 	
 	// Colorbar-Requests
 	$("#imgColorbar" + this.MapName).attr("src",
-			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=200&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the settings colorbar src
+			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=220&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the settings colorbar src
 	$("#imgColorbar" + this.MapName).attr("alt", "--- loading colorbar ---");
 	$("#imgColorbar_map" + this.MapName).attr("src",
-			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=200&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the map overlay colorbar src
+			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=220&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the map overlay colorbar src
 	$("#imgColorbar_map" + this.MapName).attr("alt", "--- loading colorbar ---");
-	
+
+	console.log("showWMSLayer:")
+	console.log(getmapurl);
 	// Set WMS Layer - WMS Requests are done here
 	this.WmsLayer = new OpenLayers.Layer.WMS('Pydap WMS Layer - Map ' + this.MapName, getmapurl, {
 		layers : ncvar,
