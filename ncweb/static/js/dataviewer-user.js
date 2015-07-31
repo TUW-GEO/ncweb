@@ -369,3 +369,44 @@ function toggleCtrl(mapId) {
 	    direction: 'left'
 	}, 1000);
 }
+
+//function openCalendar(){
+//	console.log("openCalendar")
+//	new DatePicker('.date_toggled', {
+//		pickerClass: 'datepicker_dashboard',
+//		allowEmpty: true,
+//		toggleElements: '.date_toggler'
+//	});
+//}
+//
+//$('#sandbox-container .input-daterange').datepicker({
+//    format: "yyyy-mm-dd",
+//    defaultViewDate: { year: 1977, month: 04, day: 25 }
+//    });
+
+
+$(function() {
+
+    function cb(start, end) {
+        $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+    }
+    cb(moment().subtract(29, 'days'), moment());
+
+    $('#reportrange').daterangepicker({
+    	"startDate": "01/01/1992",
+    	"endDate": "03/01/1992",
+    	"minDate": "01/01/1992",
+    	"maxDate": "01/01/2013",
+    	"drops": "up",
+
+        ranges: {
+           'Today': [moment(), moment()],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+
+});

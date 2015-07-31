@@ -4,6 +4,14 @@
  */
 
 function IPFDataViewer(serverurl) {
+
+//	if (window.jQuery) {
+//		alert("JQuery loaded ");
+//		alert("version: "+$.fn.jquery)
+//	} else {
+//    	alert("no JQuery");
+//	}
+
 	
 	this.maps = {};
 	

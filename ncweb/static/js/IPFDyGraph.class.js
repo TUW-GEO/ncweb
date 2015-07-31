@@ -110,11 +110,24 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 	console.log("getDyGraphValues");
 	var ncvar = map.Capabilities.capability.layers[$(
 			"#ncvarSelect" + map.MapName).val()].name;
+	var layer = $("#wmsSelect"+map.MapName).val().split("?")[0].split("/").pop();  //get file name
+	console.log(layer);
+	var days = 30;
+	var time = new Date($("#timeSelect"+map.MapName).val());
+	console.log("Selcected date: "+time);
+	var time_start = new Date(time);
+	time_start.setDate(time_start.getDate() -days);
+	console.log(time_start);
+	time_start = time_start.toISOString();
+	var time_end = new Date(time);
+	time_end.setDate(time.getDate() +days);
+	time_end = time_end.toISOString();
+
 //	console.log(map.Capabilities.capability.layers[$("#ncvarSelect" + map.MapName)val()].title);
 //	var wmsurl = $("#wmsSelect" + map.MapName).val().split("?")[0];
 	//TODO: still hard coded... make available for all datasets...
-	var wmsurl = "http://localhost:8080/thredds/ncss/grid/testAll/ESACCI-L3S_SOILMOISTURE-SSMV-COMBINED-1978-2013-fv01.2_3.nc?"+
-			"req=station&var="+ncvar+"&latitude="+lonlat.lat+"&longitude="+lonlat.lon+"&time_start=2013-01-01T00:00:00Z&time_end=2013-02-28T00:00:00Z";
+	var wmsurl = "http://localhost:8080/thredds/ncss/grid/testAll/"+layer+"?"+
+			"req=station&var="+ncvar+"&latitude="+lonlat.lat+"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
 	// @TODO: Find good bbox
 	console.log(wmsurl);
 
@@ -339,3 +352,4 @@ IPFDyGraph.prototype.showTimeUnderlay=function(canvas,area,layout,_self){
         canvas.fillRect(left2-1,area.y,right2-left2+1,area.h);
     }
 }
+
