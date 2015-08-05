@@ -220,6 +220,7 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 		if (layer && layer.dimensions.time) {
 			for (var t in layer.dimensions.time.values) {
 				var o = new Option(layer.dimensions.time.values[t],layer.dimensions.time.values[t]);
+
 				$(o).html(layer.dimensions.time.values[t]);
 				$(time_ctrl).append(o);
 				
@@ -231,6 +232,8 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 			}
 			$(time_ctrl).val(selectValue);
 		}
+		console.log("in loadTimepositions "+layer.dimensions.time.values[0]+layer.dimensions.time.values.pop());
+		newPicker(layer.dimensions.time.values[0],layer.dimensions.time.values.pop());
 	}
 	if ($(time_ctrl)[0] && $(time_ctrl)[0].length>1) {
 		$(time_ctrl).removeAttr("disabled");
@@ -240,6 +243,18 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 		$(time_ctrl).attr('disabled', true);
 	}
 }
+
+//IPFDataViewer.prototype.getMinMaxTime = function(map){
+//	var ncvar = 'sm';
+//	if(map.Capabilities.capability && map.Capabilities.capability.layers) {
+//		var layer = map.Capabilities.capability.layers[ncvar];
+//		min = layer.dimensions.time.values[0];
+//		max = layer.dimensions.time.values.pop();
+// 		console.log("in getMinMaxTime "+layer.dimensions.time.values[0]+layer.dimensions.time.values.pop());
+//	}
+//
+//	return [min, max];
+//}
 
 /** @function
  * Show WMSLayer either as map overlay or as separate map

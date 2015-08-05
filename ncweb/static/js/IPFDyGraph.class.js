@@ -113,15 +113,21 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 	var layer = $("#wmsSelect"+map.MapName).val().split("?")[0].split("/").pop();  //get file name
 	console.log(layer);
 	var days = 30;
-	var time = new Date($("#timeSelect"+map.MapName).val());
-	console.log("Selcected date: "+time);
-	var time_start = new Date(time);
-	time_start.setDate(time_start.getDate() -days);
-	console.log(time_start);
+//	var time = new Date($("#timeSelect"+map.MapName).val());
+//	console.log("Selcected date: "+time);
+//	var time_start = new Date(time);
+//	time_start.setDate(time_start.getDate() -days);
+//	console.log(time_start);
+//	time_start = time_start.toISOString();
+//	var time_end = new Date(time);
+//	time_end.setDate(time.getDate() +days);
+//	time_end = time_end.toISOString();
+
+	var time_start = $('#daterange').data('daterangepicker').startDate._d;
 	time_start = time_start.toISOString();
-	var time_end = new Date(time);
-	time_end.setDate(time.getDate() +days);
+	var time_end = $('#daterange').data('daterangepicker').endDate._d;
 	time_end = time_end.toISOString();
+	console.log("Start: "+time_start+" End: "+time_end);
 
 //	console.log(map.Capabilities.capability.layers[$("#ncvarSelect" + map.MapName)val()].title);
 //	var wmsurl = $("#wmsSelect" + map.MapName).val().split("?")[0];
