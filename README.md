@@ -34,8 +34,28 @@ Quickstart
 ----------
 
 Once everything is installed and setup you can go ahead and try ncweb. First start the THREDDS server. To test if it is running correctly open the catalog at http://localhost:8080/thredds/catalog.html. Check if your data is available and make sure the WMS and netCDF subset service are enabled for your dataset by clicking on your catalog and then file.
-![alt tag](thredds_seeServices.PNG)
+![alt tag](screenshots/thredds_seeServices.PNG)
 
-To start ncweb you need to run app.py by default it should be running on port 5000  [http://localhost:5000/wms](http://localhost:5000/wms)
+To start ncweb you need to run app.py by default it should be running on port 5000  [http://localhost:5000/wms](http://localhost:5000/wms) (tested in Firefox and Chrome)
+
+You should be looking at this now: 
+
+![alt tag](screenshots/ncweb_start.PNG)
+
+Now feel free to look at all your datasets, just choose the WMS Layer, the variable, timeposition, and styling. These options can all be found in the sliding menu on the left.
+
+### Timeseries
+
+If you are using a dataset with data for multiple dates you can create a timeseries for a single location. First enable the selection tool in the sliding menu and then click on the map for the specific location you are interested in. Once you have selected a location the timeseries plot will appear at the bottom of the screen.
+
+![alt tag](screenshots/time_series1.PNG)
+
+By default the timeseries covers the timerange from a month before and a month after the scene you are looking at at the moment. This can be easily adapted, by clicking on the date field and then manually selecting the desired date range. 
+
+![alt tag](screenshots/daterangepicker.PNG)
+
+Once you click **Apply** the timeseries will be updated. Longer dateranges might take a while to load!
+
+![alt tag](screenshots/long_timeseries.PNG)
 
 
