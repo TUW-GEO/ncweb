@@ -44,7 +44,7 @@ You should be looking at this now:
 
 Now feel free to look at all your datasets, just choose the WMS Layer, the variable, timeposition, and styling. These options can all be found in the sliding menu on the left.
 
-### Timeseries
+#### Timeseries
 
 If you are using a dataset with data for multiple dates you can create a timeseries for a single location. First enable the selection tool in the sliding menu and then click on the map for the specific location you are interested in. Once you have selected a location the timeseries plot will appear at the bottom of the screen.
 
@@ -58,4 +58,15 @@ Once you click **Apply** the timeseries will be updated. Longer dateranges might
 
 ![alt tag](screenshots/long_timeseries.PNG)
 
+Advanced
+--------
 
+#### Colorbar
+
+There are serveral colorschemes available for the vizualization of your data. They can easily selected in the drop-down menu. For the scaling by default the min and max value are used. To change this just type a different value in the text fields. To make sure the color scaling doesn't change again afterwards click the **lock** button. No matter what you change now the scale will remain the same. To change it just click **unlock**.
+
+#### Map B
+
+In ncweb it is also possible to view more than one dataset at the same time. At the top of the sliding menu you can choose Map B. Here you can select another scene to be shown. 
+
+Once Map B is enabled as an overlay the timeseries will automatically include both datasets. In split screen mode two seperate timeseries plots will appear.
