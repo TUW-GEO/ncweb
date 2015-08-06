@@ -104,7 +104,18 @@ a {
     background-color: #00B0E5;
 }
 
-.daterange {
+/* Overwrite from bootstrap-united (line 111)*/
+input,textarea,select,.uneditable-input{
+	display:inline-block;
+	width:210px;
 	height:28px;
-	font-size: 10pt;
+	padding:4px;
+	margin-bottom:9px;
+	font-size:13px;
+	line-height:18px;
+	color:#555555;
+	border:1px solid #ccc;
+	-webkit-border-radius:3px;
+	-moz-border-radius:3px;
+	border-radius:3px;
 }

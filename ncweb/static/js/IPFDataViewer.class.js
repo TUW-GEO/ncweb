@@ -80,6 +80,7 @@ IPFDataViewer.prototype.GetWMSFileList = function(surl) {
 	var mapA = this.maps["A"];
 	var mapB = this.maps["B"];
 	var ipfdv = this;
+
 	$.ajax({
         type: "GET",
 		url: '/wms/GetFileList?url='+surl,

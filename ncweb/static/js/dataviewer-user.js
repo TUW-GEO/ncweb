@@ -11,25 +11,6 @@ function wmsChanged(mapId) {
 	console.log("wmsChanged");
 	IPFDV.GetWMSCapabilities(IPFDV.maps[mapId]);
 
-//	minDate = IPFDV.getMinMaxTime(IPFDV.maps[mapId])[0];
-//	console.log("MinDate = "+minDate);
-//	maxDate = IPFDV.getMinMaxTime(IPFDV.maps[mapId])[1];
-//	console.log("MaxDate = "+maxDate);
-//	newPicker("1978-10-26","2013-12-31");
-
-//	$('#daterange').data('daterangepicker').remove();
-//	$('#daterange').daterangepicker({
-//        "locale": {
-//        "format": "YYYY-MM-DD"
-//    	},
-//
-//    "minDate": "1978-10-26",
-//    "maxDate": "2013-12-31"
-//    });
-//    $('#daterange').on('apply.daterangepicker', function(ev, picker){
-//    	console.log("in apply.daterangepicker"+picker+" "+ev);
-//
-//    });
 }
 
 /** @function
@@ -524,6 +505,10 @@ $(function() {
 //}
 });
 
+/** @function
+ * Deletes instance of daterangepicker and creates new one with set min and max date
+ * @name newPicker
+ * @param {Date,Date} min max - Defines min and max Date for the new daterangepicker */
 function newPicker(min, max){
 	console.log("newPicker");
 	$('#daterange').data('daterangepicker').remove();
@@ -540,7 +525,6 @@ function newPicker(min, max){
     	console.log("in apply.daterangepicker "+$('#daterange').attr('mapId'));
     	console.log(picker.startDate.format('YYYY-MM-DD'));
     	console.log(picker.endDate.format('YYYY-MM-DD'));
-//    	IPFDV.maps[IPFDV.maps[$('#daterange').attr('mapId')].IPFDyGraph.showDyGraph(IPFDV.maps[$('#daterange').attr('mapId')].Markers.markers[0].lonlat);
 		console.log($("#daterange").val());
 
 		IPFDV.maps[$('#daterange').attr('mapId')].IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);

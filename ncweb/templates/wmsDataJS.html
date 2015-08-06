@@ -4,10 +4,8 @@
 {% block head %}
     {{ super() }}
 
-	<!--<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />-->
-	<!--<script src="{{ url_for('static', filename='js/jquery-2.1.1.min.js') }}"></script>-->
+
 	<script src="{{ url_for('static', filename='OpenLayers/OpenLayers.js') }}"></script>
-<!-- 	<script src="{{ url_for('static', filename='js/bootstrap-slider.js') }}"></script> -->
 
 	<script src="{{ url_for('static', filename='js/dygraph-combined.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/IPFMap.class.js') }}"></script>
@@ -17,8 +15,6 @@
 	<script src="{{ url_for('static', filename='js/dataviewer-user.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/jquery.splitter-0.14.0.js') }}"></script>
 
-	<!--<script src="{{ url_for('static', filename='js/datepicker.js') }}"></script>-->
-	<!--<script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>-->
 	<script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/daterangepicker.js') }}"></script>
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/daterangepicker.css') }}" />
@@ -26,7 +22,7 @@
     <link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>
 	<link rel="stylesheet" href="{{ url_for('static', filename='OpenLayers/theme/default/style.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ol-style.css') }}" />
-    <!-- <link href="{{ url_for('static', filename='css/slider.css') }}" rel="stylesheet"/>-->
+
 {% endblock %}
 {% set active_page = "wms" %}
 {% set init_cmap = "rainbow" %}
@@ -210,33 +206,9 @@
 						
 						</div>
 
-						<!--<div class="row">-->
-							<!--<div class="controls col" style="float: left;">-->
-						            <!--&lt;!&ndash;<i class="glyphicon glyphicon-th" style="font-size: 20px;"></i>&ndash;&gt;-->
-						            <!--&lt;!&ndash;<div style="float:right">&ndash;&gt;-->
-								    	<!--&lt;!&ndash;&nbsp; set time span&ndash;&gt;-->
-								    <!--&lt;!&ndash;</div>&ndash;&gt;-->
-								<!--<input name='date_toggled' type='text' value='' class='date date_toggled' style='display: inline' />-->
-								<!--<img src='static/img/calendar.png' class='date_toggler' onclick="openCalendar()" style='position: relative; top: 3px; margin-left: 4px;' />-->
-							<!--</div>-->
-						<!--</div>-->
-
-						<!--<div class="row">-->
-							<!--<div class="controls col" style="float: left;">-->
-								    <!--<div class="input-daterange input-group" id="datepicker">-->
-										<!--<input data-provide="datepicker" type="text" class="input-sm form-control" name="start" />-->
-        								<!--<span class="input-group-addon">to</span>-->
-        								<!--<input data-provide="datepicker" type="text" class="input-sm form-control" name="end" />-->
-    								<!--</div>-->
-							<!--</div>-->
-						<!--</div>-->
 						<div class="row">
 							<div class="controls col" style="float: left;">
-								<input id="daterange" type="text" name="daterange" mapId="A"/>
-								<!--<div id="reportrange" class="pull-right" mapId="A" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">-->
-									<!--<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;-->
-									<!--<span></span> <b class="caret"></b>-->
-								<!--</div>-->
+								<input id="daterange" type="text" name="daterange" mapId="A" />
 							</div>
 						</div>
 
