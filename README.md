@@ -14,7 +14,7 @@ THREDDS needs to be installed
 Setup
 -----
 
-In THREDDS the WMS and the netCDF subset service need to be enabled. For this follow these [intructions](http://www.unidata.ucar.edu/software/thredds/current/tds/reference/ThreddsConfigXMLFile.html#WMS)
+In THREDDS the WMS and the netCDF subset service need to be enabled. For this follow these [intructions](http://www.unidata.ucar.edu/software/thredds/current/tds/reference/ThreddsConfigXMLFile.html#WMS).
 ncweb searches all files that are included in the default catalog.xml (.../apache-tomcat-7.0.63/content/thredds/catalog.xml). In the <satasetScan> tag a directory can be specified that is automatically scanned for netCDF files. 
 ```
   <datasetScan name="Test all files in a directory" ID="testDatasetScan" path="testAll" location="content/testdata">
