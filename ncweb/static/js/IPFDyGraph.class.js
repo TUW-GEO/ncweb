@@ -132,10 +132,19 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 //	console.log(map.Capabilities.capability.layers[$("#ncvarSelect" + map.MapName)val()].title);
 //	var wmsurl = $("#wmsSelect" + map.MapName).val().split("?")[0];
 	//TODO: still hard coded... make available for all datasets...
-	var wmsurl = "http://localhost:8080/thredds/ncss/grid/testAll/"+layer+"?"+
-			"req=station&var="+ncvar+"&latitude="+lonlat.lat+"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
-	// @TODO: Find good bbox
-	console.log(wmsurl);
+
+	$.ajax({
+		type: "GET",
+		url: '/GetConfigParam?url_type=ncss',
+		dataType: "json",
+		success: function(json) {
+
+			wmsurl = json.url+layer+"?"+"req=station&var="+ncvar+"&latitude="+lonlat.lat+
+					"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
+			console.log("wmsurl = "+wmsurl);
+		},
+		async: false
+	});
 
 	map.IPFDyGraph.getDyGraph = $.ajax({
 		type: "GET",
@@ -146,7 +155,6 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 			var dates = new Array();
 
 			for (var i=0; i<$(xml).find("point").length; i++){
-				console.log("Point "+i);
 				dates[i] = new Date($(xml).find("point").eq(i).children("data")[0].innerHTML);
 				//TODO: specific to dataset /10000 - unit dependent!!
 				value=parseFloat($(xml).find("point").eq(i).children("data")[3].innerHTML)/10000;
@@ -162,6 +170,36 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 			map.IPFDyGraph.DyGraphData = mydata;
 		}
 	});
+//	var wmsurl = "http://localhost:8080/thredds/ncss/grid/testAll/"+layer+"?"+
+//			"req=station&var="+ncvar+"&latitude="+lonlat.lat+"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
+//	 //@TODO: Find good bbox
+//	console.log(wmsurl);
+//
+//	map.IPFDyGraph.getDyGraph = $.ajax({
+//		type: "GET",
+//		url: wmsurl,
+//		dataType: "xml",
+//		success: function(xml){
+//			var mydata = new Array();
+//			var dates = new Array();
+//
+//			for (var i=0; i<$(xml).find("point").length; i++){
+////				console.log("Point "+i);
+//				dates[i] = new Date($(xml).find("point").eq(i).children("data")[0].innerHTML);
+//				//TODO: specific to dataset /10000 - unit dependent!!
+//				value=parseFloat($(xml).find("point").eq(i).children("data")[3].innerHTML)/10000;
+//				if(value>0){
+//					mydata.push([dates[i], value]);
+//
+//				}
+//
+//			}
+//			console.log(mydata);
+//			map.IPFDyGraph.DyGraphLabels = map.Capabilities.capability.layers[$("#ncvarSelect" + map.MapName).val()].title;
+//			map.IPFDyGraph.DyGraphDates = dates;
+//			map.IPFDyGraph.DyGraphData = mydata;
+//		}
+//	});
 
 
 	// New GET Request
@@ -269,7 +307,7 @@ IPFDyGraph.prototype.drawDyGraph = function() {
 						continue;
 					}
 				
-					console.log(dg.DyGraphData[usedValues][1]);
+//					console.log(dg.DyGraphData[usedValues][1]);
 					var value=parseFloat(dg.DyGraphData[usedValues][1]);
 
 					if(isNaN(value))value=null;

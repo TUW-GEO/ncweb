@@ -44,7 +44,11 @@ function timeChanged(mapId) {
 	$('#daterange').data('daterangepicker').setEndDate(getDefaultEnd($('#daterange').attr('mapId')));
 	console.log($("#daterange").val());
 	$('#daterange').data('daterangepicker').updateView();
-	console.log($('#daterange').data('daterangepicker').startDate._d);
+	start=$('#daterange').data('daterangepicker').startDate;
+	console.log(start);
+	// update input text field
+	$('#daterange').val($('#daterange').data('daterangepicker').startDate._i + ' - ' + $('#daterange').data('daterangepicker').endDate._i);
+	console.log($("#daterange").val());
 
 	console.log("See all list elements? "+$("#timeSelectA")[0].value);
 //	$('#daterange').data('daterangepicker').minDate='1978-10-25';
@@ -400,13 +404,13 @@ function toggleCtrl(mapId) {
 function getDefaultStart(mapId){
 	var time = moment($("#timeSelect"+IPFDV.maps[mapId].MapName).val()).subtract(20, 'days');
     var time_start = moment(time).format("YYYY-MM-DD");
-    console.log("Selcected date: "+time);
+    console.log("Selcected date: "+time._i);
 	return time_start;
 }
 function getDefaultEnd(mapId){
 	var time = moment($("#timeSelect"+IPFDV.maps[mapId].MapName).val()).add(29, 'days');
     var time_end = moment(time).format("YYYY-MM-DD");
-    console.log("Selcected date: "+time);
+    console.log("Selcected date: "+time._i);
 	return time_end;
 }
 
@@ -511,7 +515,9 @@ $(function() {
  * @param {Date,Date} min max - Defines min and max Date for the new daterangepicker */
 function newPicker(min, max){
 	console.log("newPicker");
-	$('#daterange').data('daterangepicker').remove();
+	if($('#daterange').data('daterangepicker')){
+		$('#daterange').data('daterangepicker').remove();
+		}
 	$('#daterange').daterangepicker({
         "locale": {
         "format": "YYYY-MM-DD"

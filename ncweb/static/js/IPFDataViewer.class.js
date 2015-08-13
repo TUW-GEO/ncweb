@@ -157,13 +157,13 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 
 				//Get options for Variables select-control
 				ipfdv.loadVariables("#ncvarSelect"+map.MapName, map);
-				console.log("LoadVariables")
-				console.log("#ncvarSelect"+map.MapName)
+				console.log("LoadVariables");
+				console.log("#ncvarSelect"+map.MapName);
 				//Get options for Timepositions select-control
 				ipfdv.loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
-				console.log("loadTimepostitions")
+				console.log("loadTimepositions");
 				setColorbarRangeValues(map, map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name);
-				console.log("setColorbarRageValues map="+map+" ncvar="+map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name+" time="+$("#timeSelect"+map.MapName).val())
+				console.log("setColorbarRageValues map="+map+" ncvar="+map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name+" time="+$("#timeSelect"+map.MapName).val());
 				ipfdv.showLayerOnMap(map,true);
 			},
 			error: function() {
@@ -232,9 +232,14 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 				}
 			}
 			$(time_ctrl).val(selectValue);
+
 		}
-		console.log("in loadTimepositions "+layer.dimensions.time.values[0]+layer.dimensions.time.values.pop());
-		newPicker(layer.dimensions.time.values[0],layer.dimensions.time.values.pop());
+
+		var time_start = moment(layer.dimensions.time.values[0]).format("YYYY-MM-DD");
+   		var time_end = moment(layer.dimensions.time.values.pop()).format("YYYY-MM-DD");
+   		console.log('newPicker '+time_start+" "+time_end);
+		newPicker(time_start,time_end);
+		$(time_ctrl).trigger("change");
 	}
 	if ($(time_ctrl)[0] && $(time_ctrl)[0].length>1) {
 		$(time_ctrl).removeAttr("disabled");

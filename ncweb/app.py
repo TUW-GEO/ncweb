@@ -10,6 +10,7 @@ import datetime
 from owslib.wms import WebMapService
 from thredds_crawler.crawl import Crawl
 from urlparse import urlparse
+import ConfigParser
 import urllib2
 
 class NetCdfForm(Form):
@@ -256,12 +257,31 @@ def getFileList():
 
     parsed = urlparse(url)
     filelist['files'] = l
-    filelist['root'] = parsed.scheme+'://'+parsed.netloc
-    # filelist['location'] = filelist['root']+parsed.path.split('.',1)[0]+'/'
-    filelist['location'] = filelist['root']+"/thredds/wms/testAll/"
+    # filelist['root'] = parsed.scheme+'://'+parsed.netloc
+    # # filelist['location'] = filelist['root']+parsed.path.split('.',1)[0]+'/'
+    # filelist['location'] = filelist['root']+"/thredds/wms/testAll/"
+    config = ConfigParser.ConfigParser()
+    config.read('settings.cfg')
+
+    wms_url = config.get("URLs", "wms")
+    filelist['location'] = wms_url
     print filelist
 
     return jsonify(files=filelist['files'], location=filelist['location'])
+
+@app.route('/GetConfigParam', methods=['GET'])
+def getConfigParam():
+
+    url_type = request.args.get('url_type')
+    print('url_type: '+url_type)
+
+    config = ConfigParser.ConfigParser()
+    config.read('settings.cfg')
+
+    url = config.get("URLs", url_type)
+    print url
+
+    return jsonify(url=url)
 
 @app.route('/love')
 def marry():
