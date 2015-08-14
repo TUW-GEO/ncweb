@@ -535,6 +535,6 @@ function newPicker(min, max){
     	console.log(picker.endDate.format('YYYY-MM-DD'));
 		console.log($("#daterange").val());
 
-		IPFDV.maps[$('#daterange').attr('mapId')].IPFDyGraph.showDyGraph(IPFDV.maps.attr('mapId').Markers.markers[0].lonlat);
+		IPFDV.maps[$('#daterange').attr('mapId')].IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
     });
 }
