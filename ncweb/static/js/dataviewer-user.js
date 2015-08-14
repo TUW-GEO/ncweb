@@ -312,11 +312,13 @@ function toggleMapLink(mapId1, mapId2, type) {
 		if($("#cb_linkABtemp").is(':checked')) {
 			// Set to MapA-Value
 			if ($("#timeSelect"+IPFDV.maps[mapId1].MapName)[0] && $("#timeSelect"+IPFDV.maps[mapId1].MapName)[0].length>1) {
+				console.log("Set to MapA time value "+$("#timeSelect"+IPFDV.maps[mapId1].MapName).val());
 				IPFDV.maps[mapId1].Date = new Date($("#timeSelect"+IPFDV.maps[mapId1].MapName).val());
 				IPFDV.maps[mapId2].Date = new Date($("#timeSelect"+IPFDV.maps[mapId1].MapName).val());
 			}
 			// If MapA does not have a time position
 			else if ($("#timeSelect"+IPFDV.maps[mapId2].MapName)[0] && $("#timeSelect"+IPFDV.maps[mapId2].MapName)[0].length>1) {
+				console.log("Set to MapB time value "+$("#timeSelect"+IPFDV.maps[mapId2].MapName).val());
 				IPFDV.maps[mapId1].Date = new Date($("#timeSelect"+IPFDV.maps[mapId2].MapName).val());
 				IPFDV.maps[mapId2].Date = new Date($("#timeSelect"+IPFDV.maps[mapId2].MapName).val());
 			}
@@ -533,6 +535,6 @@ function newPicker(min, max){
     	console.log(picker.endDate.format('YYYY-MM-DD'));
 		console.log($("#daterange").val());
 
-		IPFDV.maps[$('#daterange').attr('mapId')].IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+		IPFDV.maps[$('#daterange').attr('mapId')].IPFDyGraph.showDyGraph(IPFDV.maps.attr('mapId').Markers.markers[0].lonlat);
     });
 }

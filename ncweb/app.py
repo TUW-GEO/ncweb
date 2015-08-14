@@ -272,16 +272,18 @@ def getFileList():
 @app.route('/GetConfigParam', methods=['GET'])
 def getConfigParam():
 
-    url_type = request.args.get('url_type')
-    print('url_type: '+url_type)
+    section = request.args.get('section')
+    param = request.args.get('param')
+    print('section: '+section)
+    print('param: '+param)
 
     config = ConfigParser.ConfigParser()
     config.read('settings.cfg')
 
-    url = config.get("URLs", url_type)
-    print url
+    value = config.get(section, param)
+    print value
 
-    return jsonify(url=url)
+    return jsonify(value=value)
 
 @app.route('/love')
 def marry():

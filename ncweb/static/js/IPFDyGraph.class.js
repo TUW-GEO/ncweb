@@ -135,13 +135,24 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 
 	$.ajax({
 		type: "GET",
-		url: '/GetConfigParam?url_type=ncss',
+		url: '/GetConfigParam?section=URLs&param=ncss',
 		dataType: "json",
 		success: function(json) {
 
-			wmsurl = json.url+layer+"?"+"req=station&var="+ncvar+"&latitude="+lonlat.lat+
+			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar+"&latitude="+lonlat.lat+
 					"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
 			console.log("wmsurl = "+wmsurl);
+		},
+		async: false
+	});
+
+	$.ajax({
+		type: "GET",
+		url: '/GetConfigParam?section=Data&param=scale_factor',
+		dataType: "json",
+		success: function(json) {
+
+			scale_factor=parseFloat(json.value);
 		},
 		async: false
 	});
@@ -156,8 +167,7 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 
 			for (var i=0; i<$(xml).find("point").length; i++){
 				dates[i] = new Date($(xml).find("point").eq(i).children("data")[0].innerHTML);
-				//TODO: specific to dataset /10000 - unit dependent!!
-				value=parseFloat($(xml).find("point").eq(i).children("data")[3].innerHTML)/10000;
+				value=parseFloat($(xml).find("point").eq(i).children("data")[3].innerHTML)*scale_factor;
 				if(value>0){
 					mydata.push([dates[i], value]);
 

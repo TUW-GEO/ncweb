@@ -5,11 +5,11 @@ var IPFDV = null;
 $(document).ready(function(){
 	$.ajax({
 		type: "GET",
-		url: '/GetConfigParam?url_type=catalog',
+		url: '/GetConfigParam?section=URLs&param=catalog',
 		dataType: "json",
 		success: function(json) {
 
-			SERVERURL = json.url;
+			SERVERURL = json.value;
 			console.log("SERVERURL = "+SERVERURL);
 
 

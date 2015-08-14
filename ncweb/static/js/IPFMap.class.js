@@ -391,17 +391,19 @@ IPFMap.prototype.syncDateTime = function(syncdate) {
 	var minDateDiff = -1;
 	var options = $("#timeSelect" + this.MapName + " option");
 	for (var i = 0; i < options.length; i++) {
-		var date = new Date(options[i].value);
-		if (minDateDiff > Math.abs(syncdate - date)
+		var date = new Date(options[i].value.replace(/\s+/g, ''));
+		if (minDateDiff > Math.abs((syncdate.getTime() - date.getTime())/(1000*3600*24))
 				|| minDateDiff < 0) {
-			minDateDiff = Math.abs(syncdate - date);
+			minDateDiff = Math.abs((syncdate.getTime() - date.getTime())/(1000*3600*24));
 			selectValue = options[i].value;
 		}
 	}
 	if ($("#timeSelect" + this.MapName).val != selectValue) {
 		$("#timeSelect" + this.MapName).val(selectValue); // Sync Control
 		this.Date = syncdate; // Sync internal Date
-		IPFDV.showLayerOnMap(this, false);
+		var lock=false;
+		if($("#lock"+this.MapName).val()==="unlock"){lock=true;}
+		IPFDV.showLayerOnMap(this, false, lock);
 	}
 	
 	if (this.IPFDyGraph.DyGraph != null) {

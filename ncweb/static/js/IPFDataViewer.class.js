@@ -191,7 +191,7 @@ IPFDataViewer.prototype.loadVariables = function(ncvar_ctrl, map) {
 			var o = new Option(map.Capabilities.capability.layers[l].title, l);
 			$(o).html(map.Capabilities.capability.layers[l].title);
 			$(ncvar_ctrl).append(o);
-			console.log($(ncvar_ctrl));
+//			console.log($(ncvar_ctrl));
 		}
 	}
 	if ($(ncvar_ctrl)[0] && $(ncvar_ctrl)[0].length>1) {
@@ -275,6 +275,7 @@ IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS, manualScale) {
 	req_url=$("#wmsSelect"+map.MapName).val().split("?")[0]+"?item=minmax&layers="+
 			ncvar+"&bbox=-180%2C-90%2C180%2C90&elevation=0&time="+$("#timeSelect"+map.MapName).val()+
 			"&srs=EPSG%3A4326&width=256&height=256&request=GetMetadata";
+	console.log(req_url);
 
 	if(manualScale==true){
 		console.log("Scale changed manually");
