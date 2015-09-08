@@ -1,0 +1,120 @@
+.right-container{
+    position: absolute;
+
+    right: .5em;
+}
+.left-container{
+    position: absolute;
+
+    left: .5em;
+}
+.align-right{
+    right: 0em;
+}
+
+.globe-container {
+  top: 130px;
+}
+
+#globe-button{
+    width: 60px;
+    font-size: 1em;
+    font-weight: 200;
+
+}
+
+.colorbar-container {
+  top: 190px;
+  height: 200px;
+}
+
+.colorbar-max-container {
+	position: absolute;
+	top: 160px;
+}
+.colorbar-min-container {
+	position: absolute;
+	top: 400px;
+}
+
+.tbColorbarRange {
+	width:60px;
+	height:22px;
+	font-size: 10pt;
+    padding: 2px;
+}
+.lock-container{
+	position: absolute;
+	top: 430px;
+}
+#menu-visA{
+    position: absolute;
+    width: 100px;
+}
+#menu-visB{
+    position: absolute;
+    width: 100px;
+    right:0em;
+}
+#map-settingsA{
+    overflow: hidden;
+}
+#map-settingsB{
+    overflow: hidden;
+}
+.map-settings-containerA{
+    display: none;
+    position: absolute;
+    top: 130px;
+    z-index: 200;
+    width: 200px;
+    min-height: 300px;
+    left: 0px;
+    height: 328px;
+    padding: 5px;
+
+}
+.map-settings-containerB{
+    display: none;
+    position: absolute;
+    top: 130px;
+    z-index: 200;
+    width: 200px;
+    min-height: 300px;
+    right: 0px;
+    height: 328px;
+    padding: 5px;
+
+}
+.map:-moz-full-screen {
+  height: 100%;
+}
+.map:-webkit-full-screen {
+  height: 100%;
+}
+.map:-ms-fullscreen {
+  height: 100%;
+}
+.map:fullscreen {
+  height: 100%;
+}
+.ol-rotate {
+  top: 3em;
+}
+#map {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.row {
+    position: relative;
+    margin-left: 0px;
+    padding: 2px;
+}
+.map-dropdown{
+    width: 180px;
+    padding: 2px;
+    margin-bottom: 10px;
+}

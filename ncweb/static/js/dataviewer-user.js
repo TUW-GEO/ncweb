@@ -84,13 +84,13 @@ function scaleLock(mapId) {
 
 	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="lock"){
 		$("#lock"+IPFDV.maps[mapId].MapName).val("unlock");
-		$("#lock"+IPFDV.maps[mapId].MapName).text("unlock");
+		$("#lock"+IPFDV.maps[mapId].MapName).find('i').toggleClass('fa-lock fa-unlock');
 		$("#tbMax_map"+IPFDV.maps[mapId].MapName).attr('disabled', 'disabled');
 		$("#tbMin_map"+IPFDV.maps[mapId].MapName).attr('disabled', 'disabled');
 	}
 	else{
 		$("#lock"+IPFDV.maps[mapId].MapName).val("lock");
-		$("#lock"+IPFDV.maps[mapId].MapName).text("lock");
+		$("#lock"+IPFDV.maps[mapId].MapName).find('i').toggleClass('fa-lock fa-unlock');
 		$("#tbMax_map"+IPFDV.maps[mapId].MapName).removeAttr('disabled');
 		$("#tbMin_map"+IPFDV.maps[mapId].MapName).removeAttr('disabled');
 	}
@@ -383,11 +383,11 @@ function closeDygraph(mapId) {
  * Toogles the Map Settings Control
  * @name toggleCtrl
  * @param {string} mapId - Defines the map, where to toggle the div */
-function toggleCtrl(mapId) {
-	$('#mapSettingsContainerDiv_map'+mapId).toggle('slide', {
-	    direction: 'left'
-	}, 1000);
-}
+//function toggleCtrl(mapId) {
+//	$('#mapSettingsContainerDiv_map'+mapId).toggle('slide', {
+//	    direction: 'left'
+//	}, 1000);
+//}
 
 //function openCalendar(){
 //	console.log("openCalendar")

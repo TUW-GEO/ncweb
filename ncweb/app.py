@@ -237,6 +237,10 @@ def wmsIndex():
 def wmsJS():
     return render_template('wmsDataJS.html')
 
+@app.route('/wmsnew')
+def wmsFS():
+    return render_template('wmsFullScreen.html')
+
 @app.route('/wms/GetFileList', methods=['GET'])
 def getFileList():
 

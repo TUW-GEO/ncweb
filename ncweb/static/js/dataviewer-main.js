@@ -14,9 +14,9 @@ $(document).ready(function(){
 
 
 			IPFDV = new IPFDataViewer(SERVERURL);
-			window.onresize = function(){
-				IPFDV.ncwebResize();
-			}
+//			window.onresize = function(){
+//				IPFDV.ncwebResize();
+//			}
 
 
 		}

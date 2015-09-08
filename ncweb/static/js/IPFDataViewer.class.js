@@ -11,7 +11,9 @@ function IPFDataViewer(serverurl) {
 //	} else {
 //    	alert("no JQuery");
 //	}
-
+	console.log("in IPFDataViewer");
+//	this.GetWMSFileList(serverurl);
+//	console.log("Still here...");
 	
 	this.maps = {};
 	
@@ -19,50 +21,50 @@ function IPFDataViewer(serverurl) {
 	
 	
 	
-	//deactivate all map options
-	$("#cb_linkABgeo").attr("checked", false);
-	$("#cb_linkABtemp").attr("checked", false);
-	$("#cb_linkABmarker").attr("checked", false);
-	$("#cb_getTS").attr("checked", false);
-	$( "#linkMapsCtrlGroup_mapB" ).hide();
-	$(".ctrlLabel").hide();
-	$( "#linkMapsCtrlGroup_mapB" ).mouseenter(function() {
-		$(".ctrlLabel").show();
-	}).mouseleave(function() {
-		$(".ctrlLabel").hide();
-	});
+//	//deactivate all map options
+//	$("#cb_linkABgeo").attr("checked", false);
+//	$("#cb_linkABtemp").attr("checked", false);
+//	$("#cb_linkABmarker").attr("checked", false);
+//	$("#cb_getTS").attr("checked", false);
+//	$( "#linkMapsCtrlGroup_mapB" ).hide();
+//	$(".ctrlLabel").hide();
+//	$( "#linkMapsCtrlGroup_mapB" ).mouseenter(function() {
+//		$(".ctrlLabel").show();
+//	}).mouseleave(function() {
+//		$(".ctrlLabel").hide();
+//	});
 	
 	//Initialize custom click control
-	initClickCtrl();
+//	initClickCtrl();
 	
 	this.maps.A = new IPFMap("A",'#mapA');
 	this.maps.A.initMap();
+
+//	this.maps.B = new IPFMap("B",'#mapB');
+//	this.maps.B.initMap();
+//	$('#mapB').hide();
 	
-	this.maps.B = new IPFMap("B",'#mapB');
-	this.maps.B.initMap();
-	$('#mapB').hide();
-	
-	var _self = this;
-	$("#opacityslider-A").slider({
-		min: 0,
-		max: 100,
-		range: "min",
-		step: 5,
-		value: 80,
-		slide: function(slideEvt, ui) {
-			_self.maps.A.setWMSOpacity(_self.maps.A, ui.value);
-		}
-	});
-	$("#opacityslider-B").slider({
-		min: 0,
-		max: 100,
-		range: "min",
-		step: 5,
-		value: 80,
-		slide: function(slideEvt, ui) {
-			_self.maps.B.setWMSOpacity(_self.maps.B, ui.value);
-		}
-	});
+//	var _self = this;
+//	$("#opacityslider-A").slider({
+//		min: 0,
+//		max: 100,
+//		range: "min",
+//		step: 5,
+//		value: 80,
+//		slide: function(slideEvt, ui) {
+//			_self.maps.A.setWMSOpacity(_self.maps.A, ui.value);
+//		}
+//	});
+//	$("#opacityslider-B").slider({
+//		min: 0,
+//		max: 100,
+//		range: "min",
+//		step: 5,
+//		value: 80,
+//		slide: function(slideEvt, ui) {
+//			_self.maps.B.setWMSOpacity(_self.maps.B, ui.value);
+//		}
+//	});
 	
 	//Get Pydap handled files for requested url and add to WMS Select
 
@@ -78,7 +80,7 @@ function IPFDataViewer(serverurl) {
 IPFDataViewer.prototype.GetWMSFileList = function(surl) {
 	console.log("In IPFDataViewer.prototype.GetWMSFileList = function(url) url= "+surl);
 	var mapA = this.maps["A"];
-	var mapB = this.maps["B"];
+//	var mapB = this.maps["B"];
 	var ipfdv = this;
 
 	$.ajax({
@@ -87,19 +89,19 @@ IPFDataViewer.prototype.GetWMSFileList = function(surl) {
 		dataType: "json",
 		success: function(json) {
 			$("#wmsSelectA").empty();
-			$("#wmsSelectB").empty();
+//			$("#wmsSelectB").empty();
 			for (var f in json.files) {
 				var o = new Option(json.files[f].name, json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
 				console.log("list A: "+json.files[f].name+" "+json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
 				$(o).html(json.files[f].name);
 				$("#wmsSelectA").append(o);
 
-				var o = new Option(json.files[f].name, json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
-				$(o).html(json.files[f].name);
-				$("#wmsSelectB").append(o);
+//				var o = new Option(json.files[f].name, json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
+//				$(o).html(json.files[f].name);
+//				$("#wmsSelectB").append(o);
 			}
 			ipfdv.GetWMSCapabilities(mapA);
-			ipfdv.GetWMSCapabilities(mapB);
+//			ipfdv.GetWMSCapabilities(mapB);
 		}
 	});
 }
@@ -136,9 +138,10 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 			url: req_url,
 			dataType: "xml",
 			success: function(xml) {
-				var wmsCapabilities = new OpenLayers.Format.WMSCapabilities();
+				var wmsCapabilities = new ol.format.WMSCapabilities();
 				map.Capabilities = wmsCapabilities.read(xml);
-				console.log("map.Capabilities "+map.Capabilities)
+				console.log("map.Capabilities "+map.Capabilities);
+				$('#log').html(window.JSON.stringify(result, null, 2));
 
 				for (var i=0; i<$(xml).find("Layer").length; i++) {
 					console.log("Layer "+i+" in XML")
@@ -158,7 +161,7 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 				//Get options for Variables select-control
 				ipfdv.loadVariables("#ncvarSelect"+map.MapName, map);
 				console.log("LoadVariables");
-				console.log("#ncvarSelect"+map.MapName);
+				console.log("#ncvarSelect"+map.MapName+": "+ $("#ncvarSelect"+map.MapName).val());
 				//Get options for Timepositions select-control
 				ipfdv.loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
 				console.log("loadTimepositions");
@@ -184,9 +187,12 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
  * @param {string} ncvar_ctrl - Control-Id of the variables SELECT
  * @param {IPFMap} map - Map tab where the variables SELECT gets loaded */
 IPFDataViewer.prototype.loadVariables = function(ncvar_ctrl, map) {
+    console.log("actually in loadVariables");
+
 	$(ncvar_ctrl).empty();
 	//read layer information
 	if(map.Capabilities.capability && map.Capabilities.capability.layers) {
+	    console.log("in here :)");
 		for (var l in map.Capabilities.capability.layers) {
 			var o = new Option(map.Capabilities.capability.layers[l].title, l);
 			$(o).html(map.Capabilities.capability.layers[l].title);
@@ -368,33 +374,33 @@ IPFDataViewer.prototype.resetControls = function(map) {
  * There is a additional resizeDygraphs()-function in jquery.splitter-0.14.0.js to resize the dygraph div */
 IPFDataViewer.prototype.ncwebResize = function() {
 	resizeDiv(this.maps.A.MapDivId);
-	resizeDiv(this.maps.B.MapDivId);
+//	resizeDiv(this.maps.B.MapDivId);
 	resizeDiv("#mapSettingsContainerDiv_mapA");
 	resizeDiv("#showMapSettingsButton_mapA");
 	resizeDiv('#splitcontainer');
 	resizeDiv('.left_panel');
 	resizeDiv('.right_panel');
+
+//	$("#TimeSeriesContainerDiv_mapA").css('top',$(this.maps.A.MapDivId).height()-210);
+////	$("#TimeSeriesContainerDiv_mapB").css('top',$(this.maps.B.MapDivId).height()-210);
+////	$(".mapColorbarContainer").css('top',$(this.maps.A.MapDivId).height()-75);
+//	$("#TimeSeriesContainerDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-40);
+////	$("#TimeSeriesContainerDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-50);
+//	$("#TimeSeriesDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-40);
+////	$("#TimeSeriesDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-50);
+//	if(this.maps.A.IPFDyGraph.DyGraph) {
+//		this.maps.A.IPFDyGraph.DyGraph.resize();
+//	}
+//	if(this.maps.B.IPFDyGraph.DyGraph) {
+//		this.maps.B.IPFDyGraph.DyGraph.resize();
+//	}
 	
-	$("#TimeSeriesContainerDiv_mapA").css('top',$(this.maps.A.MapDivId).height()-210);
-	$("#TimeSeriesContainerDiv_mapB").css('top',$(this.maps.B.MapDivId).height()-210);
-	$(".mapColorbarContainer").css('top',$(this.maps.A.MapDivId).height()-75);
-	$("#TimeSeriesContainerDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-40);
-	$("#TimeSeriesContainerDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-50);
-	$("#TimeSeriesDiv_mapA").css('width',$(this.maps.A.MapDivId).width()-40);
-	$("#TimeSeriesDiv_mapB").css('width',$(this.maps.B.MapDivId).width()-50);
-	if(this.maps.A.IPFDyGraph.DyGraph) {
-		this.maps.A.IPFDyGraph.DyGraph.resize();
-	}
-	if(this.maps.B.IPFDyGraph.DyGraph) {
-		this.maps.B.IPFDyGraph.DyGraph.resize();
-	}
-	
-	this.maps['A'].Map.updateSize();
-	this.maps['A'].Map.zoomToMaxExtent();
-	this.maps['A'].Map.zoomIn();
-	this.maps['B'].Map.updateSize();
-	this.maps['B'].Map.zoomToMaxExtent();
-	this.maps['B'].Map.zoomIn();
+//	this.maps['A'].Map.updateSize();
+//	this.maps['A'].Map.zoomToMaxExtent();
+//	this.maps['A'].Map.zoomIn();
+//	this.maps['B'].Map.updateSize();
+//	this.maps['B'].Map.zoomToMaxExtent();
+//	this.maps['B'].Map.zoomIn();
 }
 
 /** @function

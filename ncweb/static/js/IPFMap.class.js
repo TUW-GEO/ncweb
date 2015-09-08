@@ -4,7 +4,7 @@
  */
 function IPFMap(Name, Div) {
 
-	this.Projection = new OpenLayers.Projection("EPSG:4326");
+//	this.Projection = new OpenLayers.Projection("EPSG:4326");
 	
 	// IPFDataViewer ViewState 
 	// (0 - disabled, 1 - overlay_top, 2 - overlay_bottom, 3 - splitscreen)
@@ -56,140 +56,151 @@ function IPFMap(Name, Div) {
  */
 IPFMap.prototype.initMap = function() {
 	// new map object
-	this.Map = new OpenLayers.Map("map" + this.MapName, {
-		projection : this.Projection
-	});
+//	this.Map = new OpenLayers.Map("map" + this.MapName, {
+//		projection : this.Projection
+//	});
+	console.log("initMap");
 
-	// Add some base layer
-	var wms_name = "Opengeo BlueMarble";
-	var wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
-	var wms_options = {
-		layers : 'bluemarble',
-		tiled : true,
-		srs : 'EPSG:4326',
-		format : 'image/jpeg'
-	};
-	var opengeo = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
-		'buffer' : 1,
-		transitionEffect : 'resize',
-		removeBackBufferDelay : 0,
-		className : 'olLayerGridCustom'
-	});
-	this.Map.addLayer(opengeo);
-	
-	wms_name = "OSM-WMS worldwide";
-	wms_url = "http://129.206.228.72/cached/osm?";
-	wms_options = {
-		layers : 'osm_auto:all',
-		srs : 'EPSG:900913',
-		format : 'image/png'
-	};
-	var layerOSM = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
-		'buffer' : 1,
-		transitionEffect : 'resize',
-		removeBackBufferDelay : 0,
-		className : 'olLayerGridCustom'
-	});
-	this.Map.addLayer(layerOSM);
+	this.Map = new ol.Map({
+//      layers: layers,
+      target: 'map',
+      view: new ol.View({
+        projection: 'EPSG:3857',
+        center: [0, 0],
+        zoom: 3
+      })
+    });
 
-	wms_name = "Opengeo OSM";
-	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
-	wms_options = {
-		layers : 'openstreetmap',
-		tiled : true,
-		srs : 'EPSG:4326',
-		format : 'image/png'
-	};
-	var opengeo1 = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
-		'buffer' : 1,
-		transitionEffect : 'resize',
-		removeBackBufferDelay : 0,
-		className : 'olLayerGridCustom'
-	});
-	this.Map.addLayer(opengeo1);
-
-	wms_name = "Opengeo Chalk";
-	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
-	wms_options = {
-		layers : 'chalk',
-		tiled : true,
-		srs : 'EPSG:4326',
-		format : 'image/png'
-	};
-	var opengeo2 = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
-		'buffer' : 1,
-		transitionEffect : 'resize',
-		removeBackBufferDelay : 0,
-		className : 'olLayerGridCustom'
-	});
-	this.Map.addLayer(opengeo2);
-
-	wms_name = "Opengeo Graphite";
-	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
-	wms_options = {
-		layers : 'graphite',
-		tiled : true,
-		srs : 'EPSG:4326',
-		format : 'image/png'
-	};
-	var opengeo3 = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
-		'buffer' : 1,
-		transitionEffect : 'resize',
-		removeBackBufferDelay : 0,
-		className : 'olLayerGridCustom'
-	});
-	this.Map.addLayer(opengeo3);
-
-	wms_name = "Opengeo Blue";
-	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
-	wms_options = {
-		layers : 'blue',
-		tiled : true,
-		srs : 'EPSG:4326',
-		format : 'image/png'
-	};
-	var opengeo4 = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
-		'buffer' : 1,
-		transitionEffect : 'resize',
-		removeBackBufferDelay : 0,
-		className : 'olLayerGridCustom'
-	});
-	this.Map.addLayer(opengeo4);
-
-	// Add Layer Switcher Control
-	this.Map.addControl(new OpenLayers.Control.LayerSwitcher());
-	// Initialise the graticule
-	this.Graticule = new OpenLayers.Control.Graticule({
-		numPoints : 2,
-		labelled : true,
-		visible : false
-	});
-	this.Map.addControl(this.Graticule);
-	this.Map.setLayerIndex(this.Graticule.gratLayer, 99);
-	this.Map.zoomToMaxExtent();
-	this.Map.zoomIn();
-
-	this.Markers = new OpenLayers.Layer.Markers("Markers");
-	this.Map.addLayer(this.Markers);
-	
-	this.IPFDyGraph = new IPFDyGraph(this);
-
-	var _self = this;
-	// Initialise ClickControl
-	this.ClickCtrl = new OpenLayers.Control.Click({
-		trigger : function(e) {
-			var lonlat = _self.Map.getLonLatFromPixel(e.xy);
-			_self.IPFDyGraph.showDyGraph(lonlat);
-			if ($("#cb_linkABmarker").is(':checked') && IPFDV.maps.B.ViewState == IPFDV.ViewStates.separate) {
-				if (_self.MapName == 'A') {
-					IPFDV.maps.B.IPFDyGraph.showDyGraph(lonlat);
-				}
-				else if (_self.MapName == 'B') {
-					IPFDV.maps.A.IPFDyGraph.showDyGraph(lonlat);
-				}
-			}
-		}
-	});
+//	// Add some base layer
+//	var wms_name = "Opengeo BlueMarble";
+//	var wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+//	var wms_options = {
+//		layers : 'bluemarble',
+//		tiled : true,
+//		srs : 'EPSG:4326',
+//		format : 'image/jpeg'
+//	};
+//	var opengeo = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
+//		'buffer' : 1,
+//		transitionEffect : 'resize',
+//		removeBackBufferDelay : 0,
+//		className : 'olLayerGridCustom'
+//	});
+//	this.Map.addLayer(opengeo);
+//
+//	wms_name = "OSM-WMS worldwide";
+//	wms_url = "http://129.206.228.72/cached/osm?";
+//	wms_options = {
+//		layers : 'osm_auto:all',
+//		srs : 'EPSG:900913',
+//		format : 'image/png'
+//	};
+//	var layerOSM = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
+//		'buffer' : 1,
+//		transitionEffect : 'resize',
+//		removeBackBufferDelay : 0,
+//		className : 'olLayerGridCustom'
+//	});
+//	this.Map.addLayer(layerOSM);
+//
+//	wms_name = "Opengeo OSM";
+//	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+//	wms_options = {
+//		layers : 'openstreetmap',
+//		tiled : true,
+//		srs : 'EPSG:4326',
+//		format : 'image/png'
+//	};
+//	var opengeo1 = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
+//		'buffer' : 1,
+//		transitionEffect : 'resize',
+//		removeBackBufferDelay : 0,
+//		className : 'olLayerGridCustom'
+//	});
+//	this.Map.addLayer(opengeo1);
+//
+//	wms_name = "Opengeo Chalk";
+//	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+//	wms_options = {
+//		layers : 'chalk',
+//		tiled : true,
+//		srs : 'EPSG:4326',
+//		format : 'image/png'
+//	};
+//	var opengeo2 = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
+//		'buffer' : 1,
+//		transitionEffect : 'resize',
+//		removeBackBufferDelay : 0,
+//		className : 'olLayerGridCustom'
+//	});
+//	this.Map.addLayer(opengeo2);
+//
+//	wms_name = "Opengeo Graphite";
+//	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+//	wms_options = {
+//		layers : 'graphite',
+//		tiled : true,
+//		srs : 'EPSG:4326',
+//		format : 'image/png'
+//	};
+//	var opengeo3 = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
+//		'buffer' : 1,
+//		transitionEffect : 'resize',
+//		removeBackBufferDelay : 0,
+//		className : 'olLayerGridCustom'
+//	});
+//	this.Map.addLayer(opengeo3);
+//
+//	wms_name = "Opengeo Blue";
+//	wms_url = "http://maps.opengeo.org/geowebcache/service/wms";
+//	wms_options = {
+//		layers : 'blue',
+//		tiled : true,
+//		srs : 'EPSG:4326',
+//		format : 'image/png'
+//	};
+//	var opengeo4 = new OpenLayers.Layer.WMS(wms_name, wms_url, wms_options, {
+//		'buffer' : 1,
+//		transitionEffect : 'resize',
+//		removeBackBufferDelay : 0,
+//		className : 'olLayerGridCustom'
+//	});
+//	this.Map.addLayer(opengeo4);
+//
+//	// Add Layer Switcher Control
+//	this.Map.addControl(new OpenLayers.Control.LayerSwitcher());
+//	// Initialise the graticule
+//	this.Graticule = new OpenLayers.Control.Graticule({
+//		numPoints : 2,
+//		labelled : true,
+//		visible : false
+//	});
+//	this.Map.addControl(this.Graticule);
+//	this.Map.setLayerIndex(this.Graticule.gratLayer, 99);
+//	this.Map.zoomToMaxExtent();
+//	this.Map.zoomIn();
+//
+//	this.Markers = new OpenLayers.Layer.Markers("Markers");
+//	this.Map.addLayer(this.Markers);
+//
+//	this.IPFDyGraph = new IPFDyGraph(this);
+//
+//	var _self = this;
+//	// Initialise ClickControl
+//	this.ClickCtrl = new OpenLayers.Control.Click({
+//		trigger : function(e) {
+//			var lonlat = _self.Map.getLonLatFromPixel(e.xy);
+//			_self.IPFDyGraph.showDyGraph(lonlat);
+//			if ($("#cb_linkABmarker").is(':checked') && IPFDV.maps.B.ViewState == IPFDV.ViewStates.separate) {
+//				if (_self.MapName == 'A') {
+//					IPFDV.maps.B.IPFDyGraph.showDyGraph(lonlat);
+//				}
+//				else if (_self.MapName == 'B') {
+//					IPFDV.maps.A.IPFDyGraph.showDyGraph(lonlat);
+//				}
+//			}
+//		}
+//	});
 }
 
 /**

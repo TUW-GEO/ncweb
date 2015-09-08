@@ -1,0 +1,138 @@
+<!--<!DOCTYPE html>-->
+
+<!--<html>-->
+<!--<head>-->
+<!--<title>Full screen control example</title>-->
+<!--<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>-->
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">-->
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
+<!--<link rel="stylesheet" href="http://openlayers.org/en/v3.8.2/css/ol.css" type="text/css">-->
+<!--<script src="http://openlayers.org/en/v3.8.2/build/ol.js"></script>-->
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">-->
+<!--<script src="{{ url_for('static', filename='js/dataviewer-user.js') }}"></script>-->
+
+
+
+
+<!--</head>-->
+
+
+
+{% from "_formhelper.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}NetCDF - DataViewer - WMS{% endblock %}
+{% block head %}
+    {{ super() }}
+
+
+	<script src="{{ url_for('static', filename='js/ol.js') }}"></script>
+<!---->
+	<!--<script src="{{ url_for('static', filename='js/dygraph-combined.js') }}"></script>-->
+	<script src="{{ url_for('static', filename='js/IPFMap.class.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/new_IPFMap.class.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/IPFDataViewer.class.js') }}"></script>
+	<!--<script src="{{ url_for('static', filename='js/IPFDyGraph.class.js') }}"></script>-->
+	<script src="{{ url_for('static', filename='js/dataviewer-main.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/dataviewer-user.js') }}"></script>
+	<!--<script src="{{ url_for('static', filename='js/jquery.splitter-0.14.0.js') }}"></script>-->
+
+	<script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/daterangepicker.js') }}"></script>
+	<!--<link rel="stylesheet" href="{{ url_for('static', filename='css/daterangepicker.css') }}" />-->
+
+    <!--<link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>-->
+	<!--<link rel="stylesheet" href="{{ url_for('static', filename='OpenLayers/theme/default/style.css') }}" />-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ol.css') }}" />
+
+{% endblock %}
+{% set active_page = "wms" %}
+{% set init_cmap = "rainbow" %}
+{% set cmap_choices = ["rainbow","redblue","alg","greyscale","ncview","alg2","occam","rainbow","sst_36","ferret","occam_pastel-30"] %}
+{% block content %}
+
+    <div id="map" class="map"></div>
+    <div id="menu-left" class="left-container">
+        <div id="map-settingsA" class="map-settings-containerA ol-control">
+            <div class="row">
+                <div class="control-label" style="font-weight:bold;">WMS</div>
+            </div>
+            <div class="row">
+                    <select class='map-dropdown dropdown-toggle' id="wmsSelectA" name="wmsSelectA" onchange="wmsChanged('A');"></select>
+            </div>
+            <div class="row">
+                <div class="control-label" style="font-weight:bold;">NetCDF Variables</div>
+            </div>
+            <div class="row">
+                    <select class='map-dropdown dropdown-toggle' id="ncvarSelectA" name="ncvarSelectA" onchange="ncvarChanged('A');"></select>
+            </div>
+            <div class="row">
+                <div class="control-label" style="font-weight:bold;">Time Positions</div>
+            </div>
+            <div class="row">
+                    <select class='map-dropdown dropdown-toggle' id="timeSelectA" name="timeSelectA" onchange="timeChanged('A');"></select>
+            </div>
+        </div>
+        <div id="menu-visA">
+            <div id="globe-divA" class="globe-container ol-control" onclick="toggleCtrl('A')">
+                <button id="globe-button"><i class="fa fa-globe"></i> Map A</button>
+            </div>
+            <div id="colorbar-max-divA"class="colorbar-max-container ol-unselectable ol-control">
+                <input id="tbMax_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"/>
+            </div>
+            <div id="colorbar-divA" class="colorbar-container ol-control">
+                <img id="imgColorbarA" alt="colorbar" src="" class="colorbar_v"/>
+            </div>
+            <div id="colorbar-min-divA"class="colorbar-min-container ol-unselectable ol-control">
+                <input id="tbMin_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"/>
+            </div>
+            <div id="lock-div"A class="lock-container ol-control">
+                <button id="lockA" class="lockButton" onclick="scaleLock('A')" value="lock"><i class="fa fa-lock"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-right" class="right-container">
+        <div id="map-settingsB" class="map-settings-containerB ol-control">
+            <div class="row">
+                <div class="control-label" style="font-weight:bold;">WMS</div>
+            </div>
+            <div class="row">
+                    <select class='map-dropdown dropdown-toggle' id="wmsSelectB" name="wmsSelectB" onchange="wmsChanged('B');"></select>
+            </div>
+            <div class="row">
+                <div class="control-label" style="font-weight:bold;">NetCDF Variables</div>
+            </div>
+            <div class="row">
+                    <select class='map-dropdown dropdown-toggle' id="ncvarSelectB" name="ncvarSelectB" onchange="ncvarChanged('B');"></select>
+            </div>
+            <div class="row">
+                <div class="control-label" style="font-weight:bold;">Time Positions</div>
+            </div>
+            <div class="row">
+                    <select class='map-dropdown dropdown-toggle' id="timeSelectB" name="timeSelectB" onchange="timeChanged('B');"></select>
+            </div>
+        </div>
+
+        <div id="menu-visB">
+            <div id="globe-divB" class="globe-container align-right ol-control" onclick="toggleCtrl('B')">
+                <button id="globe-button"><i class="fa fa-globe"></i> Map B</button>
+            </div>
+            <div id="colorbar-max-divB"class="colorbar-max-container align-right ol-unselectable ol-control">
+                <input id="tbMax_mapB" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('B')"/>
+            </div>
+            <div id="colorbar-divB" class="colorbar-container align-right ol-control">
+                <img id="imgColorbarB" alt="colorbar" src="" class="colorbar_v"/>
+            </div>
+            <div id="colorbar-min-divB"class="colorbar-min-container align-right ol-unselectable ol-control">
+                <input id="tbMin_mapB" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('B')"/>
+            </div>
+            <div id="lock-divB" class="lock-container align-right ol-control">
+                <button id="lockB" class="lockButton" onclick="scaleLock('B')" value="lock"><i class="fa fa-lock"></i></button>
+            </div>
+        </div>
+    </div>
+
+<script>
+
+</script>
+{% endblock %}
