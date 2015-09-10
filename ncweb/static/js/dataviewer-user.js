@@ -108,8 +108,8 @@ function scaleLock(mapId) {
  */
 function setColorbarRangeValues(map,ncvar) {
 	if(map.Capabilities) {
-		var actRange = map.Capabilities.capability.layers.filter(function(obj) {
-			return obj.name == ncvar;
+		var actRange = map.Capabilities.Capability.Layer.Layer[0].Layer.filter(function(obj) {
+			return obj.Name == ncvar;
 		})[0].actualrange;
 		if (actRange && actRange.length==3) {
 			$("#tbMin_map"+map.MapName).val(actRange[0]);
@@ -201,7 +201,7 @@ function addMapAsOverlay(mapId, onTop) {
 		IPFDV.ncwebResize();
 	}
 	// show data as overlay on mapA
-	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
+	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+mapId).val()].Name,
 			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
 			$("#cmapSelect"+mapId).val(), IPFDV.maps['A'], onTop, false);
 	

@@ -40,9 +40,9 @@ function IPFDataViewer(serverurl) {
 	this.maps.A = new IPFMap("A",'#mapA');
 	this.maps.A.initMap();
 
-//	this.maps.B = new IPFMap("B",'#mapB');
-//	this.maps.B.initMap();
-//	$('#mapB').hide();
+	this.maps.B = new IPFMap("B",'#mapB');
+	this.maps.B.initMap();
+	$('#mapB').hide();
 	
 //	var _self = this;
 //	$("#opacityslider-A").slider({
@@ -80,7 +80,7 @@ function IPFDataViewer(serverurl) {
 IPFDataViewer.prototype.GetWMSFileList = function(surl) {
 	console.log("In IPFDataViewer.prototype.GetWMSFileList = function(url) url= "+surl);
 	var mapA = this.maps["A"];
-//	var mapB = this.maps["B"];
+	var mapB = this.maps["B"];
 	var ipfdv = this;
 
 	$.ajax({
@@ -96,12 +96,12 @@ IPFDataViewer.prototype.GetWMSFileList = function(surl) {
 				$(o).html(json.files[f].name);
 				$("#wmsSelectA").append(o);
 
-//				var o = new Option(json.files[f].name, json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
-//				$(o).html(json.files[f].name);
-//				$("#wmsSelectB").append(o);
+				var o = new Option(json.files[f].name, json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
+				$(o).html(json.files[f].name);
+				$("#wmsSelectB").append(o);
 			}
 			ipfdv.GetWMSCapabilities(mapA);
-//			ipfdv.GetWMSCapabilities(mapB);
+			ipfdv.GetWMSCapabilities(mapB);
 		}
 	});
 }
@@ -141,22 +141,21 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 				var wmsCapabilities = new ol.format.WMSCapabilities();
 				map.Capabilities = wmsCapabilities.read(xml);
 				console.log("map.Capabilities "+map.Capabilities);
-				$('#log').html(window.JSON.stringify(result, null, 2));
 
-				for (var i=0; i<$(xml).find("Layer").length; i++) {
-					console.log("Layer "+i+" in XML")
-					if($(xml).find("Layer").eq(i).find("ActualRange").length>0 //Got Actual Range in child node
-							&& $(xml).find("Layer").eq(i).find("Layer").length == 0) { //Got no Layer-Node in child nodes
-						console.log("Got ActualRange in child node and no Layer-Node in child nodes")
-						var guess = false;
-						if ($(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("guess")==true) {
-							guess = true;
-						}
-						map.Capabilities.capability.layers.filter(function(obj) { // Write actualrange to capabilities
-							return obj.name ==$(xml).find("Layer").eq(i).children("Name")[0].innerHTML;
-						})[0].actualrange = [$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("min"),$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("max"),guess];
-					}
-				}
+//				for (var i=0; i<$(xml).find("Layer").length; i++) {
+//					console.log("Layer "+i+" in XML")
+//					if($(xml).find("Layer").eq(i).find("ActualRange").length>0 //Got Actual Range in child node
+//							&& $(xml).find("Layer").eq(i).find("Layer").length == 0) { //Got no Layer-Node in child nodes
+//						console.log("Got ActualRange in child node and no Layer-Node in child nodes")
+//						var guess = false;
+//						if ($(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("guess")==true) {
+//							guess = true;
+//						}
+//						map.Capabilities.Capability.Layer.Layer[0].Layer.filter(function(obj) { // Write actualrange to capabilities
+//							return obj.name ==$(xml).find("Layer").eq(i).children("Name")[0].innerHTML;
+//						})[0].actualrange = [$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("min"),$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("max"),guess];
+//					}
+//				}
 
 				//Get options for Variables select-control
 				ipfdv.loadVariables("#ncvarSelect"+map.MapName, map);
@@ -165,8 +164,6 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 				//Get options for Timepositions select-control
 				ipfdv.loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
 				console.log("loadTimepositions");
-				setColorbarRangeValues(map, map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name);
-				console.log("setColorbarRageValues map="+map+" ncvar="+map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name+" time="+$("#timeSelect"+map.MapName).val());
 				ipfdv.showLayerOnMap(map,true);
 			},
 			error: function() {
@@ -191,11 +188,11 @@ IPFDataViewer.prototype.loadVariables = function(ncvar_ctrl, map) {
 
 	$(ncvar_ctrl).empty();
 	//read layer information
-	if(map.Capabilities.capability && map.Capabilities.capability.layers) {
+	if(map.Capabilities.Capability && map.Capabilities.Capability.Layer.Layer[0].Layer) {
 	    console.log("in here :)");
-		for (var l in map.Capabilities.capability.layers) {
-			var o = new Option(map.Capabilities.capability.layers[l].title, l);
-			$(o).html(map.Capabilities.capability.layers[l].title);
+		for (var l in map.Capabilities.Capability.Layer.Layer[0].Layer) {
+			var o = new Option(map.Capabilities.Capability.Layer.Layer[0].Layer[l].Title, l);
+			$(o).html(map.Capabilities.Capability.Layer.Layer[0].Layer[l].Title);
 			$(ncvar_ctrl).append(o);
 //			console.log($(ncvar_ctrl));
 		}
@@ -222,27 +219,29 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 	var minDateDiff = -1;
 		
 	//read the layers time information
-	if(map.Capabilities.capability && map.Capabilities.capability.layers) {
-		var layer = map.Capabilities.capability.layers[ncvar];
-		if (layer && layer.dimensions.time) {
-			for (var t in layer.dimensions.time.values) {
-				var o = new Option(layer.dimensions.time.values[t],layer.dimensions.time.values[t]);
+	if(map.Capabilities.Capability && map.Capabilities.Capability.Layer.Layer[0].Layer) {
+		var layer = map.Capabilities.Capability.Layer.Layer[0].Layer[ncvar];
+		if (layer && layer.Dimension[0].values) {
+			var time_values = layer.Dimension[0].values.split(',');
+			console.log("time_values: "+time_values);
+			for (var t in time_values) {
+				var o = new Option(time_values[t],time_values[t]);
 
-				$(o).html(layer.dimensions.time.values[t]);
+				$(o).html(time_values[t]);
 				$(time_ctrl).append(o);
 				
 				// get the time next to map.Date
-				if(minDateDiff > Math.abs(map.Date - new Date(layer.dimensions.time.values[t])) || minDateDiff < 0) {
-					minDateDiff = Math.abs(map.Date - new Date(layer.dimensions.time.values[t]));
-					selectValue = layer.dimensions.time.values[t];
+				if(minDateDiff > Math.abs(map.Date - new Date(time_values[t])) || minDateDiff < 0) {
+					minDateDiff = Math.abs(map.Date - new Date(time_values[t]));
+					selectValue = time_values[t];
 				}
 			}
 			$(time_ctrl).val(selectValue);
 
 		}
 
-		var time_start = moment(layer.dimensions.time.values[0]).format("YYYY-MM-DD");
-   		var time_end = moment(layer.dimensions.time.values.pop()).format("YYYY-MM-DD");
+		var time_start = moment(time_values[0]).format("YYYY-MM-DD");
+   		var time_end = moment(time_values.pop()).format("YYYY-MM-DD");
    		console.log('newPicker '+time_start+" "+time_end);
 		newPicker(time_start,time_end);
 		$(time_ctrl).trigger("change");
@@ -276,7 +275,7 @@ IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS, manualScale) {
 
 	console.log("showLayerOnMap");
 
-	ncvar=map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name;
+	ncvar=map.Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+map.MapName).val()].Name;
 
 	req_url=$("#wmsSelect"+map.MapName).val().split("?")[0]+"?item=minmax&layers="+
 			ncvar+"&bbox=-180%2C-90%2C180%2C90&elevation=0&time="+$("#timeSelect"+map.MapName).val()+
@@ -286,32 +285,32 @@ IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS, manualScale) {
 	if(manualScale==true){
 		console.log("Scale changed manually");
 		console.log("min="+$("#tbMin_map"+map.MapName).val()+" max="+$("#tbMax_map"+map.MapName).val());
-		map.Capabilities.capability.layers.filter(function(obj) {
-			return obj.name == ncvar;
+		map.Capabilities.Capability.Layer.Layer[0].Layer.filter(function(obj) {
+			return obj.Name == ncvar;
 		})[0].actualrange = [$("#tbMin_map"+map.MapName).val(), $("#tbMax_map"+map.MapName).val(), true];
 
 
 
-		setColorbarRangeValues(map, map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name);
+		setColorbarRangeValues(map, map.Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+map.MapName).val()].Name);
 		// @TODO: Only works with MapA and MapB
 		var onTop = false;
-		if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top) {
-			onTop = true;
-		}
+//		if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top) {
+//			onTop = true;
+//		}
 
 		// show data on separate map
 		if(map.MapName == 'A' || map.ViewState == IPFDV.ViewStates.separate) {
-			map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name,
+			map.showWMSLayer(map.Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+map.MapName).val()].Name,
 					$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0],
-					$("#cmapSelect"+map.MapName).val(), map, onTop, reloadTS);
+					$("#cmapSelect"+map.MapName).val(), onTop, reloadTS);
 		}
 
 		// show data as overlay on MapA
 		else if(map.ViewState == IPFDV.ViewStates.overlay_top ||
 				map.ViewState == IPFDV.ViewStates.overlay_bottom) {
-			map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name,
+			map.showWMSLayer(map.Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+map.MapName).val()].Name,
 					$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0],
-					$("#cmapSelect"+map.MapName).val(), this.maps["A"], onTop, reloadTS);
+					$("#cmapSelect"+map.MapName).val(), onTop, reloadTS);
 		}
 
 	}
@@ -324,32 +323,35 @@ IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS, manualScale) {
 			context: this,
 			success: function(json){
 
-				map.Capabilities.capability.layers.filter(function(obj) {
-					return obj.name == ncvar;
+                console.log("min="+json.min+" max="+json.max);
+                console.log("ncvar: "+ncvar);
+
+				map.Capabilities.Capability.Layer.Layer[0].Layer.filter(function(obj) {
+					return obj.Name == ncvar;
 				})[0].actualrange = [json.min, json.max, true];
 
-				console.log("min="+json.min+" max="+json.max);
 
-				setColorbarRangeValues(map, map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name);
+
+				setColorbarRangeValues(map, map.Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+map.MapName).val()].Name);
 				// @TODO: Only works with MapA and MapB
 				var onTop = false;
-				if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top) {
-					onTop = true;
-				}
+//				if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top) {
+//					onTop = true;
+//				}
 
 				// show data on separate map
 				if(map.MapName == 'A' || map.ViewState == IPFDV.ViewStates.separate) {
-					map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name,
+					map.showWMSLayer(map.Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+map.MapName).val()].Name,
 							$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0],
-							$("#cmapSelect"+map.MapName).val(), map, onTop, reloadTS);
+							$("#cmapSelect"+map.MapName).val(), onTop, reloadTS);
 				}
 
 				// show data as overlay on MapA
 				else if(map.ViewState == IPFDV.ViewStates.overlay_top ||
 						map.ViewState == IPFDV.ViewStates.overlay_bottom) {
-					map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name,
+					map.showWMSLayer(map.Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+map.MapName).val()].Name,
 							$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0],
-							$("#cmapSelect"+map.MapName).val(), this.maps["A"], onTop, reloadTS);
+							$("#cmapSelect"+map.MapName).val(), onTop, reloadTS);
 				}
 			}
 		});
@@ -376,7 +378,7 @@ IPFDataViewer.prototype.ncwebResize = function() {
 	resizeDiv(this.maps.A.MapDivId);
 //	resizeDiv(this.maps.B.MapDivId);
 	resizeDiv("#mapSettingsContainerDiv_mapA");
-	resizeDiv("#showMapSettingsButton_mapA");
+//	resizeDiv("#showMapSettingsButton_mapA");
 	resizeDiv('#splitcontainer');
 	resizeDiv('.left_panel');
 	resizeDiv('.right_panel');

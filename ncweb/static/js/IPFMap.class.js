@@ -61,15 +61,59 @@ IPFMap.prototype.initMap = function() {
 //	});
 	console.log("initMap");
 
+	menu={A:'in',B:'in'};
+	side={A:'left',B:'right'}
+
+    var controls = [];
+
+	controls.push(new ol.control.Control({element: $('#menu-left')}));
+//	var myControl = new ol.control.Control({element: $('#colorbarB-max-div')});
+//	controls.push(new ol.control.Control({element: $('#colorbar-divA')}));
+////	var myControl = new ol.control.Control({element: $('#colorbarB-div')});
+//	controls.push(new ol.control.Control({element: $('#globe-divA')}));
+////	var myControl = new ol.control.Control({element: $('#globeB-div')});
+//	controls.push(new ol.control.Control({element: $('#colorbar-max-divA')}));
+//	var myControl = new ol.control.Control({element: $('#colorbarB-max-div')});
+
+	var map;
+
+	var layers = [
+	  new ol.layer.Tile({
+		source: new ol.source.MapQuest({layer: 'sat'})
+	  }),
+//	  new ol.layer.Tile({
+//		source: new ol.source.TileWMS({
+//		  url: 'http://localhost:8080/thredds/wms/testAll/ESACCI-L3S_SOILMOISTURE-SSMV-COMBINED-1978-2013-fv01.2_3.nc?LAYERS=sm&STYLES=boxfill/rainbow&TIME=2013-12-24T00:00:00.000Z&COLORSCALERANGE=0.0099,0.9999',
+//		  serverType: 'wms'
+//		})
+//	  })
+	];
+
 	this.Map = new ol.Map({
-//      layers: layers,
-      target: 'map',
+      layers: layers,
+      target: 'map' + this.MapName,
       view: new ol.View({
         projection: 'EPSG:3857',
         center: [0, 0],
         zoom: 3
-      })
+      }),
+      controls: ol.control.defaults({
+        attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+        collapsible: false
+        })
+        }).extend([
+            controls
+        ])
     });
+
+//    var extra_layer = new ol.layer.Tile({
+//		source: new ol.source.TileWMS({
+//		  url: 'http://localhost:8080/thredds/wms/testAll/ESACCI-L3S_SOILMOISTURE-SSMV-COMBINED-1978-2013-fv01.2_3.nc?LAYERS=sm&STYLES=boxfill/rainbow&TIME=2013-12-24T00:00:00.000Z&COLORSCALERANGE=0.0099,0.9999',
+//		  serverType: 'wms'
+//		})
+//	  });
+//
+//	this.Map.addLayer(extra_layer);
 
 //	// Add some base layer
 //	var wms_name = "Opengeo BlueMarble";
@@ -245,9 +289,13 @@ IPFMap.prototype.setTimePosition = function(date) {
  * @param {boolean} onTop - Specifies whether the Layer lies on top (true) or on bottom (false)
  * @param {boolean} reloadTS - Reload the TimeSeries DyGraph if True
  */
-IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTop, reloadTS) {
-	
-	this.removeWMSLayer(targetMap);
+IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, onTop, reloadTS) {
+
+	console.log("in showWMSLayer targetMap: "+this.Map);
+
+	this.removeWMSLayer();
+
+//	cmap = "rainbow";
 	
 	var getmapurl = url + "?LAYERS=" + ncvar + "&STYLES=boxfill/" + cmap;
 	
@@ -264,56 +312,65 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 	
 	// Colorbar-Requests
 	$("#imgColorbar" + this.MapName).attr("src",
-			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=220&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the settings colorbar src
-	$("#imgColorbar" + this.MapName).attr("alt", "--- loading colorbar ---");
+			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=195&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the settings colorbar src
 	$("#imgColorbar_map" + this.MapName).attr("src",
-			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=220&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the map overlay colorbar src
-	$("#imgColorbar_map" + this.MapName).attr("alt", "--- loading colorbar ---");
+			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=195&PALETTE="+cmap+"&NUMCOLORBANDS=20"); // set the map overlay colorbar src
 
-	console.log("showWMSLayer:")
+	console.log("showWMSLayer:");
 	console.log(getmapurl);
 	// Set WMS Layer - WMS Requests are done here
-	this.WmsLayer = new OpenLayers.Layer.WMS('Pydap WMS Layer - Map ' + this.MapName, getmapurl, {
-		layers : ncvar,
-		TRANSPARENT : true
-	}, {
-		isBaseLayer : false
-	});
-	this.WmsLayer.setOpacity($("#opacityslider-" + this.MapName)
-			.slider("value") / 100);
-	this.WmsLayer.setVisibility(true);
-	
-	var maplabel = "Map"+this.MapName+": "+url+" | "+ncvar;
-	if(time!=null) {
-		maplabel += " | "+time;
-	}
-	$("#mapLabel_map"+targetMap.MapName+"_map"+this.MapName).html(maplabel);
+//	this.WmsLayer = new OpenLayers.Layer.WMS('Pydap WMS Layer - Map ' + this.MapName, getmapurl, {
+//		layers : ncvar,
+//		TRANSPARENT : true
+//	}, {
+//		isBaseLayer : false
+//	});
+//
+//	this.WmsLayer.setOpacity($("#opacityslider-" + this.MapName)
+//			.slider("value") / 100);
+//	this.WmsLayer.setVisibility(true);
 
-	targetMap.Map.addLayer(this.WmsLayer);
+//	getmapurl+= "&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap";
+//	console.log(getmapurl);
+
+	this.WMSLayer = new ol.layer.Tile({
+		source: new ol.source.TileWMS({
+		  url: getmapurl,
+		  serverType: 'wms'
+		})
+	  });
+	
+//	var maplabel = "Map"+this.MapName+": "+url+" | "+ncvar;
+//	if(time!=null) {
+//		maplabel += " | "+time;
+//	}
+//	$("#mapLabel_map"+this.MapName+"_map"+this.MapName).html(maplabel);
+
+	this.Map.addLayer(this.WMSLayer);
 	
 	//Set Layer Order
-	if (onTop) {
-		if (targetMap.Map.getLayerIndex(IPFDV.maps.B.WmsLayer) > 0) {
-			targetMap.Map.setLayerIndex(IPFDV.maps.B.WmsLayer, 0);
-		}
-		targetMap.Map.setLayerIndex(targetMap.WmsLayer, 0);
-	} 
-	else {
-		targetMap.Map.setLayerIndex(targetMap.WmsLayer, 0);
-		if (targetMap.Map.getLayerIndex(IPFDV.maps.B.WmsLayer) > 0) {
-			targetMap.Map.setLayerIndex(IPFDV.maps.B.WmsLayer, 0);
-		}
-	}
+//	if (onTop) {
+//		if (this.Map.getLayerIndex(IPFDV.maps.B.WmsLayer) > 0) {
+//			this.Map.setLayerIndex(IPFDV.maps.B.WmsLayer, 0);
+//		}
+//		this.Map.setLayerIndex(this.WmsLayer, 0);
+//	}
+//	else {
+//		this.Map.setLayerIndex(this.WmsLayer, 0);
+//		if (this.Map.getLayerIndex(IPFDV.maps.B.WmsLayer) > 0) {
+//			this.Map.setLayerIndex(IPFDV.maps.B.WmsLayer, 0);
+//		}
+//	}
 
-	targetMap.Map.raiseLayer(targetMap.Graticule.gratLayer, 5);
+//	this.Map.raiseLayer(this.Graticule.gratLayer, 5);
 	// Reload Dygraph if necessary
-	if ($('#TimeSeriesContainerDiv_map' + targetMap.MapName).is(':visible')
-			&& targetMap.Markers.markers.length > 0) {
+	if ($('#TimeSeriesContainerDiv_map' + this.MapName).is(':visible')
+			&& this.Markers.markers.length > 0) {
 		if (reloadTS) {
-			targetMap.IPFDyGraph.showDyGraph(targetMap.Markers.markers[0].lonlat);
+			this.IPFDyGraph.showDyGraph(this.Markers.markers[0].lonlat);
 		} else {
 			// Not necessary to reload dygraph here
-			targetMap.addMapMarker(targetMap.Markers.markers[0].lonlat);
+			this.addMapMarker(this.Markers.markers[0].lonlat);
 		}
 	}
 }
@@ -321,11 +378,11 @@ IPFMap.prototype.showWMSLayer = function(ncvar, time, url, cmap, targetMap,	onTo
 /**
  * @function Remove the pydap wms layer from the map
  * @name removeWMSLayer
- * @param {IPFMap} targetMap - Target Map, where to remove the data
+ * @param {IPFMap} this - Target Map, where to remove the data
  */
-IPFMap.prototype.removeWMSLayer = function(targetMap) {
-	if (targetMap.Map.getLayersByName('Pydap WMS Layer - Map ' + this.MapName).length > 0) {
-		targetMap.Map.removeLayer(targetMap.Map.getLayersByName('Pydap WMS Layer - Map ' + this.MapName)[0]);
+IPFMap.prototype.removeWMSLayer = function() {
+	if(this.WMSLayer){
+		this.Map.removeLayer(this.WMSLayer);
 	}
 }
 
