@@ -50,7 +50,7 @@
 {% set cmap_choices = ["rainbow","redblue","alg","greyscale","ncview","alg2","occam","rainbow","sst_36","ferret","occam_pastel-30"] %}
 {% block content %}
 
-    <div id="map" class="map"></div>
+    <div id="mapA" class="map"></div>
     <div id="menu-left" class="left-container">
         <div id="map-settingsA" class="map-settings-containerA ol-control">
             <div class="row">
@@ -71,6 +71,18 @@
             <div class="row">
                     <select class='map-dropdown dropdown-toggle' id="timeSelectA" name="timeSelectA" onchange="timeChanged('A');"></select>
             </div>
+            <div class="row">
+                <div class="control-label" style="font-weight:bold;">Colorbar</div>
+            </div>
+            <div class="row">
+                <select class='map-dropdown dropdown-toggle' id="cmapSelectA" name="cmapSelectA" onchange="cmapChanged('A');">
+                    {% for choice in cmap_choices -%}
+                    <option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+                    {%- endfor %}
+                </select>
+            </div>
+
+
         </div>
         <div id="menu-visA">
             <div id="globe-divA" class="globe-container ol-control" onclick="toggleCtrl('A')">
@@ -111,6 +123,24 @@
             <div class="row">
                     <select class='map-dropdown dropdown-toggle' id="timeSelectB" name="timeSelectB" onchange="timeChanged('B');"></select>
             </div>
+            <div class="row">
+                <div class="control-label" style="font-weight:bold;">Colorbar</div>
+            </div>
+            <div class="row">
+                <select class='map-dropdown dropdown-toggle' id="cmapSelectB" name="cmapSelectB" onchange="cmapChanged('A');">
+                    {% for choice in cmap_choices -%}
+                    <option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+                    {%- endfor %}
+                </select>
+            </div>
+            <div class="row">
+                <div class="btn-group">
+                    <button type="button" id="btn_disableMapB" class="btn lockButton active" onclick="disableMap('B')"><i class="fa fa-hand-grab-o"></i></button>
+                    <button type="button" id="btn_overlayTopMapB" class="btn lockButton" onclick="addMapAsOverlay('B',true)"><i class="fa fa-hand-o-up"></i></button>
+                    <button type="button" id="btn_overlayBottomMapB" class="btn lockButton" onclick="addMapAsOverlay('B',false)"><i class="fa fa-hand-o-down"></i></button>
+                    <button type="button" id="btn_separateMapB" class="btn lockButton" onclick="addMapSeparate('B')"><i class="fa fa-hand-spock-o"></i></button>
+                </div>
+            </div>
         </div>
 
         <div id="menu-visB">
@@ -131,6 +161,8 @@
             </div>
         </div>
     </div>
+
+    <div id="log"></div>
 
 <script>
 
