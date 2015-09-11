@@ -45,6 +45,7 @@ function IPFDataViewer(serverurl) {
     this.maps.B = new IPFMap("B",'#mapB');
     this.maps.B.initMap();
     $('#mapB').hide();
+    this.controllers.B = new MapController(this.maps.B);
 
 //	var _self = this;
 //	$("#opacityslider-A").slider({

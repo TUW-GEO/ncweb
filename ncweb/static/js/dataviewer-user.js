@@ -25,7 +25,7 @@ function ncvarChanged(mapId) {
 	}*/
 	lock=false;
 	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
-	setColorbarRangeValues(IPFDV.maps[mapId], IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name);
+	setColorbarRangeValues(IPFDV.maps[mapId], IPFDV.maps[mapId].Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+mapId).val()].Name);
 	IPFDV.showLayerOnMap(IPFDV.maps[mapId],true, lock);
 }
 
@@ -266,7 +266,7 @@ function addMapSeparate(mapId) {
 	$( "#linkMapsCtrlGroup_mapB" ).show();
 	IPFDV.ncwebResize();
 	// show data on separate map (mapId)
-	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name, 
+	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+mapId).val()].Name,
 			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
 			$("#cmapSelect"+mapId).val(), IPFDV.maps[mapId], false, false);
 	

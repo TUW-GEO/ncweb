@@ -56,21 +56,6 @@ MapController.prototype.GetWMSCapabilities = function() {
             self.map.Capabilities = wmsCapabilities.read(xml);
             console.log("map.Capabilities "+self.map.Capabilities);
 
-    //				for (var i=0; i<$(xml).find("Layer").length; i++) {
-    //					console.log("Layer "+i+" in XML")
-    //					if($(xml).find("Layer").eq(i).find("ActualRange").length>0 //Got Actual Range in child node
-    //							&& $(xml).find("Layer").eq(i).find("Layer").length == 0) { //Got no Layer-Node in child nodes
-    //						console.log("Got ActualRange in child node and no Layer-Node in child nodes")
-    //						var guess = false;
-    //						if ($(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("guess")==true) {
-    //							guess = true;
-    //						}
-    //						map.Capabilities.Capability.Layer.Layer[0].Layer.filter(function(obj) { // Write actualrange to capabilities
-    //							return obj.name ==$(xml).find("Layer").eq(i).children("Name")[0].innerHTML;
-    //						})[0].actualrange = [$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("min"),$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("max"),guess];
-    //					}
-    //				}
-
             //Get options for Variables select-control
             self.loadVariables();
             console.log("LoadVariables");

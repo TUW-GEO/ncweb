@@ -44,19 +44,13 @@ function toggleCtrl(mapID) {
 
     console.log(mapID+" "+menu[mapID]+" side: "+side[mapID]);
 
-
-    if(menu[mapID]==='in'){
-        $('#menu-vis'+mapID).css('margin-'+side[mapID], '207px');
-        menu[mapID]='out';
-        console.log(menu[mapID]);
-    }
-    else {
-        $('#menu-vis'+mapID).css('margin-'+side[mapID], '0px');
-        menu[mapID]='in';
-        console.log(menu[mapID]);
-    }
-
 	$('#map-settings'+mapID).toggle();
 
 
 }
+
+$(window).resize(function() {
+    $('.content-container').height($(window).height());
+});
+
+$(window).trigger('resize');

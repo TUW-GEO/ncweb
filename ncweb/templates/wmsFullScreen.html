@@ -53,8 +53,8 @@
 
     <div id="mapA" class="map"></div>
     <div id="mapB" class="map"></div>
-    <div id="menu-left" class="left-container">
-        <div id="map-settingsA" class="map-settings-containerA ol-control">
+    <div id="menu-left" class="ol-control left-container">
+        <div id="map-settingsA" class="map-settings-containerA individual-container">
             <div class="row">
                 <div class="control-label" style="font-weight:bold;">WMS</div>
             </div>
@@ -83,30 +83,28 @@
                     {%- endfor %}
                 </select>
             </div>
-
-
         </div>
         <div id="menu-visA">
-            <div id="globe-divA" class="globe-container ol-control" onclick="toggleCtrl('A')">
-                <button id="globe-button"><i class="fa fa-globe"></i> Map A</button>
+            <div id="globe-divA" class="individual-container align-left" onclick="toggleCtrl('A')">
+                <button id="globe-button" class=""><i class="fa fa-globe"></i> Map A</button>
             </div>
-            <div id="colorbar-max-divA"class="colorbar-max-container ol-unselectable ol-control">
+            <div id="colorbar-max-divA"class="individual-container align-left">
                 <input id="tbMax_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"/>
             </div>
-            <div id="colorbar-divA" class="colorbar-container ol-control">
-                <img id="imgColorbarA" alt="colorbar" src="" class="colorbar_v"/>
+            <div id="colorbar-divA" class="individual-container colorbar-container align-left">
+                <img id="imgColorbarA" alt="colorbar" src="" class="colorbar_v" />
             </div>
-            <div id="colorbar-min-divA"class="colorbar-min-container ol-unselectable ol-control">
+            <div id="colorbar-min-divA"class="individual-container align-left">
                 <input id="tbMin_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"/>
             </div>
-            <div id="lock-div"A class="lock-container ol-control">
+            <div id="lock-divA" class="individual-container align-left">
                 <button id="lockA" class="lockButton" onclick="scaleLock('A')" value="lock"><i class="fa fa-lock"></i></button>
             </div>
         </div>
     </div>
 
-    <div id="menu-right" class="right-container">
-        <div id="map-settingsB" class="map-settings-containerB ol-control">
+    <div id="menu-right" class="ol-control right-container">
+        <div id="map-settingsB" class="map-settings-containerB individual-container">
             <div class="row">
                 <div class="control-label" style="font-weight:bold;">WMS</div>
             </div>
@@ -146,19 +144,19 @@
         </div>
 
         <div id="menu-visB">
-            <div id="globe-divB" class="globe-container align-right ol-control" onclick="toggleCtrl('B')">
-                <button id="globe-button"><i class="fa fa-globe"></i> Map B</button>
+            <div id="globe-divB" class="individual-container align-right" onclick="toggleCtrl('B')">
+                <button id="globe-button" class=""><i class="fa fa-globe"></i> Map B</button>
             </div>
-            <div id="colorbar-max-divB"class="colorbar-max-container align-right ol-unselectable ol-control">
+            <div id="colorbar-max-divB"class="individual-container align-right">
                 <input id="tbMax_mapB" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('B')"/>
             </div>
-            <div id="colorbar-divB" class="colorbar-container align-right ol-control">
-                <img id="imgColorbarB" alt="colorbar" src="" class="colorbar_v"/>
+            <div id="colorbar-divB" class="individual-container colorbar-container align-right">
+                <img id="imgColorbarB" alt="colorbar" src="" class="colorbar_v" />
             </div>
-            <div id="colorbar-min-divB"class="colorbar-min-container align-right ol-unselectable ol-control">
+            <div id="colorbar-min-divB"class="individual-container align-right">
                 <input id="tbMin_mapB" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('B')"/>
             </div>
-            <div id="lock-divB" class="lock-container align-right ol-control">
+            <div id="lock-divB" class="individual-container align-right">
                 <button id="lockB" class="lockButton" onclick="scaleLock('B')" value="lock"><i class="fa fa-lock"></i></button>
             </div>
         </div>
@@ -167,6 +165,10 @@
     <div id="log"></div>
 
 <script>
+$(window).resize(function() {
+    $('.content-container').height($(window).height());
+});
 
+$(window).trigger('resize');
 </script>
 {% endblock %}
