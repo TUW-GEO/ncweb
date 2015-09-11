@@ -67,6 +67,7 @@ IPFMap.prototype.initMap = function() {
     var controls = [];
 
 	controls.push(new ol.control.Control({element: $('#menu-left')}));
+	controls.push(new ol.control.Control({element: $('#menu-right')}));
 //	var myControl = new ol.control.Control({element: $('#colorbarB-max-div')});
 //	controls.push(new ol.control.Control({element: $('#colorbar-divA')}));
 ////	var myControl = new ol.control.Control({element: $('#colorbarB-div')});

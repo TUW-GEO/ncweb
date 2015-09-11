@@ -46,12 +46,12 @@ function toggleCtrl(mapID) {
 
 
     if(menu[mapID]==='in'){
-        $('#menu-vis'+mapID).css(side[mapID], '207px');
+        $('#menu-vis'+mapID).css('margin-'+side[mapID], '207px');
         menu[mapID]='out';
         console.log(menu[mapID]);
     }
     else {
-        $('#menu-vis'+mapID).css(side[mapID], '0px');
+        $('#menu-vis'+mapID).css('margin-'+side[mapID], '0px');
         menu[mapID]='in';
         console.log(menu[mapID]);
     }
