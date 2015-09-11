@@ -9,7 +9,7 @@
  * @param {string} mapId - Defines the map */
 function wmsChanged(mapId) {
 	console.log("wmsChanged");
-	IPFDV.GetWMSCapabilities(IPFDV.maps[mapId]);
+	  IPFDV.controllers[mapId].GetWMSCapabilities();
 
 }
 
