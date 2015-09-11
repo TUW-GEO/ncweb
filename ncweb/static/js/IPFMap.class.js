@@ -102,9 +102,7 @@ IPFMap.prototype.initMap = function() {
         attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
         collapsible: false
         })
-        }).extend([
-            controls
-        ])
+        })
     });
 
 //    var extra_layer = new ol.layer.Tile({
