@@ -3,293 +3,203 @@
  * @author Markus Pöchtrager
  */
 
-/** @function
- * Fires when wmsSelect option is changed
- * @name wmsChanged
- * @param {string} mapId - Defines the map */
-function wmsChanged(mapId) {
-	console.log("wmsChanged");
-	  IPFDV.controllers[mapId].GetWMSCapabilities();
 
-}
-
-/** @function
- * Fires when ncvarSelect option is changed
- * @name ncvarChanged
- * @param {string} mapId - Defines the map */
-function ncvarChanged(mapId) {
-	//IPFDV.loadTimepositions("#timeSelect"+mapId, "#ncvarSelect"+mapId, IPFDV.maps[mapId]);
-	/*if ($("#timeSelect"+mapId)[0] && $("#timeSelect"+mapId)[0].length>0) {
-		IPFDV.maps[mapId].Date = new Date($("#timeSelect"+IPFDV.maps[mapId].MapName).val());
-		IPFDV.maps[mapId].TempLinkEvent();
-	}*/
-	lock=false;
-	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
-	setColorbarRangeValues(IPFDV.maps[mapId], IPFDV.maps[mapId].Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+mapId).val()].Name);
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],true, lock);
-}
-
-/** @function
- * Fires when timeSelect option is changed
- * @name timeChanged
- * @param {string} mapId - Defines the map */
-function timeChanged(mapId) {
-	lock=false;
-	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false, lock);
-	IPFDV.maps[mapId].Date = new Date($("#timeSelect"+IPFDV.maps[mapId].MapName).val());
-	IPFDV.maps[mapId].TempLinkEvent();
-
-	$('#daterange').data('daterangepicker').setStartDate(getDefaultStart($('#daterange').attr('mapId')));
-	$('#daterange').data('daterangepicker').setEndDate(getDefaultEnd($('#daterange').attr('mapId')));
-	console.log($("#daterange").val());
-	$('#daterange').data('daterangepicker').updateView();
-	start=$('#daterange').data('daterangepicker').startDate;
-	console.log(start);
-	// update input text field
-	$('#daterange').val($('#daterange').data('daterangepicker').startDate._i + ' - ' + $('#daterange').data('daterangepicker').endDate._i);
-	console.log($("#daterange").val());
-
-	console.log("See all list elements? "+$("#timeSelectA")[0].value);
-//	$('#daterange').data('daterangepicker').minDate='1978-10-25';
-
-}
-
-/** @function
- * Fires when cmapSelect option is changed
- * @name cmapChanged
- * @param {string} mapId - Defines the map */
-function cmapChanged(mapId) {
-	lock=false;
-	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false, lock);
-}
-
-/** @function
- * Fires when tbColorbarRange is changed
- * @name cmapScaleChanged
- * @param {string} mapId - Defines the map */
-function cmapScaleChanged(mapId) {
-	console.log("Scale Changed! "+$("#tbMax_map"+IPFDV.maps[mapId].MapName).val());
-
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false,true);
-}
-
-/** @function
- * Fires when lock is clicked
- * @name scaleLock
- * @param {string} mapId - Defines the map */
-function scaleLock(mapId) {
-	console.log("locked! "+$("#lock"+IPFDV.maps[mapId].MapName).val());
-
-	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="lock"){
-		$("#lock"+IPFDV.maps[mapId].MapName).val("unlock");
-		$("#lock"+IPFDV.maps[mapId].MapName).find('i').toggleClass('fa-lock fa-unlock');
-		$("#tbMax_map"+IPFDV.maps[mapId].MapName).attr('disabled', 'disabled');
-		$("#tbMin_map"+IPFDV.maps[mapId].MapName).attr('disabled', 'disabled');
-	}
-	else{
-		$("#lock"+IPFDV.maps[mapId].MapName).val("lock");
-		$("#lock"+IPFDV.maps[mapId].MapName).find('i').toggleClass('fa-lock fa-unlock');
-		$("#tbMax_map"+IPFDV.maps[mapId].MapName).removeAttr('disabled');
-		$("#tbMin_map"+IPFDV.maps[mapId].MapName).removeAttr('disabled');
-	}
-
-
-//	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false,true);
-}
-
-
-/** @function
- * 
- * @name setColorbarRangeValues
- * @param {IPFMap} map - Map Object
- * @param {string} ncvar - Specifies the netcdf variable, which is shown
- */
-function setColorbarRangeValues(map,ncvar) {
-	if(map.Capabilities) {
-		var actRange = map.Capabilities.Capability.Layer.Layer[0].Layer.filter(function(obj) {
-			return obj.Name == ncvar;
-		})[0].actualrange;
-		if (actRange && actRange.length==3) {
-			$("#tbMin_map"+map.MapName).val(actRange[0]);
-			$("#tbMax_map"+map.MapName).val(actRange[1]);
-			$("#tbMin_map"+map.MapName).css("display","unset");
-			$("#tbMax_map"+map.MapName).css("display","unset");
-		}
-		else {
-			$("#tbMin_map"+map.MapName).val("");
-			$("#tbMax_map"+map.MapName).val("");
-			$("#tbMin_map"+map.MapName).css("display","none");
-			$("#tbMax_map"+map.MapName).css("display","none");
-		}
-	}
-}
 
 /** @function
  * Fires when button btn_disableMap is clicked
  * @name disableMap
  * @param {string} mapId - Defines the map */
-function disableMap(mapId) {
-	var refreshMapA = false;
-	$("#mapLabel_mapA_map"+mapId).html("");
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.disabled) {
-		return;
-	}
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_top) {
-		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']); //Remove map on target map A
-		refreshMapA = true;
-		$("#btn_overlayTopMap"+mapId).removeClass('active');
-	}
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_bottom) {
-		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']); //Remove map on target map A
-		refreshMapA = true;
-		$("#btn_overlayBottomMap"+mapId).removeClass('active');
-	}
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.separate) {
-		$('#splitcontainer').split({orientation:'vertical', position: '100%'});
-		$('#mapB').hide();
-		closeDygraph('B');
-		$('.left_panel').width('100%');
-		$('.right_panel').width('0%');
-		$('.vsplitter').css('left','100%');
-		$('.vsplitter').hide();
-		$( "#linkMapsCtrlGroup_mapB" ).hide();
-		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
-		$("#btn_separateMap"+mapId).removeClass('active');
-		IPFDV.ncwebResize();
-	}
-	IPFDV.maps[mapId].ViewState = IPFDV.ViewStates.disabled;
-	$("#btn_disableMap"+mapId).addClass('active');
-	
-	if (refreshMapA) {
-		// refresh Dygraph on Map A (if visible)
-		if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
-				&& IPFDV.maps.A.Markers.markers.length > 0) {
-			IPFDV.maps.A.IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
-		}
-	}
-}
+//function disableMap(mapId) {
+//	var refreshMapA = false;
+//	$("#mapLabel_mapA_map"+mapId).html("");
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.disabled) {
+//		return;
+//	}
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_top) {
+//		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']); //Remove map on target map A
+//		refreshMapA = true;
+//		$("#btn_overlayTopMap"+mapId).removeClass('active');
+//	}
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_bottom) {
+//		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']); //Remove map on target map A
+//		refreshMapA = true;
+//		$("#btn_overlayBottomMap"+mapId).removeClass('active');
+//	}
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.separate) {
+//		$('#splitcontainer').split({orientation:'vertical', position: '100%'});
+//		$('#mapB').hide();
+//		closeDygraph('B');
+//		$('.left_panel').width('100%');
+//		$('.right_panel').width('0%');
+//		$('.vsplitter').css('left','100%');
+//		$('.vsplitter').hide();
+//		$( "#linkMapsCtrlGroup_mapB" ).hide();
+//		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
+//		$("#btn_splitMap"+mapId).removeClass('active');
+//		IPFDV.ncwebResize();
+//	}
+//	IPFDV.maps[mapId].ViewState = IPFDV.ViewStates.disabled;
+//	$("#btn_disableMap"+mapId).addClass('active');
+//
+//	if (refreshMapA) {
+//		// refresh Dygraph on Map A (if visible)
+//		if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
+//				&& IPFDV.maps.A.Markers.markers.length > 0) {
+//			IPFDV.maps.A.IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+//		}
+//	}
+//}
 
 /** @function
  * Fires when button btn_overlayMap is clicked
  * @name addMapAsOverlay
  * @param {string} mapId - Defines the map
  * @param {boolean} onTop - true if Layer should be on top, false if on Bottom */
-function addMapAsOverlay(mapId, onTop) {
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_top && onTop) {
-		return;
-	}
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_bottom && !onTop) {
-		return;
-	}
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.disabled) {
-		$("#btn_disableMap"+mapId).removeClass('active');
-	}
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.separate) {
-		// remove splitter
-		$('#splitcontainer').split({orientation:'vertical', position: '100%'});
-		$('#mapB').hide();
-		closeDygraph('B');
-		$('.left_panel').width('100%');
-		$('.right_panel').width('0%');
-		$('.vsplitter').css('left','100%');
-		$('.vsplitter').hide();
-		$( "#linkMapsCtrlGroup_mapB" ).hide();
-		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
-		$("#btn_separateMap"+mapId).removeClass('active');
-		IPFDV.ncwebResize();
-	}
+
+//$('#disableMapB').click(function(){
+//    console.log("disableMapB");
+//});
+
+//$('#overlayTopMapB').click(function(){
+//    console.log("overlayTopMapB");
+//    IPFDV.controllers.B.GetWMSFileList();
+//    IPFDV.controllers.A.changeZindex(0);
+//	IPFDV.controllers.B.changeZindex(1);
+//
+//
+//});
+
+//$('#overlayBottomMapB').click(function(){
+//    console.log("overlayBottomMapB");
+//	IPFDV.controllers.A.changeZindex(1);
+//	IPFDV.controllers.B.changeZindex(0);
+//
+//});
+//
+//$('#separateMapB').click(function(){
+//    console.log("separateMapB");
+//});
+
+//function addMapAsOverlay(mapId, zindex) {
+//	console.log("addMapAsOverlay");
+//
+//    IPFDV.controllers[mapId].GetWMSFileList();
+
+//	IPFDV.controllers[mapId].layerBitch();
+
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_top && onTop) {
+//		return;
+//	}
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_bottom && !onTop) {
+//		return;
+//	}
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.disabled) {
+//		$("#btn_disableMap"+mapId).removeClass('active');
+//	}
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.separate) {
+//		// remove splitter
+//		$('#splitcontainer').split({orientation:'vertical', position: '100%'});
+//		$('#mapB').hide();
+//		closeDygraph('B');
+//		$('.left_panel').width('100%');
+//		$('.right_panel').width('0%');
+//		$('.vsplitter').css('left','100%');
+//		$('.vsplitter').hide();
+//		$( "#linkMapsCtrlGroup_mapB" ).hide();
+//		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
+//		$("#btn_separateMap"+mapId).removeClass('active');
+//		IPFDV.ncwebResize();
+//	}
 	// show data as overlay on mapA
-	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+mapId).val()].Name,
-			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
-			$("#cmapSelect"+mapId).val(), IPFDV.maps['A'], onTop, false);
-	
-	if (onTop) {
-		IPFDV.maps[mapId].ViewState = IPFDV.ViewStates.overlay_top;
-		$("#btn_overlayTopMap"+mapId).addClass('active');
-		if ($("#btn_overlayBottomMap"+mapId).hasClass('active')) {
-			$("#btn_overlayBottomMap"+mapId).removeClass('active');
-		}
-	}
-	else {
-		IPFDV.maps[mapId].ViewState = IPFDV.ViewStates.overlay_bottom;
-		$("#btn_overlayBottomMap"+mapId).addClass('active');
-		if ($("#btn_overlayTopMap"+mapId).hasClass('active')) {
-			$("#btn_overlayTopMap"+mapId).removeClass('active');
-		}
-	}
-	
+//	IPFDV.maps.A.showWMSLayer(IPFDV.maps[mapId].Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+mapId).val()].Name,
+//			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0],
+//			$("#cmapSelect"+mapId).val(), div_side, false);
+//
+//	if (onTop) {
+//		IPFDV.maps[mapId].ViewState = IPFDV.ViewStates.overlay_top;
+//		$("#btn_overlayTopMap"+mapId).addClass('active');
+//		if ($("#btn_overlayBottomMap"+mapId).hasClass('active')) {
+//			$("#btn_overlayBottomMap"+mapId).removeClass('active');
+//		}
+//	}
+//	else {
+//		IPFDV.maps[mapId].ViewState = IPFDV.ViewStates.overlay_bottom;
+//		$("#btn_overlayBottomMap"+mapId).addClass('active');
+//		if ($("#btn_overlayTopMap"+mapId).hasClass('active')) {
+//			$("#btn_overlayTopMap"+mapId).removeClass('active');
+//		}
+//	}
+//
 	// refresh Dygraph if visible
-	if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
-			&& IPFDV.maps.A.Markers.markers.length > 0) {
-		IPFDV.maps.A.IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
-	}
-}
+//	if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
+//			&& IPFDV.maps.A.Markers.markers.length > 0) {
+//		IPFDV.maps.A.IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+//	}
+//}
 
 /** @function
  * Fires when button btn_separateMap is clicked
  * @name addMapSeparate
  * @param {string} mapId - Defines the map */
-function addMapSeparate(mapId) {
-	var refreshMapA = false;
-	$("#mapLabel_mapA_map"+mapId).html("");
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.separate) {
-		return;
-	}
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_top) {
-		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']);
-		
-		refreshMapA = true;
-		
-		$("#btn_overlayTopMap"+mapId).removeClass('active');
-	}
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_bottom) {
-		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']);
-		
-		refreshMapA = true;
-		
-		$("#btn_overlayBottomMap"+mapId).removeClass('active');
-	}
-	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.disabled) {
-		$("#btn_disableMap"+mapId).removeClass('active');
-	}
-	// split screen into two halves
-	$('#splitcontainer').split({orientation:'vertical', position: '50%', limit: 100});
-	$('.left_panel').width('50%');
-	$('.right_panel').width('50%');
-	//$('.right_panel').css('left','50%');
-	$('.vsplitter').css('left','50%');
-	$('.vsplitter').css('background-color','#FFF');
-	$('.vsplitter').show();
-	$('#map'+mapId).show();
-	$( "#linkMapsCtrlGroup_mapB" ).show();
-	IPFDV.ncwebResize();
-	// show data on separate map (mapId)
-	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+mapId).val()].Name,
-			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0], 
-			$("#cmapSelect"+mapId).val(), IPFDV.maps[mapId], false, false);
-	
-	IPFDV.maps[mapId].Map.setCenter(new OpenLayers.LonLat(0,0));
-	IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
-	
-	IPFDV.maps[mapId].ViewState = IPFDV.ViewStates.separate;
-	$("#btn_separateMap"+mapId).addClass('active');
-	
-	if (refreshMapA) {
-		// refresh Dygraph on Map A (if visible)
-		if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
-				&& IPFDV.maps.A.Markers.markers.length > 0) {
-			IPFDV.maps.A.IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
-		}
-	}
-	
-	// show Dygraph if visible on Map A
-	if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
-			&& IPFDV.maps.A.Markers.markers.length > 0) {
-		IPFDV.maps[mapId].IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
-	}
-}
+//function addMapSeparate(mapId) {
+//	var refreshMapA = false;
+//	$("#mapLabel_mapA_map"+mapId).html("");
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.separate) {
+//		return;
+//	}
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_top) {
+//		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']);
+//
+//		refreshMapA = true;
+//
+//		$("#btn_overlayTopMap"+mapId).removeClass('active');
+//	}
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.overlay_bottom) {
+//		IPFDV.maps[mapId].removeWMSLayer(IPFDV.maps['A']);
+//
+//		refreshMapA = true;
+//
+//		$("#btn_overlayBottomMap"+mapId).removeClass('active');
+//	}
+//	if (IPFDV.maps[mapId].ViewState == IPFDV.ViewStates.disabled) {
+//		$("#btn_disableMap"+mapId).removeClass('active');
+//	}
+//	// split screen into two halves
+//	$('#splitcontainer').split({orientation:'vertical', position: '50%', limit: 100});
+//	$('.left_panel').width('50%');
+//	$('.right_panel').width('50%');
+//	//$('.right_panel').css('left','50%');
+//	$('.vsplitter').css('left','50%');
+//	$('.vsplitter').css('background-color','#FFF');
+//	$('.vsplitter').show();
+//	$('#map'+mapId).show();
+//	$( "#linkMapsCtrlGroup_mapB" ).show();
+//	IPFDV.ncwebResize();
+//	// show data on separate map (mapId)
+//	IPFDV.maps[mapId].showWMSLayer(IPFDV.maps[mapId].Capabilities.Capability.Layer.Layer[0].Layer[$("#ncvarSelect"+mapId).val()].Name,
+//			$("#timeSelect"+mapId).val(), $("#wmsSelect"+mapId).val().split("?")[0],
+//			$("#cmapSelect"+mapId).val(), IPFDV.maps[mapId], false, false);
+//
+//	IPFDV.maps[mapId].Map.setCenter(new OpenLayers.LonLat(0,0));
+//	IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
+//
+//	IPFDV.maps[mapId].ViewState = IPFDV.ViewStates.separate;
+//	$("#btn_splitMap"+mapId).addClass('active');
+//
+//	if (refreshMapA) {
+//		// refresh Dygraph on Map A (if visible)
+//		if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
+//				&& IPFDV.maps.A.Markers.markers.length > 0) {
+//			IPFDV.maps.A.IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+//		}
+//	}
+//
+//	// show Dygraph if visible on Map A
+//	if ($('#TimeSeriesContainerDiv_map' + IPFDV.maps.A.MapName).is(':visible')
+//			&& IPFDV.maps.A.Markers.markers.length > 0) {
+//		IPFDV.maps[mapId].IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+//	}
+//}
 
 /** @function
  * Handles the click event for the map link checkbox
@@ -460,7 +370,7 @@ $(function() {
         "locale": {
         "format": "YYYY-MM-DD",
         "separator": " - ",
-        "applyLabel": "Apply",
+//        "applyLabel": "Apply",
         "cancelLabel": "Cancel",
         "fromLabel": "From",
         "toLabel": "To",

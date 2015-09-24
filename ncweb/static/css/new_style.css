@@ -1,3 +1,22 @@
+.right_panel {
+	min-height: 600px;
+	height: 100% !important;
+	width: 50%;
+	float:right;
+	right: 0px;
+}
+
+.left_panel {
+	min-height: 600px;
+	float: left;
+}
+
+body {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
 #menu-right{
     background-color: transparent;
 }
@@ -5,9 +24,13 @@
     background-color: transparent;
 }
 
+.active{
+    color: #333;
+}
+
 .content_container{
-    width: 100%;
-    height: 100%;
+    position:relative;
+    height:100%;
 }
 
 .right-container{
@@ -32,7 +55,14 @@
     clear: left;
 }
 
-#globe-button{
+#globe-buttonA{
+    width: 60px;
+    font-size: 1em;
+    font-weight: 200;
+
+}
+
+#globe-buttonB{
     width: 60px;
     font-size: 1em;
     font-weight: 200;
@@ -101,12 +131,12 @@
 .ol-rotate {
   top: 3em;
 }
-#map {
-  position: absolute;
+.map {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
+  position: fixed;
 }
 .row {
     position: relative;
@@ -127,4 +157,22 @@
 
 .individual-container:hover{
     background-color: rgba(255, 255, 255, 0.6);
+}
+
+.navbar {
+    margin-bottom: 0;
+}
+
+#opacitysliderA {
+    float:right;
+    margin-left: 15px;
+    margin-right: 5px;
+    height: 195px;
+}
+
+#opacitysliderB {
+    float:left;
+    margin-right: 15px;
+    margin-left: 5px;
+    height: 195px;
 }
