@@ -18,6 +18,7 @@ function MapController(serverurl, map, divName, initz){
     self.timecontrol = $("#timeSelect"+self.divName);
     self.cmapselector =  $("#cmapSelect"+self.divName);
     self.lockcontrol = $("#lock"+self.divName);
+    self.toggleCtrl = $("#globe-div"+self.divName);
     self.colorbar = $("#imgColorbar"+self.divName);
     self.opacityslider = $("#opacityslider"+self.divName);
     self.opacity = 0.8;
@@ -106,6 +107,11 @@ function MapController(serverurl, map, divName, initz){
 		}
 	});
 
+	$(self.toggleCtrl).click(function(){
+	    console.log("toggleCtrl");
+	    self.div.toggle();
+	});
+
 }
 
 /** @function
@@ -180,10 +186,6 @@ MapController.prototype.GetWMSCapabilities = function() {
   */
 MapController.prototype.resetControl = function() {
     var self = this;
-//	self.mapCapabilities = "";
-//    self.selector.val('');
-//    self.varselector.val('');
-//    self.timecontrol.val('');
     self.cmapMin.val('');
     self.cmapMax.val('');
     self.colorbar.attr('src','');
@@ -369,12 +371,16 @@ MapController.prototype.changeZindex = function(newindex){
 
 }
 
-MapController.prototype.changeMap = function(newmap){
+MapController.prototype.changeMap = function(newmap,redraw){
 
     this.removeLayer();
-    this.zindex=0;
     this.map = newmap;
-    this.layerBitch();
+
+    if(redraw == true){
+        this.zindex=0;
+        this.layerBitch();
+    }
+
 
 }
 
@@ -384,4 +390,30 @@ MapController.prototype.removeLayer = function(){
 
 MapController.prototype.setLayerOpacity = function(){
     this.map.setWMSOpacity(this.zindex, this.opacity);
+}
+
+MapController.prototype.buildDyGraphURL = function() {
+
+    var self = this;
+
+    var ncvar = self.mapCapabilities.Capability.Layer.Layer[0].Layer[self.varselector.val()].Name;
+    var time = self.timecontrol.val();
+    var cmap = self.cmapselector.val();
+    var layer = 0;
+    var lonlat = 0;
+    var time_start = 0;
+    var time_end = 0;
+
+	$.ajax({
+		type: "GET",
+		url: '/GetConfigParam?section=URLs&param=ncss',
+		dataType: "json",
+		success: function(json) {
+
+			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar+"&latitude="+lonlat.lat+
+					"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
+			console.log("wmsurl = "+wmsurl);
+		},
+		async: false
+	});
 }

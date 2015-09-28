@@ -5,21 +5,15 @@
 
 function IPFDataViewer(serverurl) {
 
-//	if (window.jQuery) {
-//		alert("JQuery loaded ");
-//		alert("version: "+$.fn.jquery)
-//	} else {
-//      alert("no JQuery");
-//	}
-  console.log("in IPFDataViewer "+serverurl);
-//	this.GetWMSFileList(serverurl);
-//	console.log("Still here...");
+
+    console.log("in IPFDataViewer "+serverurl);
+
     var self = this;
 
-  self.maps = {};
-  self.controllers = {};
+    self.maps = {};
+    self.controllers = {};
 
-  self.ViewStates = Object.freeze({"disabled":0, "overlay_top":1, "overlay_bottom":2, "separate":3});
+    self.ViewStates = Object.freeze({"disabled":0, "overlay_top":1, "overlay_bottom":2, "separate":3});
 
 
 
@@ -49,57 +43,38 @@ function IPFDataViewer(serverurl) {
     $('#opacitysliderB').hide();
     self.controllers.B = new MapController(serverurl, this.maps.A, "B", 1);
 
-//	var _self = this;
-//	$("#opacityslider-A").slider({
-//		min: 0,
-//		max: 100,
-//		range: "min",
-//		step: 5,
-//		value: 80,
-//		slide: function(slideEvt, ui) {
-//			_self.maps.A.setWMSOpacity(_self.maps.A, ui.value);
-//		}
-//	});
-//	$("#opacityslider-B").slider({
-//		min: 0,
-//		max: 100,
-//		range: "min",
-//		step: 5,
-//		value: 80,
-//		slide: function(slideEvt, ui) {
-//			_self.maps.B.setWMSOpacity(_self.maps.B, ui.value);
-//		}
-//	});
+    $('#TimeSeriesContainerDiv_mapA').hide();
 
   //Get Pydap handled files for requested url and add to WMS Select
 
-  self.controllers.A.GetWMSFileList();
+    self.controllers.A.GetWMSFileList();
 
-  $('#overlayTopMapB').click(function(){
-    console.log("overlayTopMapB");
+    $('#overlayTopMapB').click(function(){
+        console.log("overlayTopMapB");
 
-    if(self.controllers.B.selector.val() === null){
-        self.controllers.B.GetWMSFileList();
-    }
-    if($('#mapB').is(':visible')){
-        // remove splitter
-        $('#map-split').split({orientation:'vertical', position: '100%'});
-        $('#mapB').hide();
-        $('#mapA').removeClass('left_panel');
-        $('#mapA').width('100%');
-//		closeDygraph('B');
-        $('.right_panel').width('0%');
-        $('.vsplitter').css('left','100%');
-        $('.vsplitter').hide();
-        self.controllers.B.changeMap(self.maps.A);
-//		$( "#linkMapsCtrlGroup_mapB" ).hide();
-//		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
-//		$("#btn_separateMap"+mapId).removeClass('active');
-//		IPFDV.ncwebResize();
-    }
-    self.controllers.A.changeZindex(0);
-	self.controllers.B.changeZindex(1);
-    self.controllers.A.map.Map.updateSize();
+        if(self.controllers.B.selector.val() === null){
+            self.controllers.B.GetWMSFileList();
+        }
+        if($('#mapB').is(':visible')){
+            // remove splitter
+            $('#map-split').split({orientation:'vertical', position: '100%'});
+            $('#mapB').hide();
+            $('#mapA').removeClass('left_panel');
+            $('#mapA').width('100%');
+    //		closeDygraph('B');
+            $('.right_panel').width('0%');
+            $('.vsplitter').css('left','100%');
+            $('.vsplitter').hide();
+            self.controllers.B.changeMap(self.maps.A, false);
+    //		$( "#linkMapsCtrlGroup_mapB" ).hide();
+    //		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
+    //		$("#btn_separateMap"+mapId).removeClass('active');
+    //		IPFDV.ncwebResize();
+        }
+        self.controllers.B.changeMap(self.maps.A, false);
+        self.controllers.A.changeZindex(0);
+        self.controllers.B.changeZindex(1);
+        self.controllers.A.map.Map.updateSize();
 
     });
 
@@ -121,13 +96,13 @@ function IPFDataViewer(serverurl) {
             $('.right_panel').width('0%');
             $('.vsplitter').css('left','100%');
             $('.vsplitter').hide();
-            self.controllers.B.changeMap(self.maps.A);
+            self.controllers.B.changeMap(self.maps.A, false);
 //		$( "#linkMapsCtrlGroup_mapB" ).hide();
 //		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
 //		$("#btn_separateMap"+mapId).removeClass('active');
 //		IPFDV.ncwebResize();
         }
-
+        self.controllers.B.changeMap(self.maps.A, false);
 	    self.controllers.A.changeZindex(1);
 	    self.controllers.B.changeZindex(0);
 	    self.controllers.A.map.Map.updateSize();
@@ -147,14 +122,17 @@ function IPFDataViewer(serverurl) {
             $('.right_panel').width('0%');
             $('.vsplitter').css('left','100%');
             $('.vsplitter').hide();
-            self.controllers.B.changeMap(self.maps.A);
-            console.log("another log for testing");
+
+//            self.controllers.B.changeMap(self.maps.A, false);
 //		$( "#linkMapsCtrlGroup_mapB" ).hide();
 //		IPFDV.maps['A'].Map.setCenter(new OpenLayers.LonLat(0,0));
 //		$("#btn_separateMap"+mapId).removeClass('active');
 //		IPFDV.ncwebResize();
         }
+
         self.controllers.B.resetControl();
+
+
         self.controllers.A.map.Map.updateSize();
     });
 
@@ -190,7 +168,7 @@ function IPFDataViewer(serverurl) {
         }
         self.maps.A.Map.updateSize();
         self.maps.B.Map.updateSize();
-        self.controllers.B.changeMap(self.maps.B);
+        self.controllers.B.changeMap(self.maps.B, true);
 
     });
 
@@ -198,6 +176,7 @@ function IPFDataViewer(serverurl) {
         console.log("getTS");
         var text = $('#getTS_text').text();
         $('#getTS_text').text(text == " Get Time Series" ? " Close Time Series" : " Get Time Series");
+        $('#TimeSeriesContainerDiv_mapA').toggle();
 
         if($('#getTS_text').text()==" Close Time Series") {
             $('#mapA').css('cursor', 'crosshair');

@@ -30,7 +30,6 @@
 	<!--<script src="{{ url_for('static', filename='js/dygraph-combined.js') }}"></script>-->
 	<script src="{{ url_for('static', filename='js/IPFMap.class.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/MapController.class.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/new_IPFMap.class.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/IPFDataViewer.class.js') }}"></script>
 	<!--<script src="{{ url_for('static', filename='js/IPFDyGraph.class.js') }}"></script>-->
 	<script src="{{ url_for('static', filename='js/dataviewer-main.js') }}"></script>
@@ -39,7 +38,7 @@
 
 	<script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/daterangepicker.js') }}"></script>
-	<!--<link rel="stylesheet" href="{{ url_for('static', filename='css/daterangepicker.css') }}" />-->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/daterangepicker.css') }}" />
 
     <link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>
 	<!--<link rel="stylesheet" href="{{ url_for('static', filename='OpenLayers/theme/default/style.css') }}" />-->
@@ -53,7 +52,7 @@
             min: 0,
             max: 100,
             value: 60,
-            slide: function( event, ui ) {
+            <!--slide: function( event, ui ) {-->
                 $( "#amount" ).val( ui.value );
             }
         });
@@ -68,13 +67,8 @@
 {% set cmap_choices = ["rainbow","redblue","alg","greyscale","ncview","alg2","occam","rainbow","sst_36","ferret","occam_pastel-30"] %}
 {% block content %}
     <div id="map-split">
-        <!--<div>-->
             <div id="mapA" class="map"></div>
-        <!--</div>-->
-        <!--<div>-->
             <div id="mapB" class="map"></div>
-        <!--</div>-->
-
     </div>
     <div id="controls-div">
         <div id="menu-left" class="ol-control left-container">
@@ -109,7 +103,7 @@
                 </div>
             </div>
             <div id="menu-visA">
-                <div id="globe-divA" class="individual-container align-left" onclick="toggleCtrl('A')">
+                <div id="globe-divA" class="individual-container align-left">
                     <button id="globe-buttonA" class="globe-button"><i class="fa fa-globe"></i> Map A</button>
                 </div>
                 <div id="colorbar-max-divA"class="individual-container align-left">
@@ -119,11 +113,6 @@
                     <img id="imgColorbarA" alt="colorbar" src="" class="colorbar_v" />
                     <div id="opacitysliderA"></div>
                 </div>
-                <!--<div id="opacityslider-A" class="form-control-sm ui-slider ui-slider-vertical ui-widget ui-widget-content ui-corner-all">-->
-                    <!--<div class="ui-slider-range ui-widget-header ui-corner-all ui-slider-range-min"></div>-->
-                    <!--<span style="left: 30%;" class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0"></span>-->
-                <!--</div>-->
-
                 <div id="colorbar-min-divA"class="individual-container align-left">
                     <input id="tbMin_mapA" type="text" class="tbColorbarRange form-control"/>
                 </div>
@@ -165,7 +154,7 @@
                 </div>
                 <div class="row">
                     <div id="controlMapB" class="btn-group">
-                        <button type="button" id="disableMapB" class="btn active" onclick="disableMap('B')"><i class="fa fa-hand-grab-o"></i></button>
+                        <button type="button" id="disableMapB" class="btn active"><i class="fa fa-hand-grab-o"></i></button>
                         <button type="button" id="overlayTopMapB" class="btn"><i class="fa fa-hand-o-up"></i></button>
                         <button type="button" id="overlayBottomMapB" class="btn"><i class="fa fa-hand-o-down"></i></button>
                         <button type="button" id="splitMapB" class="btn"><i class="fa fa-hand-spock-o"></i></button>
@@ -174,7 +163,7 @@
             </div>
 
             <div id="menu-visB">
-                <div id="globe-divB" class="individual-container align-right" onclick="toggleCtrl('B')">
+                <div id="globe-divB" class="individual-container align-right">
                     <button id="globe-buttonB" class="globe-button"><i class="fa fa-globe"></i> Map B</button>
                 </div>
                 <div id="colorbar-max-divB"class="individual-container align-right">
@@ -192,14 +181,19 @@
                 </div>
             </div>
         </div>
+
+        <div style="width:90%; height:180px;" id="TimeSeriesContainerDiv_mapA" class="ol-control bottom-container">
+            <div class="individual-container"></div>
+			<div class="TimeSeriesTopBar">
+				<div class="TSclose_Button" id="TSClose_mapA"><a onclick="closeDygraph('A')" href="#">X</a></div>
+                <input id="daterange" type="text" name="daterange" mapId="A" />
+			</div>
+            <!--<div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapA">-->
+            <!--</div>-->
+            <!--<div class="TS_overlay" id="TimeSeriesOverlay_mapA">-->
+            <!--</div>-->
+        </div>
     </div>
     <div id="log"></div>
 
-<script>
-$(window).resize(function() {
-    $('.content-container').height($(window).height());
-});
-
-$(window).trigger('resize');
-</script>
 {% endblock %}

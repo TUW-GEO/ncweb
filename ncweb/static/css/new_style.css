@@ -45,6 +45,11 @@ body {
     top:130px;
     left:0px;
 }
+
+.bottom-container{
+    bottom:5px;
+    margin-left: 5%;
+}
 .align-right{
     float: right;
     clear: right;
@@ -175,4 +180,12 @@ body {
     margin-right: 15px;
     margin-left: 5px;
     height: 195px;
+}
+
+.TSclose_Button {
+	z-index: 21;
+	position: relative;
+	width: 20px;
+	text-align: center;
+	left: calc(100% - 20px);
 }

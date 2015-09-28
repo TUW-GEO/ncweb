@@ -404,6 +404,7 @@ $(function() {
     "endDate": "2015-04-24",
     "minDate": "2000-12-12",
     "maxDate": "2015-05-05",
+    "drops": "up"
     });
     $('#daterange').on('showCalendar.daterangepicker', function(ev, picker){
     	console.log("in showCalendar.daterangepicker "+picker+" "+ev);
@@ -436,7 +437,8 @@ function newPicker(min, max){
     	},
 
     "minDate": min,
-    "maxDate": max
+    "maxDate": max,
+    "drops": "up"
     });
     $('#daterange').on('apply.daterangepicker', function(ev, picker){
 
