@@ -6,7 +6,7 @@
     <title>{% block title %}{% endblock %}</title>
 
 	<script src="{{ url_for('static', filename='js/jquery-2.1.1.js') }}"></script>
-    <!--<script src="{{ url_for('static', filename='jquery-ui-1.11.1.custom/jquery-ui.js') }}"></script>-->
+    <script src="{{ url_for('static', filename='jquery-ui-1.11.1.custom/jquery-ui.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"/>
@@ -16,12 +16,14 @@
 
     <style type="text/css">
     	body {
-		  padding-top: 50px;
+			padding: 0px;
+			margin: 0px;
 		}
     </style>
+
     <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" />-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/new_style.css') }}"/>
-    <!--<link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui-1.11.1.custom/jquery-ui.css') }}">-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui-1.11.1.custom/jquery-ui.css') }}">
     
 
     {% endblock %}
@@ -33,6 +35,21 @@
     	('/hello', 'hello', 'hello')
 	] -%}
 	{% set active_page = active_page|default('home') -%}
+	<nav class="navbar navbar-static-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">NetCDF - Data Viewer</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse" style="visibility: hidden;">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a id="getTS" href="#"><i class="fa fa-area-chart"></i><em id="getTS_text"> Get Time Series</em></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </nav>
     <!--<div class="navbar navbar-fixed-top">-->
 	  <!--<div class="navbar-inner">-->
 	     <!--<div class="container">-->
@@ -65,7 +82,7 @@
 	     <!--</div>-->
 	  <!--</div>-->
 	<!--</div>-->
-    <div id="content" class="container" role="main">{% block content %}{% endblock %}</div>
+    {% block content %}{% endblock %}
     <!-- <div id="footer" class="container" role="footer">
     {% block footer %}&copy; abcd some sample footer <a href="http://www.ipf.tuwien.ac.at/">IPF TU Wien</a>{% endblock %}
     </div>-->

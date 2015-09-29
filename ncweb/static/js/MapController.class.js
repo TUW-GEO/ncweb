@@ -5,41 +5,143 @@
  */
 
 
-function MapController(map){
+function MapController(serverurl, map, divName, initz){
 
-    this.map = map;
-    this.selector = $("#wmsSelect" + this.map.MapName);
-    this.varselector = $("#ncvarSelect" + this.map.MapName);
-    this.timecontrol = $("#timeSelect"+this.map.MapName);
+    var self = this;
+    self.serverurl = serverurl;
+    self.map = map;
+    self.zindex = initz;
+    self.divName = divName;
+    self.div = $("#map-settings" + self.divName);
+    self.selector = $("#wmsSelect" + self.divName);
+    self.varselector = $("#ncvarSelect" + self.divName);
+    self.timecontrol = $("#timeSelect"+self.divName);
+    self.cmapselector =  $("#cmapSelect"+self.divName);
+    self.lockcontrol = $("#lock"+self.divName);
+    self.toggleCtrl = $("#globe-div"+self.divName);
+    self.colorbar = $("#imgColorbar"+self.divName);
+    self.opacityslider = $("#opacityslider"+self.divName);
+    self.opacity = 0.8;
+
+
+    self.cmapMin = $("#tbMin_map"+self.divName);
+    self.cmapMax = $("#tbMax_map"+self.divName);
+    self.scale_manual = false;
+
+    self.locked = false;
+    $(self.lockcontrol).click(function(){
+        if(self.lockcontrol.val()==="lock"){
+            console.log("Now its locked");
+            self.lockcontrol.val("unlock");
+            self.lockcontrol.find('i').toggleClass('fa-lock fa-unlock');
+            self.cmapMax.attr('disabled', 'disabled');
+            self.cmapMin.attr('disabled', 'disabled');
+            self.locked = true;
+        }
+        else{
+            self.lockcontrol.val("lock");
+            self.lockcontrol.find('i').toggleClass('fa-lock fa-unlock');
+            self.cmapMax.removeAttr('disabled');
+            self.cmapMin.removeAttr('disabled');
+            self.locked = false;
+        }
+    });
+
+    $(self.div).change(function(){
+        console.log("#map-settings"+self.divName+" changed");
+        self.layerBitch();
+    });
+
+    $(self.cmapMin).change(function(){
+        console.log("#tbMin_map"+self.divName+" changed manually");
+        self.scale_manual=true;
+        self.layerBitch();
+    });
+    $(self.cmapMax).change(function(){
+        console.log("#tbMax_map"+self.divName+" changed manually");
+        self.scale_manual=true;
+        self.layerBitch();
+    });
+    $(self.selector).change(function(){
+        console.log("#wmsSelect"+self.divName+" changed");
+        self.GetWMSCapabilities();
+    });
+    $(self.varselector).change(function(){
+        console.log("#ncvarSelect"+self.divName+" changed");
+
+    });
+    $(self.timecontrol).change(function(){
+        console.log("#timeSelect"+self.divName+" changed");
+        //TODO: daterangepicker handling
+//	$('#daterange').data('daterangepicker').setStartDate(getDefaultStart($('#daterange').attr('mapId')));
+//	$('#daterange').data('daterangepicker').setEndDate(getDefaultEnd($('#daterange').attr('mapId')));
+//	console.log($("#daterange").val());
+//	$('#daterange').data('daterangepicker').updateView();
+//	start=$('#daterange').data('daterangepicker').startDate;
+//	console.log(start);
+//	// update input text field
+//	$('#daterange').val($('#daterange').data('daterangepicker').startDate._i + ' - ' + $('#daterange').data('daterangepicker').endDate._i);
+//	console.log($("#daterange").val());
+//
+//	console.log("See all list elements? "+$("#timeSelectA")[0].value);
+    });
+    $(self.cmapselector).change(function(){
+        console.log("#cmapSelect"+self.divName+" changed");
+
+    });
+    $(self.selector).change(function(){
+        console.log("#wmsSelect"+self.divName+" changed");
+
+    });
+
+    $(self.opacityslider).slider({
+        orientation: "vertical",
+		min: 0,
+		max: 100,
+		range: "min",
+		step: 5,
+		value: 80,
+		slide: function(slideEvt, ui) {
+		    self.opacity = ui.value/100;
+            self.setLayerOpacity();
+		}
+	});
+
+	$(self.toggleCtrl).click(function(){
+	    console.log("toggleCtrl");
+	    self.div.toggle();
+	});
 
 }
 
-MapController.prototype.GetWMSFileList = function(surl){
-    console.log("In IPFDataViewer.prototype.GetWMSFileList = function(url) url= "+surl);
+/** @function
+ * Loads the list of available datasets in THREDDS
+ * @name GetWMSFileList
+ */
+MapController.prototype.GetWMSFileList = function(){
     var self = this;
-    var mapA = self.maps["A"];
-    var mapB = self.maps["B"];
+    console.log("In IPFDataViewer.prototype.GetWMSFileList = function(url) url= "+self.serverurl);
 
     $.ajax({
         type: "GET",
-        url: '/wms/GetFileList?url='+surl,
+        url: '/wms/GetFileList?url='+self.serverurl,
         dataType: "json",
         success: function(json) {
             self.selector.empty();
             for (var f in json.files) {
                 var o = new Option(json.files[f].name, json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
-                console.log("list A: "+json.files[f].name+" "+json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
+                console.log("list: "+json.files[f].name+" "+json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
                 $(o).html(json.files[f].name);
                 self.selector.append(o);
 
             }
-            self.GetWMSCapabilities(mapA);
+            self.GetWMSCapabilities();
         }
     });
 }
 
 /** @function
- * GetCapabilities request for a selected pydap handled file
+ * GetCapabilities request for the selected dataset
  * @name GetWMSCapabilities
  */
 MapController.prototype.GetWMSCapabilities = function() {
@@ -49,46 +151,32 @@ MapController.prototype.GetWMSCapabilities = function() {
     if (req_url) {
         $.ajax({
             type: "GET",
-        url: req_url,
-        dataType: "xml",
-        success: function(xml) {
-            var wmsCapabilities = new ol.format.WMSCapabilities();
-            self.map.Capabilities = wmsCapabilities.read(xml);
-            console.log("map.Capabilities "+self.map.Capabilities);
+            url: req_url,
+            dataType: "xml",
+            success: function(xml) {
+                var wmsCapabilities = new ol.format.WMSCapabilities();
+                self.mapCapabilities = wmsCapabilities.read(xml);
+                console.log("mapCapabilities "+self.mapCapabilities);
 
-    //				for (var i=0; i<$(xml).find("Layer").length; i++) {
-    //					console.log("Layer "+i+" in XML")
-    //					if($(xml).find("Layer").eq(i).find("ActualRange").length>0 //Got Actual Range in child node
-    //							&& $(xml).find("Layer").eq(i).find("Layer").length == 0) { //Got no Layer-Node in child nodes
-    //						console.log("Got ActualRange in child node and no Layer-Node in child nodes")
-    //						var guess = false;
-    //						if ($(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("guess")==true) {
-    //							guess = true;
-    //						}
-    //						map.Capabilities.Capability.Layer.Layer[0].Layer.filter(function(obj) { // Write actualrange to capabilities
-    //							return obj.name ==$(xml).find("Layer").eq(i).children("Name")[0].innerHTML;
-    //						})[0].actualrange = [$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("min"),$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("max"),guess];
-    //					}
-    //				}
-
-            //Get options for Variables select-control
-            self.loadVariables();
-            console.log("LoadVariables");
-            console.log("#ncvarSelect"+self.map.MapName+": "+ $("#ncvarSelect"+self.map.MapName).val());
-            //Get options for Timepositions select-control
-            self.loadTimepositions();
-            console.log("loadTimepositions");
-            ipfdv.showLayerOnMap(self.map,true);
-        },
-        error: function() {
-            //reset controls if there is a problem with the wms request
-            alert("Problem with WMS request! map: "+map.MapName);
-            self.resetControls();
-        }
+                //Get options for Variables select-control
+                self.loadVariables();
+                console.log("LoadVariables");
+                console.log("#ncvarSelect"+self.divName+": "+ $("#ncvarSelect"+self.divName).val());
+                //Get options for Timepositions select-control
+                self.loadTimepositions();
+                console.log("loadTimepositions");
+                self.layerBitch();
+                console.log("done here");
+            },
+            error: function() {
+                //reset controls if there is a problem with the wms request
+                alert("Problem with WMS request! map: "+map.divName);
+                self.resetControl();
+            }
         });
     }
     else {
-        self.resetControls();
+        self.resetControl();
     }
 }
 
@@ -96,11 +184,13 @@ MapController.prototype.GetWMSCapabilities = function() {
  * Clear the select controls
  * @name resetControls
   */
-MapController.prototype.resetControls = function() {
+MapController.prototype.resetControl = function() {
     var self = this;
-	  self.map.Capabilities = "";
-	  self.loadVariables();
-	  self.loadTimepositions();
+    self.cmapMin.val('');
+    self.cmapMax.val('');
+    self.colorbar.attr('src','');
+    self.opacityslider.hide();
+    self.removeLayer();
 }
 
 /** @function
@@ -112,11 +202,11 @@ MapController.prototype.loadVariables = function() {
 
     self.varselector.empty();
     //read layer information
-    if(self.map.Capabilities.Capability && self.map.Capabilities.Capability.Layer.Layer[0].Layer) {
+    if(self.mapCapabilities.Capability && self.mapCapabilities.Capability.Layer.Layer[0].Layer) {
         console.log("in here :)");
-        for (var l in self.map.Capabilities.Capability.Layer.Layer[0].Layer) {
-            var o = new Option(self.map.Capabilities.Capability.Layer.Layer[0].Layer[l].Title, l);
-            $(o).html(self.map.Capabilities.Capability.Layer.Layer[0].Layer[l].Title);
+        for (var l in self.mapCapabilities.Capability.Layer.Layer[0].Layer) {
+            var o = new Option(self.mapCapabilities.Capability.Layer.Layer[0].Layer[l].Title, l);
+            $(o).html(self.mapCapabilities.Capability.Layer.Layer[0].Layer[l].Title);
             self.varselector.append(o);
             //			console.log(self.varselector);
         }
@@ -142,8 +232,8 @@ MapController.prototype.loadTimepositions = function() {
     var minDateDiff = -1;
 
     //read the layers time information
-    if(self.map.Capabilities.Capability && self.map.Capabilities.Capability.Layer.Layer[0].Layer) {
-        var layer = self.map.Capabilities.Capability.Layer.Layer[0].Layer[ncvar];
+    if(self.mapCapabilities.Capability && self.mapCapabilities.Capability.Layer.Layer[0].Layer) {
+        var layer = self.mapCapabilities.Capability.Layer.Layer[0].Layer[ncvar];
         if (layer && layer.Dimension[0].values) {
         var time_values = layer.Dimension[0].values.split(',');
         console.log("time_values: "+time_values);
@@ -167,7 +257,7 @@ MapController.prototype.loadTimepositions = function() {
         var time_end = moment(time_values.pop()).format("YYYY-MM-DD");
         console.log('newPicker '+time_start+" "+time_end);
         newPicker(time_start,time_end);
-        self.timecontrol.trigger("change");
+//        self.timecontrol.trigger("change");
     }
     if (self.timecontrol[0] && self.timecontrol[0].length>1) {
         self.timecontrol.removeAttr("disabled");
@@ -176,4 +266,154 @@ MapController.prototype.loadTimepositions = function() {
     else {
         self.timecontrol.attr('disabled', true);
     }
+}
+
+/** @function
+ * Calls loadMinMax with buildURL as callback or buildURL directly
+ * @name layerBitch
+ */
+MapController.prototype.layerBitch = function(){
+    var self = this;
+
+    if(self.scale_manual === true || self.locked === true){
+        self.buildURL();
+    }
+    else{
+        self.loadMinMax(self.buildURL);
+    }
+}
+
+/** @function
+ * Sends of WMS GetMetadata request to get min and max value of the layer for colorbar scaling
+ * @name loadMinMax
+ */
+MapController.prototype.loadMinMax = function(callback) {
+    var self = this;
+
+    var baseurl = self.selector.val().split("?")[0];
+    var ncvar = self.mapCapabilities.Capability.Layer.Layer[0].Layer[self.varselector.val()].Name;
+    var time = self.timecontrol.val();
+
+    req_url=baseurl+"?item=minmax&layers="+
+      ncvar+"&bbox=-180%2C-90%2C180%2C90&elevation=0&time="+time+
+      "&srs=EPSG%3A4326&width=256&height=256&request=GetMetadata";
+
+    console.log("in loadMinMax: "+req_url);
+
+    $.ajax({
+        type:"GET",
+        url:req_url,
+        dataType:"json",
+        context: this,
+        success: function(json){
+
+            console.log("min="+json.min+" max="+json.max);
+            console.log("ncvar: "+ncvar);
+
+            self.cmapMin.val(json.min);
+            self.cmapMax.val(json.max);
+
+            if(callback){
+               callback.call(self);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            console.log(textStatus, errorThrown);
+
+            self.cmapMin.val("");
+            self.cmapMax.val("");
+        }
+    });
+}
+
+/** @function
+ * Builds the GetMap WMS request
+ * @name buildURL
+ */
+MapController.prototype.buildURL = function() {
+
+    var self = this;
+
+    var baseurl = self.selector.val().split("?")[0];
+    var ncvar = self.mapCapabilities.Capability.Layer.Layer[0].Layer[self.varselector.val()].Name;
+    var time = self.timecontrol.val();
+    var cmap = self.cmapselector.val();
+
+    var getmapurl = baseurl + "?LAYERS=" + ncvar + "&STYLES=boxfill/" + cmap;
+
+	if (time != null) // if there are time positions, add time property
+		getmapurl += "&TIME=" + time;
+
+	if (isNaN(self.cmapMin.val()) || isNaN(self.cmapMax.val())) {
+		// Don't add colorbarrange to the get request
+	}
+	else {
+		getmapurl += "&COLORSCALERANGE=" + self.cmapMin.val() +","+ self.cmapMax.val();
+	}
+
+
+	self.colorbar.attr("src",
+			getmapurl + "&REQUEST=GetLegendGraphic&COLORBARONLY=true&WIDTH=25&HEIGHT=195&PALETTE="+cmap+"&NUMCOLORBANDS=20");// set the settings colorbar src
+
+	console.log("build URL:");
+	console.log(getmapurl);
+
+    self.scale_manual=false;
+    self.opacityslider.show();
+	self.map.showWMSLayer(getmapurl, self.zindex, self.opacity);
+
+}
+
+MapController.prototype.changeZindex = function(newindex){
+
+    this.zindex = newindex;
+    this.layerBitch();
+
+}
+
+MapController.prototype.changeMap = function(newmap,redraw){
+
+    this.removeLayer();
+    this.map = newmap;
+
+    if(redraw == true){
+        this.zindex=0;
+        this.layerBitch();
+    }
+
+
+}
+
+MapController.prototype.removeLayer = function(){
+    this.map.removeWMSLayer(this.zindex);
+}
+
+MapController.prototype.setLayerOpacity = function(){
+    this.map.setWMSOpacity(this.zindex, this.opacity);
+}
+
+MapController.prototype.buildDyGraphURL = function() {
+
+    var self = this;
+
+    var ncvar = self.mapCapabilities.Capability.Layer.Layer[0].Layer[self.varselector.val()].Name;
+    var time = self.timecontrol.val();
+    var cmap = self.cmapselector.val();
+    var layer = 0;
+    var lonlat = 0;
+    var time_start = 0;
+    var time_end = 0;
+
+	$.ajax({
+		type: "GET",
+		url: '/GetConfigParam?section=URLs&param=ncss',
+		dataType: "json",
+		success: function(json) {
+
+			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar+"&latitude="+lonlat.lat+
+					"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
+			console.log("wmsurl = "+wmsurl);
+		},
+		async: false
+	});
 }

@@ -289,15 +289,6 @@ def getConfigParam():
 
     return jsonify(value=value)
 
-@app.route('/love')
-def marry():
-    a = request.args.get('a')
-    b = request.args.get('b')
-    result = a+" is happily married to "+b
-    # result = "Love is in the air with "+b
-    # result = "Come on Bitches"
-    return jsonify(results = result)
-
 
 # run app
 if __name__ == '__main__':

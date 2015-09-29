@@ -30,143 +30,170 @@
 	<!--<script src="{{ url_for('static', filename='js/dygraph-combined.js') }}"></script>-->
 	<script src="{{ url_for('static', filename='js/IPFMap.class.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/MapController.class.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/new_IPFMap.class.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/IPFDataViewer.class.js') }}"></script>
 	<!--<script src="{{ url_for('static', filename='js/IPFDyGraph.class.js') }}"></script>-->
 	<script src="{{ url_for('static', filename='js/dataviewer-main.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-user.js') }}"></script>
-	<!--<script src="{{ url_for('static', filename='js/jquery.splitter-0.14.0.js') }}"></script>-->
+	<script src="{{ url_for('static', filename='js/jquery.splitter-0.14.0.js') }}"></script>
 
 	<script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/daterangepicker.js') }}"></script>
-	<!--<link rel="stylesheet" href="{{ url_for('static', filename='css/daterangepicker.css') }}" />-->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/daterangepicker.css') }}" />
 
-    <!--<link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>-->
+    <link href="{{ url_for('static', filename='css/jquery.splitter.css') }}" rel="stylesheet"/>
 	<!--<link rel="stylesheet" href="{{ url_for('static', filename='OpenLayers/theme/default/style.css') }}" />-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ol.css') }}" />
+
+    <script>
+    $(function() {
+        $( "#slider-vertical" ).slider({
+            orientation: "vertical",
+            range: "min",
+            min: 0,
+            max: 100,
+            value: 60,
+            <!--slide: function( event, ui ) {-->
+                $( "#amount" ).val( ui.value );
+            }
+        });
+        $( "#amount" ).val( $( "#slider-vertical" ).slider( "value" ) );
+    });
+
+    </script>
 
 {% endblock %}
 {% set active_page = "wms" %}
 {% set init_cmap = "rainbow" %}
 {% set cmap_choices = ["rainbow","redblue","alg","greyscale","ncview","alg2","occam","rainbow","sst_36","ferret","occam_pastel-30"] %}
 {% block content %}
-
-    <div id="mapA" class="map"></div>
-    <div id="mapB" class="map"></div>
-    <div id="menu-left" class="left-container">
-        <div id="map-settingsA" class="map-settings-containerA ol-control">
-            <div class="row">
-                <div class="control-label" style="font-weight:bold;">WMS</div>
-            </div>
-            <div class="row">
-                    <select class='map-dropdown dropdown-toggle' id="wmsSelectA" name="wmsSelectA" onchange="wmsChanged('A');"></select>
-            </div>
-            <div class="row">
-                <div class="control-label" style="font-weight:bold;">NetCDF Variables</div>
-            </div>
-            <div class="row">
-                    <select class='map-dropdown dropdown-toggle' id="ncvarSelectA" name="ncvarSelectA" onchange="ncvarChanged('A');"></select>
-            </div>
-            <div class="row">
-                <div class="control-label" style="font-weight:bold;">Time Positions</div>
-            </div>
-            <div class="row">
-                    <select class='map-dropdown dropdown-toggle' id="timeSelectA" name="timeSelectA" onchange="timeChanged('A');"></select>
-            </div>
-            <div class="row">
-                <div class="control-label" style="font-weight:bold;">Colorbar</div>
-            </div>
-            <div class="row">
-                <select class='map-dropdown dropdown-toggle' id="cmapSelectA" name="cmapSelectA" onchange="cmapChanged('A');">
-                    {% for choice in cmap_choices -%}
-                    <option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
-                    {%- endfor %}
-                </select>
-            </div>
-
-
-        </div>
-        <div id="menu-visA">
-            <div id="globe-divA" class="globe-container ol-control" onclick="toggleCtrl('A')">
-                <button id="globe-button"><i class="fa fa-globe"></i> Map A</button>
-            </div>
-            <div id="colorbar-max-divA"class="colorbar-max-container ol-unselectable ol-control">
-                <input id="tbMax_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"/>
-            </div>
-            <div id="colorbar-divA" class="colorbar-container ol-control">
-                <img id="imgColorbarA" alt="colorbar" src="" class="colorbar_v"/>
-            </div>
-            <div id="colorbar-min-divA"class="colorbar-min-container ol-unselectable ol-control">
-                <input id="tbMin_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"/>
-            </div>
-            <div id="lock-div"A class="lock-container ol-control">
-                <button id="lockA" class="lockButton" onclick="scaleLock('A')" value="lock"><i class="fa fa-lock"></i></button>
-            </div>
-        </div>
+    <div id="map-split">
+            <div id="mapA" class="map"></div>
+            <div id="mapB" class="map"></div>
     </div>
-
-    <div id="menu-right" class="right-container">
-        <div id="map-settingsB" class="map-settings-containerB ol-control">
-            <div class="row">
-                <div class="control-label" style="font-weight:bold;">WMS</div>
+    <div id="controls-div">
+        <div id="menu-left" class="ol-control left-container">
+            <div id="map-settingsA" class="map-settings-containerA individual-container">
+                <div class="row">
+                    <div class="control-label" style="font-weight:bold;">WMS</div>
+                </div>
+                <div class="row">
+                        <select class='map-dropdown dropdown-toggle' id="wmsSelectA" name="wmsSelectA"></select>
+                </div>
+                <div class="row">
+                    <div class="control-label" style="font-weight:bold;">NetCDF Variables</div>
+                </div>
+                <div class="row">
+                        <select class='map-dropdown dropdown-toggle' id="ncvarSelectA" name="ncvarSelectA"></select>
+                </div>
+                <div class="row">
+                    <div class="control-label" style="font-weight:bold;">Time Positions</div>
+                </div>
+                <div class="row">
+                        <select class='map-dropdown dropdown-toggle' id="timeSelectA" name="timeSelectA"></select>
+                </div>
+                <div class="row">
+                    <div class="control-label" style="font-weight:bold;">Colorbar</div>
+                </div>
+                <div class="row">
+                    <select class='map-dropdown dropdown-toggle' id="cmapSelectA" name="cmapSelectA">
+                        {% for choice in cmap_choices -%}
+                        <option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+                        {%- endfor %}
+                    </select>
+                </div>
             </div>
-            <div class="row">
-                    <select class='map-dropdown dropdown-toggle' id="wmsSelectB" name="wmsSelectB" onchange="wmsChanged('B');"></select>
-            </div>
-            <div class="row">
-                <div class="control-label" style="font-weight:bold;">NetCDF Variables</div>
-            </div>
-            <div class="row">
-                    <select class='map-dropdown dropdown-toggle' id="ncvarSelectB" name="ncvarSelectB" onchange="ncvarChanged('B');"></select>
-            </div>
-            <div class="row">
-                <div class="control-label" style="font-weight:bold;">Time Positions</div>
-            </div>
-            <div class="row">
-                    <select class='map-dropdown dropdown-toggle' id="timeSelectB" name="timeSelectB" onchange="timeChanged('B');"></select>
-            </div>
-            <div class="row">
-                <div class="control-label" style="font-weight:bold;">Colorbar</div>
-            </div>
-            <div class="row">
-                <select class='map-dropdown dropdown-toggle' id="cmapSelectB" name="cmapSelectB" onchange="cmapChanged('A');">
-                    {% for choice in cmap_choices -%}
-                    <option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
-                    {%- endfor %}
-                </select>
-            </div>
-            <div class="row">
-                <div class="btn-group">
-                    <button type="button" id="btn_disableMapB" class="btn lockButton active" onclick="disableMap('B')"><i class="fa fa-hand-grab-o"></i></button>
-                    <button type="button" id="btn_overlayTopMapB" class="btn lockButton" onclick="addMapAsOverlay('B',true)"><i class="fa fa-hand-o-up"></i></button>
-                    <button type="button" id="btn_overlayBottomMapB" class="btn lockButton" onclick="addMapAsOverlay('B',false)"><i class="fa fa-hand-o-down"></i></button>
-                    <button type="button" id="btn_separateMapB" class="btn lockButton" onclick="addMapSeparate('B')"><i class="fa fa-hand-spock-o"></i></button>
+            <div id="menu-visA">
+                <div id="globe-divA" class="individual-container align-left">
+                    <button id="globe-buttonA" class="globe-button"><i class="fa fa-globe"></i> Map A</button>
+                </div>
+                <div id="colorbar-max-divA"class="individual-container align-left">
+                    <input id="tbMax_mapA" type="text" class="tbColorbarRange form-control"/>
+                </div>
+                <div id="colorbar-divA" class="individual-container colorbar-container align-left">
+                    <img id="imgColorbarA" alt="colorbar" src="" class="colorbar_v" />
+                    <div id="opacitysliderA"></div>
+                </div>
+                <div id="colorbar-min-divA"class="individual-container align-left">
+                    <input id="tbMin_mapA" type="text" class="tbColorbarRange form-control"/>
+                </div>
+                <div id="lock-divA" class="individual-container align-left">
+                    <button id="lockA" class="lockButton" value="lock"><i class="fa fa-lock"></i></button>
                 </div>
             </div>
         </div>
 
-        <div id="menu-visB">
-            <div id="globe-divB" class="globe-container align-right ol-control" onclick="toggleCtrl('B')">
-                <button id="globe-button"><i class="fa fa-globe"></i> Map B</button>
+        <div id="menu-right" class="ol-control right-container">
+            <div id="map-settingsB" class="map-settings-containerB individual-container">
+                <div class="row">
+                    <div class="control-label" style="font-weight:bold;">WMS</div>
+                </div>
+                <div class="row">
+                        <select class='map-dropdown dropdown-toggle' id="wmsSelectB" name="wmsSelectB""></select>
+                </div>
+                <div class="row">
+                    <div class="control-label" style="font-weight:bold;">NetCDF Variables</div>
+                </div>
+                <div class="row">
+                        <select class='map-dropdown dropdown-toggle' id="ncvarSelectB" name="ncvarSelectB"></select>
+                </div>
+                <div class="row">
+                    <div class="control-label" style="font-weight:bold;">Time Positions</div>
+                </div>
+                <div class="row">
+                        <select class='map-dropdown dropdown-toggle' id="timeSelectB" name="timeSelectB"></select>
+                </div>
+                <div class="row">
+                    <div class="control-label" style="font-weight:bold;">Colorbar</div>
+                </div>
+                <div class="row">
+                    <select class='map-dropdown dropdown-toggle' id="cmapSelectB" name="cmapSelectB">
+                        {% for choice in cmap_choices -%}
+                        <option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
+                        {%- endfor %}
+                    </select>
+                </div>
+                <div class="row">
+                    <div id="controlMapB" class="btn-group">
+                        <button type="button" id="disableMapB" class="btn active"><i class="fa fa-hand-grab-o"></i></button>
+                        <button type="button" id="overlayTopMapB" class="btn"><i class="fa fa-hand-o-up"></i></button>
+                        <button type="button" id="overlayBottomMapB" class="btn"><i class="fa fa-hand-o-down"></i></button>
+                        <button type="button" id="splitMapB" class="btn"><i class="fa fa-hand-spock-o"></i></button>
+                    </div>
+                </div>
             </div>
-            <div id="colorbar-max-divB"class="colorbar-max-container align-right ol-unselectable ol-control">
-                <input id="tbMax_mapB" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('B')"/>
-            </div>
-            <div id="colorbar-divB" class="colorbar-container align-right ol-control">
-                <img id="imgColorbarB" alt="colorbar" src="" class="colorbar_v"/>
-            </div>
-            <div id="colorbar-min-divB"class="colorbar-min-container align-right ol-unselectable ol-control">
-                <input id="tbMin_mapB" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('B')"/>
-            </div>
-            <div id="lock-divB" class="lock-container align-right ol-control">
-                <button id="lockB" class="lockButton" onclick="scaleLock('B')" value="lock"><i class="fa fa-lock"></i></button>
+
+            <div id="menu-visB">
+                <div id="globe-divB" class="individual-container align-right">
+                    <button id="globe-buttonB" class="globe-button"><i class="fa fa-globe"></i> Map B</button>
+                </div>
+                <div id="colorbar-max-divB"class="individual-container align-right">
+                    <input id="tbMax_mapB" type="text" class="tbColorbarRange form-control"/>
+                </div>
+                <div id="colorbar-divB" class="individual-container colorbar-container align-right">
+                    <img id="imgColorbarB" alt="colorbar" src="" class="colorbar_v" />
+                    <div id="opacitysliderB"></div>
+                </div>
+                <div id="colorbar-min-divB"class="individual-container align-right">
+                    <input id="tbMin_mapB" type="text" class="tbColorbarRange form-control"/>
+                </div>
+                <div id="lock-divB" class="individual-container align-right">
+                    <button id="lockB" class="lockButton" value="lock"><i class="fa fa-lock"></i></button>
+                </div>
             </div>
         </div>
-    </div>
 
+        <div style="width:90%; height:180px;" id="TimeSeriesContainerDiv_mapA" class="ol-control bottom-container">
+            <div class="individual-container"></div>
+			<div class="TimeSeriesTopBar">
+				<div class="TSclose_Button" id="TSClose_mapA"><a onclick="closeDygraph('A')" href="#">X</a></div>
+                <input id="daterange" type="text" name="daterange" mapId="A" />
+			</div>
+            <!--<div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapA">-->
+            <!--</div>-->
+            <!--<div class="TS_overlay" id="TimeSeriesOverlay_mapA">-->
+            <!--</div>-->
+        </div>
+    </div>
     <div id="log"></div>
 
-<script>
-
-</script>
 {% endblock %}

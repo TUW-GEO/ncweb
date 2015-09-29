@@ -1,21 +1,73 @@
-.right-container{
-    position: absolute;
+.right_panel {
+	min-height: 600px;
+	height: 100% !important;
+	width: 50%;
+	float:right;
+	right: 0px;
+}
 
-    right: .5em;
+.left_panel {
+	min-height: 600px;
+	float: left;
+}
+
+body {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#menu-right{
+    background-color: transparent;
+}
+#menu-left{
+    background-color: transparent;
+}
+
+.active{
+    color: #333;
+}
+
+.content_container{
+    position:relative;
+    height:100%;
+}
+
+.right-container{
+    float: right;
+    padding-right: 5px;
+    top:130px;
+    right:0px;
 }
 .left-container{
+    float: left;
+    padding-left: 5px;
+    top:130px;
+    left:0px;
+}
 
-    left: .5em;
+.bottom-container{
+    bottom:5px;
+    margin-left: 5%;
 }
 .align-right{
-    right: 0em;
+    float: right;
+    clear: right;
 }
 
-.globe-container {
-  top: 130px;
+.align-left{
+    float: left;
+    clear: left;
 }
 
-#globe-button{
+#globe-buttonA{
+    width: 60px;
+    font-size: 1em;
+    font-weight: 200;
+
+}
+
+#globe-buttonB{
     width: 60px;
     font-size: 1em;
     font-weight: 200;
@@ -23,17 +75,7 @@
 }
 
 .colorbar-container {
-  top: 190px;
   height: 200px;
-}
-
-.colorbar-max-container {
-	position: absolute;
-	top: 160px;
-}
-.colorbar-min-container {
-	position: absolute;
-	top: 400px;
 }
 
 .tbColorbarRange {
@@ -42,18 +84,12 @@
 	font-size: 10pt;
     padding: 2px;
 }
-.lock-container{
-	position: absolute;
-	top: 430px;
-}
 #menu-visA{
-    width: 100px;
-    margin-left: 250px;
+    float: right;
 }
 #menu-visB{
-    position: absolute;
-    width: 100px;
-    right:0em;
+    /* width: 100px;*/
+    float: left;
 }
 #map-settingsA{
     overflow: hidden;
@@ -67,13 +103,14 @@
     z-index: 200;
     width: 200px;
     min-height: 300px;
+    left: 0px;
     height: 328px;
     padding: 5px;
+    float: left;
 
 }
 .map-settings-containerB{
     display: none;
-    position: absolute;
     top: 130px;
     z-index: 200;
     width: 200px;
@@ -81,6 +118,7 @@
     right: 0px;
     height: 328px;
     padding: 5px;
+    float: right;
 
 }
 .map:-moz-full-screen {
@@ -98,12 +136,12 @@
 .ol-rotate {
   top: 3em;
 }
-#map {
-  position: absolute;
+.map {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
+  position: fixed;
 }
 .row {
     position: relative;
@@ -114,4 +152,40 @@
     width: 180px;
     padding: 2px;
     margin-bottom: 10px;
+}
+.individual-container{
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 2px;
+    border-radius: 4px;
+    margin: 3px;
+}
+
+.individual-container:hover{
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.navbar {
+    margin-bottom: 0;
+}
+
+#opacitysliderA {
+    float:right;
+    margin-left: 15px;
+    margin-right: 5px;
+    height: 195px;
+}
+
+#opacitysliderB {
+    float:left;
+    margin-right: 15px;
+    margin-left: 5px;
+    height: 195px;
+}
+
+.TSclose_Button {
+	z-index: 21;
+	position: relative;
+	width: 20px;
+	text-align: center;
+	left: calc(100% - 20px);
 }

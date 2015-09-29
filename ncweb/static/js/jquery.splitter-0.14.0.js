@@ -61,22 +61,6 @@
             splitter_id = null;
         }).insertAfter(panel_1);
         var position;
-        
-        function resizeDygraphs() {
-        	//resize ncweb dygraphs
-            if(IPFDV.maps.A.IPFDyGraph.DyGraph) {
-        		$("#TimeSeriesContainerDiv_mapA").css('width',$(IPFDV.maps.A.MapDivId).width()-40);
-        		$("#TimeSeriesDiv_mapA").css('width',$(IPFDV.maps.A.MapDivId).width()-40);
-        		IPFDV.maps.A.IPFDyGraph.DyGraph.resize();	
-        		IPFDV.maps['A'].Map.updateSize();
-        	}
-        	if(IPFDV.maps.B.IPFDyGraph.DyGraph) {
-        		$("#TimeSeriesContainerDiv_mapB").css('width',$(IPFDV.maps.B.MapDivId).width()-50);
-        		$("#TimeSeriesDiv_mapB").css('width',$(IPFDV.maps.B.MapDivId).width()-50);
-        		IPFDV.maps.B.IPFDyGraph.DyGraph.resize();
-        		IPFDV.maps['B'].Map.updateSize();
-        	}
-        }
 
         function get_position(position) {
             if (typeof position === 'number') {
@@ -286,7 +270,6 @@
                         }
                     }
                     current_splitter.settings.onDrag(e);
-                    resizeDygraphs();
                 }
             });
         }
