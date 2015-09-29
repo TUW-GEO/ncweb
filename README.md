@@ -9,7 +9,11 @@ Install
 -------
 
 ncweb runs with Python 2.7 and needs several packages (see [requirements](requirements.txt))
-THREDDS needs to be installed 
+
+### THREDDS
+
+To install THREDDS and dependencies (Java, Tomcat) follow the
+[official tutorial](http://www.unidata.ucar.edu/software/thredds/v5.0/tds/tutorial/GettingStarted.html)
 
 Setup
 -----
