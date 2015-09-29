@@ -8,7 +8,9 @@ ncweb is a viewer that allows to view netCDF files that are hosted on a [THREDDS
 Install
 -------
 
-ncweb runs with Python 2.7 and needs several packages (see [requirements](requirements.txt))
+ncweb runs with Python 2.7 and needs several packages (see
+[conda_requirements](conda_requirements.txt) or
+[pip_requirements](pip_requirements.txt))
 
 ### THREDDS
 
