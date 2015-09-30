@@ -3,126 +3,17 @@ from flask_wtf import Form
 from wtforms import SelectField
 import os
 import root_path as root
-import netCDF4
 import glob
-from osgeo import gdal
 import datetime
-from owslib.wms import WebMapService
 from thredds_crawler.crawl import Crawl
 from urlparse import urlparse
 import ConfigParser
 import urllib2
 
+
 class NetCdfForm(Form):
     variables = SelectField('variables', choices=[])
     files = SelectField('files', choices=[])
-
-
-def convert2GTiff(netcdfile, outdir, VarName):
-    '''
-
-    :param netcdfile:
-    :param outdir:
-    :param VarName:
-    '''
-
-    try:
-        nci = gdal.Open('NETCDF:{0}:{1}'.format(netcdfile, VarName))
-        ncd = netCDF4.Dataset(netcdfile, format='NETCDF4')
-    except:
-        print "Could not open input file: {0}\n".format(netcdfile)
-        return
-
-    try:
-        geotransform = nci.GetGeoTransform()
-    except:
-        print "Could not get geotransform.\n"
-        return
-
-    try:
-        projection = nci.GetProjection()
-    except:
-        print "Could not get projection.\n"
-        return
-
-    numbands = nci.RasterCount
-    print "Found {0} bands to process for {1}".format(numbands, VarName)
-    for i in range(numbands):
-        band = nci.GetRasterBand(i + 1)
-        raster = band.ReadAsArray()
-        y, x = raster.shape
-
-        output_file = "{0}_{1}.tif".format(
-            VarName, datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-        subdir = os.path.join(outdir, VarName)
-        if not os.path.exists(subdir):
-            os.mkdir(subdir)
-        output_file = os.path.join(subdir, output_file)
-        if os.path.exists(output_file):
-            continue
-
-        # Create GTiff
-        driver = gdal.GetDriverByName("GTiff")
-
-        dst_ds = driver.Create(output_file, x, y, 1, gdal.GDT_Int32)
-
-        # top left x, w-e pixel resolution, rotation, top left y, rotation, n-s
-        # pixel resolution
-        dst_ds.SetGeoTransform(geotransform)
-        # set the reference info
-        dst_ds.SetProjection(projection)
-
-        # print raster
-        #
-        # write the band
-        outBand = dst_ds.GetRasterBand(1)
-        outBand.WriteArray(raster)
-
-        dst_ds = None
-
-
-def readNetCDF(file):
-    '''
-
-    :param file:
-    '''
-
-    try:
-        nc = netCDF4.Dataset(file, format='NETCDF4')
-    except:
-        print "Could not open input file: {0}".format(file)
-        return
-
-#     ari_arr = nc.variables['arid regions mask'][:, :]
-#     print "arid regions mask:\n", ari_arr
-#     lat_arr = nc.variables['lat']
-#     lon_arr = nc.variables['lon']
-#     topo_arr = nc.variables['topographic complexity'][:, :]
-#     print 'topographic complexity:\n', topo_arr
-#     trop_arr = nc.variables['tropical forest mask'][:, :]
-#     print 'tropical forest mask:\n', trop_arr
-#     wetland_arr = nc.variables['wetland fraction'][:, :]
-#     print 'wetland fraction:\n', wetland_arr
-
-    # allVars = ('arid regions mask', 'topographic complexity', 'tropical forest mask', 'wetland fraction')
-
-    for var in nc.variables:
-        try:
-            if (nc.variables[var].grid_mapping == unicode('crs')
-                    and nc.variables[var].dimensions == tuple([unicode('lat'), unicode('lon')])):
-                # convert2GTiff(file, os.path.join("/home/pydev/GTiff"), str(var))
-                pass
-        except:
-            continue
-
-    i = 0
-    variablechoices = []
-    for variable in nc.variables:
-        variablechoices.append((str(i), variable.encode('ascii', 'ignore')))
-        i += 1
-
-    return [file, nc, variablechoices]
-
 
 app = Flask(__name__)
 
@@ -153,29 +44,6 @@ def index():
 @app.route('/hello')
 def hello():
     return 'Hello World'
-
-
-def wmsRequest(req_url):
-    '''
-    Returns the WMS Response and the netcdf Variables for a requested url
-    :param req_url:    WMS Request URL -
-                        e.g. http://pydap-file-url.wms?REQUEST=GetCapabilities&SERVICE=WMS&VERSION=1.1.1'
-    '''
-    wmsData = WebMapService(req_url)
-
-    i = 0
-    variablechoices = []
-    try:
-        for variable in wmsData.contents:
-            # Append the choice in a form, that the <select> option can handle
-            # it (id, name, value)
-            variablechoices.append(
-                (str(i), variable.encode('ascii', 'ignore'), wmsData.contents[variable].title))
-            i += 1
-    except:
-        pass
-
-    return (wmsData, variablechoices)
 
 
 def getTimepositions(wmsData, varName):
@@ -237,15 +105,17 @@ def wmsIndex():
 def wmsJS():
     return render_template('wmsDataJS.html')
 
+
 @app.route('/wmsnew')
 def wmsFS():
     return render_template('wmsFullScreen.html')
+
 
 @app.route('/wms/GetFileList', methods=['GET'])
 def getFileList():
 
     url = request.args.get('url')
-    print('URL: '+url)
+    print('URL: ' + url)
     # url = "http://localhost:8080/thredds/catalog/testAll/catalog.html"
     c = Crawl(str(url))
     print c.datasets
@@ -257,7 +127,6 @@ def getFileList():
         element['name'] = i.name
         l.append(element)
         print element
-
 
     parsed = urlparse(url)
     filelist['files'] = l
@@ -273,13 +142,14 @@ def getFileList():
 
     return jsonify(files=filelist['files'], location=filelist['location'])
 
+
 @app.route('/GetConfigParam', methods=['GET'])
 def getConfigParam():
 
     section = request.args.get('section')
     param = request.args.get('param')
-    print('section: '+section)
-    print('param: '+param)
+    print('section: ' + section)
+    print('param: ' + param)
 
     config = ConfigParser.ConfigParser()
     config.read('settings.cfg')
