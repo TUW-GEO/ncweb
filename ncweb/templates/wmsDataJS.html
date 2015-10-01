@@ -45,6 +45,18 @@
 					<div id="mapLabel_mapA_mapA"></div>
 					<div id="mapLabel_mapA_mapB"></div>
 				</div>
+				<div class="mapOverlayDiv mapColorbarMaxContainer">
+					<input id="tbMin_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"></input>
+				</div>
+				<div class="mapOverlayDiv mapColorbarContainer">
+					<img id="imgColorbarA" alt="colorbar" src="" class="colorbar_v"/>
+				</div>
+				<div class="mapOverlayDiv mapColorbarMinContainer">
+					<input id="tbMax_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"></input>
+				</div>
+				<div class="mapOverlayDiv mapColorbarLockContainer">
+					<button id="lockA" class="lockButton btn btn-default navbar-btn" onclick="scaleLock('A')" value="lock"><i class="fa fa-lock"></i></span></button>
+				</div>
 				<div id="mapSettingsContainerDiv_mapA" class="mapSettingsContainer col-sm-4">
 					<div id="map-controls" style="background: #d4d4d4; height: 100%; width: 100%;">
 					    <ul class="nav nav-tabs" id="mapTab" data-tabs="mapTab">
@@ -90,7 +102,7 @@
 										    <div class="control-label col-sm-3" style="font-weight:bold;">Colormap</div>
 										    <div class="controls col-sm-8">
 												<select class='form-control-sm' id="cmapSelectA" name="cmapSelectA" onchange="cmapChanged('A');">
-													{% for choice in cmap_choices -%} 	
+													{% for choice in cmap_choices -%}
 											    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
 											    	{%- endfor %}
 										        </select>
@@ -162,13 +174,13 @@
 											<div class="control-label col-sm-3" style="font-weight:bold;">Opacity</div>
 										    <div class="controls col-xs-6 col-sm-6">
 										    	<div id="opacityslider-B"></div>
-											</div>
+											<!--</div>-->
 										</div>
 										<div class="row">
 										    <div class="control-label col-sm-3" style="font-weight:bold;">Colormap</div>
 										    <div class="controls col-sm-8">
 												<select class='form-control-sm' id="cmapSelectB" name="cmapSelectB" onchange="cmapChanged('B');">
-													{% for choice in cmap_choices -%} 	
+													{% for choice in cmap_choices -%}
 											    	<option value="{{ choice }}" {% if choice == init_cmap %}SELECTED{% endif %}>{{ choice }}</option>
 											    	{%- endfor %}
 										        </select>
@@ -211,7 +223,7 @@
 								    </div>
 						        </label>
 						    </div>
-						
+
 						</div>
 
 						<div class="row">
@@ -220,7 +232,7 @@
 							</div>
 						</div>
 
-					</div>	
+					</div>
 					<a href="javascript:void(0);" onclick="toggleCtrl('A');"><div id="mapCtrl_btnclose" class="mapSettingsToggleCtrl" style="right: -26px;">
 				    	<i class="glyphicon glyphicon-chevron-left"></i>
 					</div></a>

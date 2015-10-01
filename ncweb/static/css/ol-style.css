@@ -115,6 +115,12 @@ input[type="checkbox"], input[type="radio"] {
 	left: 10px;
 }
 
+.mapColorbarImageContainer {
+	position: absolute;
+	top: 80px;
+	left: 10px;
+}
+
 .linkMapsCtrlGroup {
 	position: absolute; 
 	top: 65px; 

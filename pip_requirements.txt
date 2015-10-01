@@ -1,0 +1,16 @@
+DateTime==4.0.1
+Flask==0.10.1
+Flask-WTF==0.12
+itsdangerous==0.24
+Jinja2==2.7.3
+MarkupSafe==0.23
+pip==7.1.0
+python-dateutil==2.4.2
+pytz==2015.4
+requests==2.7.0
+setuptools==18.0.1
+six==1.9.0
+thredds-crawler==1.0.0
+Werkzeug==0.10.4
+WTForms==2.0.2
+zope.interface==4.1.2

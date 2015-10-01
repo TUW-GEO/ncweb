@@ -10,17 +10,19 @@
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-united.min.css') }}"/>
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-united.min.css') }}"/>-->
+    <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
 
     <style type="text/css">
     	body {
-		  padding-top: 50px;
+			padding: 0px;
+			margin: 0px;
 		}
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" />-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/new_style.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui-1.11.1.custom/jquery-ui.css') }}">
     
 
@@ -33,28 +35,54 @@
     	('/hello', 'hello', 'hello')
 	] -%}
 	{% set active_page = active_page|default('home') -%}
-    <div class="navbar navbar-fixed-top">
-	  <div class="navbar-inner">
-	     <div class="container">
-	       <a data-toggle="collapse" data-target=".nav-collapse" class="btn btn-navbar">
-	         <span class="icon-bar"></span>
-	         <span class="icon-bar"></span>
-	         <span class="icon-bar"></span>
-	       </a>
-	       <a href="#home" class="brand">NetCDF - DataViewer</a>
-	       <div class="nav-collapse">
-	         <ul class="nav">
-	           {% for href, id, caption in navigation_bar %}
-			   <li id="{{ id|e }}"{% if id == active_page %} class="active"{% endif %}>
-			  	 <a href="{{ href|e }}">{{ caption|e }}</a>
-			   </li>
-			   {% endfor %}
-	         </ul>
-	       </div>
-	     </div>
-	  </div>
-	</div>
-    <div id="content" class="container" role="main">{% block content %}{% endblock %}</div>
+	<nav class="navbar navbar-static-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">NetCDF - Data Viewer</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse" style="visibility: hidden;">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a id="getTS" href="#"><i class="fa fa-area-chart"></i><em id="getTS_text"> Get Time Series</em></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </nav>
+    <!--<div class="navbar navbar-fixed-top">-->
+	  <!--<div class="navbar-inner">-->
+	     <!--<div class="container">-->
+			 <!--<div class="navbar-header">-->
+	       		<!--<a data-toggle="collapse" data-target=".nav-collapse" class="btn btn-navbar">-->
+	         		<!--<span class="icon-bar"></span>-->
+	         		<!--<span class="icon-bar"></span>-->
+	         		<!--<span class="icon-bar"></span>-->
+	       		<!--</a>-->
+			 	<!--<a href="#home" class="brand">NetCDF - DataViewer</a>-->
+			 <!--</div>-->
+			 <!--<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">-->
+      			<!--<ul class="nav navbar-nav">-->
+					<!--&lt;!&ndash;<li><input id="tbMin_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"></input></li>&ndash;&gt;-->
+					<!--&lt;!&ndash;<li><img id="imgColorbarA" alt=" " src="" class="colorbar"/></li>&ndash;&gt;-->
+					<!--&lt;!&ndash;<li><input id="tbMax_mapA" type="text" class="tbColorbarRange form-control" onchange="cmapScaleChanged('A')"></input></li>&ndash;&gt;-->
+					<!--&lt;!&ndash;<li><button id="lockA" class="lockButton btn btn-default navbar-btn" onclick="scaleLock('A')" value="lock">lock</span></button></li>&ndash;&gt;-->
+				<!--</ul>-->
+	       <!--&lt;!&ndash;<div class="nav-collapse">&ndash;&gt;-->
+	         <!--&lt;!&ndash;<ul class="nav">&ndash;&gt;-->
+	           <!--&lt;!&ndash;{% for href, id, caption in navigation_bar %}&ndash;&gt;-->
+			   <!--&lt;!&ndash;<li id="{{ id|e }}"{% if id == active_page %} class="active"{% endif %}>&ndash;&gt;-->
+			  	 <!--&lt;!&ndash;<a href="{{ href|e }}">{{ caption|e }}</a>&ndash;&gt;-->
+			   <!--&lt;!&ndash;</li>&ndash;&gt;-->
+			   <!--&lt;!&ndash;{% endfor %}&ndash;&gt;-->
+	         <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+	       <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+
+	     <!--</div>-->
+	  <!--</div>-->
+	<!--</div>-->
+    {% block content %}{% endblock %}
     <!-- <div id="footer" class="container" role="footer">
     {% block footer %}&copy; abcd some sample footer <a href="http://www.ipf.tuwien.ac.at/">IPF TU Wien</a>{% endblock %}
     </div>-->
