@@ -8,7 +8,9 @@
  * @name wmsChanged
  * @param {string} mapId - Defines the map */
 function wmsChanged(mapId) {
+	console.log("wmsChanged");
 	IPFDV.GetWMSCapabilities(IPFDV.maps[mapId]);
+
 }
 
 /** @function
@@ -21,8 +23,10 @@ function ncvarChanged(mapId) {
 		IPFDV.maps[mapId].Date = new Date($("#timeSelect"+IPFDV.maps[mapId].MapName).val());
 		IPFDV.maps[mapId].TempLinkEvent();
 	}*/
+	lock=false;
+	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
 	setColorbarRangeValues(IPFDV.maps[mapId], IPFDV.maps[mapId].Capabilities.capability.layers[$("#ncvarSelect"+mapId).val()].name);
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],true);
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],true, lock);
 }
 
 /** @function
@@ -30,9 +34,25 @@ function ncvarChanged(mapId) {
  * @name timeChanged
  * @param {string} mapId - Defines the map */
 function timeChanged(mapId) {
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false);
+	lock=false;
+	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false, lock);
 	IPFDV.maps[mapId].Date = new Date($("#timeSelect"+IPFDV.maps[mapId].MapName).val());
 	IPFDV.maps[mapId].TempLinkEvent();
+
+	$('#daterange').data('daterangepicker').setStartDate(getDefaultStart($('#daterange').attr('mapId')));
+	$('#daterange').data('daterangepicker').setEndDate(getDefaultEnd($('#daterange').attr('mapId')));
+	console.log($("#daterange").val());
+	$('#daterange').data('daterangepicker').updateView();
+	start=$('#daterange').data('daterangepicker').startDate;
+	console.log(start);
+	// update input text field
+	$('#daterange').val($('#daterange').data('daterangepicker').startDate._i + ' - ' + $('#daterange').data('daterangepicker').endDate._i);
+	console.log($("#daterange").val());
+
+	console.log("See all list elements? "+$("#timeSelectA")[0].value);
+//	$('#daterange').data('daterangepicker').minDate='1978-10-25';
+
 }
 
 /** @function
@@ -40,8 +60,45 @@ function timeChanged(mapId) {
  * @name cmapChanged
  * @param {string} mapId - Defines the map */
 function cmapChanged(mapId) {
-	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false);
+	lock=false;
+	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="unlock"){lock=true;}
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false, lock);
 }
+
+/** @function
+ * Fires when tbColorbarRange is changed
+ * @name cmapScaleChanged
+ * @param {string} mapId - Defines the map */
+function cmapScaleChanged(mapId) {
+	console.log("Scale Changed! "+$("#tbMax_map"+IPFDV.maps[mapId].MapName).val());
+
+	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false,true);
+}
+
+/** @function
+ * Fires when lock is clicked
+ * @name scaleLock
+ * @param {string} mapId - Defines the map */
+function scaleLock(mapId) {
+	console.log("locked! "+$("#lock"+IPFDV.maps[mapId].MapName).val());
+
+	if($("#lock"+IPFDV.maps[mapId].MapName).val()==="lock"){
+		$("#lock"+IPFDV.maps[mapId].MapName).val("unlock");
+		$("#lock"+IPFDV.maps[mapId].MapName).text("unlock");
+		$("#tbMax_map"+IPFDV.maps[mapId].MapName).attr('disabled', 'disabled');
+		$("#tbMin_map"+IPFDV.maps[mapId].MapName).attr('disabled', 'disabled');
+	}
+	else{
+		$("#lock"+IPFDV.maps[mapId].MapName).val("lock");
+		$("#lock"+IPFDV.maps[mapId].MapName).text("lock");
+		$("#tbMax_map"+IPFDV.maps[mapId].MapName).removeAttr('disabled');
+		$("#tbMin_map"+IPFDV.maps[mapId].MapName).removeAttr('disabled');
+	}
+
+
+//	IPFDV.showLayerOnMap(IPFDV.maps[mapId],false,true);
+}
+
 
 /** @function
  * 
@@ -51,7 +108,7 @@ function cmapChanged(mapId) {
  */
 function setColorbarRangeValues(map,ncvar) {
 	if(map.Capabilities) {
-		var actRange = map.Capabilities.capability.layers.filter(function(obj) { 
+		var actRange = map.Capabilities.capability.layers.filter(function(obj) {
 			return obj.name == ncvar;
 		})[0].actualrange;
 		if (actRange && actRange.length==3) {
@@ -255,11 +312,13 @@ function toggleMapLink(mapId1, mapId2, type) {
 		if($("#cb_linkABtemp").is(':checked')) {
 			// Set to MapA-Value
 			if ($("#timeSelect"+IPFDV.maps[mapId1].MapName)[0] && $("#timeSelect"+IPFDV.maps[mapId1].MapName)[0].length>1) {
+				console.log("Set to MapA time value "+$("#timeSelect"+IPFDV.maps[mapId1].MapName).val());
 				IPFDV.maps[mapId1].Date = new Date($("#timeSelect"+IPFDV.maps[mapId1].MapName).val());
 				IPFDV.maps[mapId2].Date = new Date($("#timeSelect"+IPFDV.maps[mapId1].MapName).val());
 			}
 			// If MapA does not have a time position
 			else if ($("#timeSelect"+IPFDV.maps[mapId2].MapName)[0] && $("#timeSelect"+IPFDV.maps[mapId2].MapName)[0].length>1) {
+				console.log("Set to MapB time value "+$("#timeSelect"+IPFDV.maps[mapId2].MapName).val());
 				IPFDV.maps[mapId1].Date = new Date($("#timeSelect"+IPFDV.maps[mapId2].MapName).val());
 				IPFDV.maps[mapId2].Date = new Date($("#timeSelect"+IPFDV.maps[mapId2].MapName).val());
 			}
@@ -301,6 +360,7 @@ function toggleGetTS() {
 		$('#mapB').css('cursor', 'crosshair');
 		IPFDV.maps['A'].registerClickEvent(true);
 		IPFDV.maps['B'].registerClickEvent(true);
+
 	}
 	else {
 		$('#mapA').css('cursor', 'default');
@@ -327,4 +387,154 @@ function toggleCtrl(mapId) {
 	$('#mapSettingsContainerDiv_map'+mapId).toggle('slide', {
 	    direction: 'left'
 	}, 1000);
+}
+
+//function openCalendar(){
+//	console.log("openCalendar")
+//	new DatePicker('.date_toggled', {
+//		pickerClass: 'datepicker_dashboard',
+//		allowEmpty: true,
+//		toggleElements: '.date_toggler'
+//	});
+//}
+//
+//$('#sandbox-container .input-daterange').datepicker({
+//    format: "yyyy-mm-dd",
+//    defaultViewDate: { year: 1977, month: 04, day: 25 }
+//    });
+//
+function getDefaultStart(mapId){
+	var time = moment($("#timeSelect"+IPFDV.maps[mapId].MapName).val()).subtract(20, 'days');
+    var time_start = moment(time).format("YYYY-MM-DD");
+    console.log("Selcected date: "+time._i);
+	return time_start;
+}
+function getDefaultEnd(mapId){
+	var time = moment($("#timeSelect"+IPFDV.maps[mapId].MapName).val()).add(29, 'days');
+    var time_end = moment(time).format("YYYY-MM-DD");
+    console.log("Selcected date: "+time._i);
+	return time_end;
+}
+
+//$(function() {
+////function chooseDate(mapId) {
+//	var t = $(this);
+//
+//    function cb(start, end) {
+//        $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+//    }
+//    cb(getDefaultRange($('#reportrange').attr('mapId')).time_start, getDefaultRange($('#reportrange').attr('mapId')).time_end);
+////  	cb(moment().subtract(29, 'days'), moment());
+//  	console.log($('#reportrange').attr('mapId'));
+//
+////
+//
+////	var time_start = new Date(time);
+////	time_start.setDate(time_start.getDate() -days);
+//
+////	time_start = time_start.format("mm/dd/yyyy");
+////	console.log(time_start);
+////	var time_end = new Date(time);
+////	time_end.setDate(time.getDate() +days);
+////	time_end = time_end.format("mm/dd/yyyy");
+//
+//
+//    $('#reportrange').daterangepicker({
+//
+//        ranges: {
+//           'Today': [moment(), moment()],
+//           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+//           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+//           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+//           'This Month': [moment().startOf('month'), moment().endOf('month')],
+//           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+//        }
+//    }, cb);
+//
+////}
+//});
+//function newPicker(minDate, maxDate){
+$(function() {
+//	alert("hi im here "+$('#daterange').attr('mapId'));
+    $('#daterange').daterangepicker({
+        "locale": {
+        "format": "YYYY-MM-DD",
+        "separator": " - ",
+        "applyLabel": "Apply",
+        "cancelLabel": "Cancel",
+        "fromLabel": "From",
+        "toLabel": "To",
+        "customRangeLabel": "Custom",
+        "daysOfWeek": [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "monthNames": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "firstDay": 1
+    },
+    "startDate": getDefaultStart($('#daterange').attr('mapId')),
+    "endDate": "2015-04-24",
+    "minDate": "2000-12-12",
+    "maxDate": "2015-05-05",
+    });
+    $('#daterange').on('showCalendar.daterangepicker', function(ev, picker){
+    	console.log("in showCalendar.daterangepicker "+picker+" "+ev);
+    });
+    $('#daterange').on('show.daterangepicker', function(ev, picker){
+//    	$('#daterange').data('daterangepicker').setStartDate(getDefaultStart($('#daterange').attr('mapId')));
+//		$('#daterange').data('daterangepicker').setEndDate(getDefaultEnd($('#daterange').attr('mapId')));
+    	console.log("in show.daterangepicker "+getDefaultStart($('#daterange').attr('mapId'))+" "+getDefaultEnd($('#daterange').attr('mapId')));
+    });
+    $('#daterange').on('apply.daterangepicker', function(ev, picker){
+    	console.log("in apply.daterangepicker"+picker+" "+ev);
+
+    });
+
+//}
+});
+
+/** @function
+ * Deletes instance of daterangepicker and creates new one with set min and max date
+ * @name newPicker
+ * @param {Date,Date} min max - Defines min and max Date for the new daterangepicker */
+function newPicker(min, max){
+	console.log("newPicker");
+	if($('#daterange').data('daterangepicker')){
+		$('#daterange').data('daterangepicker').remove();
+		}
+	$('#daterange').daterangepicker({
+        "locale": {
+        "format": "YYYY-MM-DD"
+    	},
+
+    "minDate": min,
+    "maxDate": max
+    });
+    $('#daterange').on('apply.daterangepicker', function(ev, picker){
+
+    	console.log("in apply.daterangepicker "+$('#daterange').attr('mapId'));
+    	console.log(picker.startDate.format('YYYY-MM-DD'));
+    	console.log(picker.endDate.format('YYYY-MM-DD'));
+		console.log($("#daterange").val());
+
+		IPFDV.maps[$('#daterange').attr('mapId')].IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+    });
 }

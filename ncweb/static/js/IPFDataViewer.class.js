@@ -4,6 +4,14 @@
  */
 
 function IPFDataViewer(serverurl) {
+
+//	if (window.jQuery) {
+//		alert("JQuery loaded ");
+//		alert("version: "+$.fn.jquery)
+//	} else {
+//    	alert("no JQuery");
+//	}
+
 	
 	this.maps = {};
 	
@@ -57,6 +65,7 @@ function IPFDataViewer(serverurl) {
 	});
 	
 	//Get Pydap handled files for requested url and add to WMS Select
+
 	this.GetWMSFileList(serverurl);
 	this.ncwebResize();
 	
@@ -65,23 +74,27 @@ function IPFDataViewer(serverurl) {
 /** @function
  * GetFileList request for a given directory
  * @name GetWMSFileList
- * @param {string} url - Specifies the directory on the pydap server */
-IPFDataViewer.prototype.GetWMSFileList = function(url) {
+ * @param {string} url - Specifies the directory for thredds-crawler */
+IPFDataViewer.prototype.GetWMSFileList = function(surl) {
+	console.log("In IPFDataViewer.prototype.GetWMSFileList = function(url) url= "+surl);
 	var mapA = this.maps["A"];
 	var mapB = this.maps["B"];
 	var ipfdv = this;
+
 	$.ajax({
         type: "GET",
-		url: url+"?REQUEST=GetFileList",
+		url: '/wms/GetFileList?url='+surl,
 		dataType: "json",
 		success: function(json) {
 			$("#wmsSelectA").empty();
 			$("#wmsSelectB").empty();
 			for (var f in json.files) {
-				var o = new Option(json.files[f].name, json.location+json.files[f].name+".wms?service=WMS&REQUEST=GetCapabilities&version=1.1.1");
+				var o = new Option(json.files[f].name, json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
+				console.log("list A: "+json.files[f].name+" "+json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
 				$(o).html(json.files[f].name);
 				$("#wmsSelectA").append(o);
-				var o = new Option(json.files[f].name, json.location+json.files[f].name+".wms?service=WMS&REQUEST=GetCapabilities&version=1.1.1");
+
+				var o = new Option(json.files[f].name, json.location+json.files[f].name+"?service=WMS&REQUEST=GetCapabilities&version=1.3.0");
 				$(o).html(json.files[f].name);
 				$("#wmsSelectB").append(o);
 			}
@@ -91,6 +104,22 @@ IPFDataViewer.prototype.GetWMSFileList = function(url) {
 	});
 }
 
+IPFDataViewer.prototype.GetMarried = function() {
+
+	var a = "AJAX";
+	var b = "Python";
+//	alert("/love?b="+b);
+	alert("Wedding Bells ding dong ding dong! ");
+	$.ajax({
+		type: 'GET',
+		url: '/love?a='+a+'&b='+b,
+//		data: {'b': b}
+		success: function(json){
+			alert("Here is the result: "+json.results);
+		}
+	});
+
+}
 
 /** @function
  * GetCapabilities request for a selected pydap handled file
@@ -99,6 +128,8 @@ IPFDataViewer.prototype.GetWMSFileList = function(url) {
 IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 	var req_url = $("#wmsSelect"+map.MapName).val();
 	var ipfdv = this;
+	console.log("in IPFDataViewer.prototype.GetWMSCapabilities map="+map);
+	console.log("req_url: "+req_url);
 	if (req_url) {
 		$.ajax({
 	        type: "GET",
@@ -107,10 +138,13 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 			success: function(xml) {
 				var wmsCapabilities = new OpenLayers.Format.WMSCapabilities();
 				map.Capabilities = wmsCapabilities.read(xml);
-				
+				console.log("map.Capabilities "+map.Capabilities)
+
 				for (var i=0; i<$(xml).find("Layer").length; i++) {
+					console.log("Layer "+i+" in XML")
 					if($(xml).find("Layer").eq(i).find("ActualRange").length>0 //Got Actual Range in child node
 							&& $(xml).find("Layer").eq(i).find("Layer").length == 0) { //Got no Layer-Node in child nodes
+						console.log("Got ActualRange in child node and no Layer-Node in child nodes")
 						var guess = false;
 						if ($(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("guess")==true) {
 							guess = true;
@@ -120,16 +154,21 @@ IPFDataViewer.prototype.GetWMSCapabilities = function(map) {
 						})[0].actualrange = [$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("min"),$(xml).find("Layer").eq(i).find("ActualRange").eq(0).attr("max"),guess];
 					}
 				}
-				
+
 				//Get options for Variables select-control
-				ipfdv.loadVariables("#ncvarSelect"+map.MapName, map); 
+				ipfdv.loadVariables("#ncvarSelect"+map.MapName, map);
+				console.log("LoadVariables");
+				console.log("#ncvarSelect"+map.MapName);
 				//Get options for Timepositions select-control
 				ipfdv.loadTimepositions("#timeSelect"+map.MapName, "#ncvarSelect"+map.MapName, map);
+				console.log("loadTimepositions");
 				setColorbarRangeValues(map, map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name);
+				console.log("setColorbarRageValues map="+map+" ncvar="+map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name+" time="+$("#timeSelect"+map.MapName).val());
 				ipfdv.showLayerOnMap(map,true);
 			},
 			error: function() {
 				//reset controls if there is a problem with the wms request
+				alert("Problem with WMS request! map: "+map.MapName);
 				ipfdv.resetControls(map);
 			}
 		});
@@ -152,6 +191,7 @@ IPFDataViewer.prototype.loadVariables = function(ncvar_ctrl, map) {
 			var o = new Option(map.Capabilities.capability.layers[l].title, l);
 			$(o).html(map.Capabilities.capability.layers[l].title);
 			$(ncvar_ctrl).append(o);
+//			console.log($(ncvar_ctrl));
 		}
 	}
 	if ($(ncvar_ctrl)[0] && $(ncvar_ctrl)[0].length>1) {
@@ -181,6 +221,7 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 		if (layer && layer.dimensions.time) {
 			for (var t in layer.dimensions.time.values) {
 				var o = new Option(layer.dimensions.time.values[t],layer.dimensions.time.values[t]);
+
 				$(o).html(layer.dimensions.time.values[t]);
 				$(time_ctrl).append(o);
 				
@@ -191,7 +232,14 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 				}
 			}
 			$(time_ctrl).val(selectValue);
+
 		}
+
+		var time_start = moment(layer.dimensions.time.values[0]).format("YYYY-MM-DD");
+   		var time_end = moment(layer.dimensions.time.values.pop()).format("YYYY-MM-DD");
+   		console.log('newPicker '+time_start+" "+time_end);
+		newPicker(time_start,time_end);
+		$(time_ctrl).trigger("change");
 	}
 	if ($(time_ctrl)[0] && $(time_ctrl)[0].length>1) {
 		$(time_ctrl).removeAttr("disabled");
@@ -202,33 +250,105 @@ IPFDataViewer.prototype.loadTimepositions = function(time_ctrl, ncvar_ctrl, map)
 	}
 }
 
+//IPFDataViewer.prototype.getMinMaxTime = function(map){
+//	var ncvar = 'sm';
+//	if(map.Capabilities.capability && map.Capabilities.capability.layers) {
+//		var layer = map.Capabilities.capability.layers[ncvar];
+//		min = layer.dimensions.time.values[0];
+//		max = layer.dimensions.time.values.pop();
+// 		console.log("in getMinMaxTime "+layer.dimensions.time.values[0]+layer.dimensions.time.values.pop());
+//	}
+//
+//	return [min, max];
+//}
+
 /** @function
  * Show WMSLayer either as map overlay or as separate map
  * @name showLayerOnMap
  * @param {boolean} reloadTS - Reload the TimeSeries Dygraph if True */
-IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS) {
-	
-	// @TODO: Only works with MapA and MapB
-	var onTop = false;
-	if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top) {
-		onTop = true;
+IPFDataViewer.prototype.showLayerOnMap = function(map, reloadTS, manualScale) {
+
+	console.log("showLayerOnMap");
+
+	ncvar=map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name;
+
+	req_url=$("#wmsSelect"+map.MapName).val().split("?")[0]+"?item=minmax&layers="+
+			ncvar+"&bbox=-180%2C-90%2C180%2C90&elevation=0&time="+$("#timeSelect"+map.MapName).val()+
+			"&srs=EPSG%3A4326&width=256&height=256&request=GetMetadata";
+	console.log(req_url);
+
+	if(manualScale==true){
+		console.log("Scale changed manually");
+		console.log("min="+$("#tbMin_map"+map.MapName).val()+" max="+$("#tbMax_map"+map.MapName).val());
+		map.Capabilities.capability.layers.filter(function(obj) {
+			return obj.name == ncvar;
+		})[0].actualrange = [$("#tbMin_map"+map.MapName).val(), $("#tbMax_map"+map.MapName).val(), true];
+
+
+
+		setColorbarRangeValues(map, map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name);
+		// @TODO: Only works with MapA and MapB
+		var onTop = false;
+		if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top) {
+			onTop = true;
+		}
+
+		// show data on separate map
+		if(map.MapName == 'A' || map.ViewState == IPFDV.ViewStates.separate) {
+			map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name,
+					$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0],
+					$("#cmapSelect"+map.MapName).val(), map, onTop, reloadTS);
+		}
+
+		// show data as overlay on MapA
+		else if(map.ViewState == IPFDV.ViewStates.overlay_top ||
+				map.ViewState == IPFDV.ViewStates.overlay_bottom) {
+			map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name,
+					$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0],
+					$("#cmapSelect"+map.MapName).val(), this.maps["A"], onTop, reloadTS);
+		}
+
 	}
-	
-	// show data on separate map
-	if(map.MapName == 'A' || map.ViewState == IPFDV.ViewStates.separate) {
-		
-		map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name, 
-				$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0], 
-				$("#cmapSelect"+map.MapName).val(), map, onTop, reloadTS);
+
+	else{
+		$.ajax({
+			type:"GET",
+			url:req_url,
+			dataType:"json",
+			context: this,
+			success: function(json){
+
+				map.Capabilities.capability.layers.filter(function(obj) {
+					return obj.name == ncvar;
+				})[0].actualrange = [json.min, json.max, true];
+
+				console.log("min="+json.min+" max="+json.max);
+
+				setColorbarRangeValues(map, map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name);
+				// @TODO: Only works with MapA and MapB
+				var onTop = false;
+				if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top) {
+					onTop = true;
+				}
+
+				// show data on separate map
+				if(map.MapName == 'A' || map.ViewState == IPFDV.ViewStates.separate) {
+					map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name,
+							$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0],
+							$("#cmapSelect"+map.MapName).val(), map, onTop, reloadTS);
+				}
+
+				// show data as overlay on MapA
+				else if(map.ViewState == IPFDV.ViewStates.overlay_top ||
+						map.ViewState == IPFDV.ViewStates.overlay_bottom) {
+					map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name,
+							$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0],
+							$("#cmapSelect"+map.MapName).val(), this.maps["A"], onTop, reloadTS);
+				}
+			}
+		});
 	}
-	
-	// show data as overlay on MapA
-	else if(map.ViewState == IPFDV.ViewStates.overlay_top ||
-			map.ViewState == IPFDV.ViewStates.overlay_bottom) {
-		map.showWMSLayer(map.Capabilities.capability.layers[$("#ncvarSelect"+map.MapName).val()].name, 
-				$("#timeSelect"+map.MapName).val(), $("#wmsSelect"+map.MapName).val().split("?")[0], 
-				$("#cmapSelect"+map.MapName).val(), this.maps["A"], onTop, reloadTS);
-	}
+
 }
 
 /** @function
