@@ -234,7 +234,7 @@ MapController.prototype.loadTimepositions = function() {
     //read the layers time information
     if(self.mapCapabilities.Capability && self.mapCapabilities.Capability.Layer.Layer[0].Layer) {
         var layer = self.mapCapabilities.Capability.Layer.Layer[0].Layer[ncvar];
-        if (layer && layer.Dimension[0].values) {
+        if (layer && layer.Dimension) {
         var time_values = layer.Dimension[0].values.split(',');
         console.log("time_values: "+time_values);
         for (var t in time_values) {
@@ -250,14 +250,14 @@ MapController.prototype.loadTimepositions = function() {
             }
         }
         self.timecontrol.val(selectValue);
-
-        }
-
         var time_start = moment(time_values[0]).format("YYYY-MM-DD");
         var time_end = moment(time_values.pop()).format("YYYY-MM-DD");
         console.log('newPicker '+time_start+" "+time_end);
         newPicker(time_start,time_end);
-//        self.timecontrol.trigger("change");
+        //        self.timecontrol.trigger("change");
+
+        }
+
     }
     if (self.timecontrol[0] && self.timecontrol[0].length>1) {
         self.timecontrol.removeAttr("disabled");
