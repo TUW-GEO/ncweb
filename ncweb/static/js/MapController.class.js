@@ -65,10 +65,11 @@ function MapController(serverurl, map, divName, initz){
     $(self.selector).change(function(){
         console.log("#wmsSelect"+self.divName+" changed");
         self.GetWMSCapabilities();
+        if(IPFDV.dygraphshowing) {IPFDV.dygraph.showDyGraph();}
     });
     $(self.varselector).change(function(){
         console.log("#ncvarSelect"+self.divName+" changed");
-
+        if(IPFDV.dygraphshowing) {IPFDV.dygraph.showDyGraph();}
     });
     $(self.timecontrol).change(function(){
         console.log("#timeSelect"+self.divName+" changed");
@@ -87,10 +88,6 @@ function MapController(serverurl, map, divName, initz){
     });
     $(self.cmapselector).change(function(){
         console.log("#cmapSelect"+self.divName+" changed");
-
-    });
-    $(self.selector).change(function(){
-        console.log("#wmsSelect"+self.divName+" changed");
 
     });
 
@@ -395,14 +392,9 @@ MapController.prototype.setLayerOpacity = function(){
 MapController.prototype.buildDyGraphURL = function() {
 
     var self = this;
-
+    var layer = $("#wmsSelect" + self.divName + " option:selected").html();
+    console.log("Layer "+layer);
     var ncvar = self.mapCapabilities.Capability.Layer.Layer[0].Layer[self.varselector.val()].Name;
-    var time = self.timecontrol.val();
-    var cmap = self.cmapselector.val();
-    var layer = 0;
-    var lonlat = 0;
-    var time_start = 0;
-    var time_end = 0;
 
 	$.ajax({
 		type: "GET",
@@ -410,10 +402,11 @@ MapController.prototype.buildDyGraphURL = function() {
 		dataType: "json",
 		success: function(json) {
 
-			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar+"&latitude="+lonlat.lat+
-					"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
+			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar;
 			console.log("wmsurl = "+wmsurl);
 		},
 		async: false
 	});
+
+    return wmsurl;
 }

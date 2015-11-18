@@ -284,10 +284,10 @@ function toggleGetTS() {
  * Handles the click event for closing the Dygraph div
  * @name closeDygraph
  * @param {string} mapId - Defines the map */
-function closeDygraph(mapId) {
-	$('#TimeSeriesContainerDiv_map'+mapId).hide();
-	IPFDV.maps[mapId].Markers.clearMarkers();
-}
+//function closeDygraph(mapId) {
+//	$('#TimeSeriesContainerDiv_map'+mapId).hide();
+//	IPFDV.maps[mapId].Markers.clearMarkers();
+//}
 
 /** @function
  * Toogles the Map Settings Control
@@ -447,6 +447,6 @@ function newPicker(min, max){
     	console.log(picker.endDate.format('YYYY-MM-DD'));
 		console.log($("#daterange").val());
 
-		IPFDV.maps[$('#daterange').attr('mapId')].IPFDyGraph.showDyGraph(IPFDV.maps.A.Markers.markers[0].lonlat);
+		IPFDV.dygraph.showDyGraph();
     });
 }

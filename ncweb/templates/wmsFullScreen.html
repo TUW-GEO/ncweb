@@ -27,11 +27,11 @@
 
 	<script src="{{ url_for('static', filename='js/ol.js') }}"></script>
 <!---->
-	<!--<script src="{{ url_for('static', filename='js/dygraph-combined.js') }}"></script>-->
+	<script src="{{ url_for('static', filename='js/dygraph-combined.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/IPFMap.class.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/MapController.class.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/IPFDataViewer.class.js') }}"></script>
-	<!--<script src="{{ url_for('static', filename='js/IPFDyGraph.class.js') }}"></script>-->
+	<script src="{{ url_for('static', filename='js/IPFDyGraph.class.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-main.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/dataviewer-user.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/jquery.splitter-0.14.0.js') }}"></script>
@@ -52,7 +52,7 @@
             min: 0,
             max: 100,
             value: 60,
-            <!--slide: function( event, ui ) {-->
+            slide: function( event, ui ) {
                 $( "#amount" ).val( ui.value );
             }
         });
@@ -185,13 +185,13 @@
         <div style="width:90%; height:180px;" id="TimeSeriesContainerDiv_mapA" class="ol-control bottom-container">
             <div class="individual-container"></div>
 			<div class="TimeSeriesTopBar">
-				<div class="TSclose_Button" id="TSClose_mapA"><a onclick="closeDygraph('A')" href="#">X</a></div>
+				<div class="TSclose_Button" id="TSClose_mapA"><a href="#">X</a></div>
                 <input id="daterange" type="text" name="daterange" mapId="A" />
 			</div>
-            <!--<div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapA">-->
-            <!--</div>-->
-            <!--<div class="TS_overlay" id="TimeSeriesOverlay_mapA">-->
-            <!--</div>-->
+            <div style="width: 90%; height: 180px;" id="TimeSeriesDiv_mapA">
+            </div>
+            <div class="TS_overlay" id="TimeSeriesOverlay_mapA">
+            </div>
         </div>
     </div>
     <div id="log"></div>

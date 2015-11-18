@@ -15,11 +15,28 @@ function IPFDyGraph(map) {
 	self.DyGraph = null;
 	// AJAX Get Request
 	self.getDyGraph
+
+	self.lonlat = [];
 	
 	// Dates, Data (Dates + Values) and Labels for DyGraph
 	self.DyGraphDates = new Array();
 	self.DyGraphData = new Array();
 	self.DyGraphLabels = new Array();
+
+	$('#TSClose_mapA').click(function(){
+		console.log("TSClose_mapA click");
+		$('#getTS').trigger("click");
+	});
+
+	map.Map.on('click', function(evt){
+		var coord = evt.coordinate;
+		var transformed_coord = ol.proj.transform(coord, "EPSG:3857", "EPSG:4326");
+		self.map.addMapMarker(coord);
+		console.log(transformed_coord);
+		self.lonlat = transformed_coord;
+		self.showDyGraph();
+	});
+
 }
 
 /**
@@ -27,18 +44,19 @@ function IPFDyGraph(map) {
  * @name showDyGraph
  * @param {OpenLayers.LonLat} lonlat - Coordinates of the TimeSeries
  */
-IPFDyGraph.prototype.showDyGraph = function(lonlat) {
+IPFDyGraph.prototype.showDyGraph = function() {
 	console.log("showDyGraph");
 	// Show DIV with Loading Overlay, Overlay will be hidden by new DyGraph()
 	// object
 	// Overlay instance gets created in html file
-	$("#TimeSeriesOverlay_map" + this.map.MapName).html($(overlay_LOADING));
-	$("#TimeSeriesOverlay_map" + this.map.MapName).show();
-	$('#TimeSeriesContainerDiv_map' + this.map.MapName).show();
+//	$("#TimeSeriesOverlay_map" + this.map.MapName).html($(overlay_LOADING));
+//	$("#TimeSeriesOverlay_map" + this.map.MapName).show();
+//	$('#TimeSeriesContainerDiv_map' + this.map.MapName).show();
 
 	// Add Map Marker to the map
-	this.map.addMapMarker(lonlat);
-	var _self = this;
+
+	var self = this;
+	lonlat = self.lonlat;
 	if(this.DyGraph == null){
 		this.DyGraph = new Dygraph(document.getElementById("TimeSeriesDiv_map" + this.map.MapName),[[0,0],[0,1]],{
 			labelsSeparateLines: true,
@@ -46,18 +64,18 @@ IPFDyGraph.prototype.showDyGraph = function(lonlat) {
 			legend:'always',
 			//draw a vertical line showing the currently selected date
 		    underlayCallback:function(canvas,area,layout){
-		    	_self.showTimeUnderlay(canvas,area,layout,_self);
+		    	self.showTimeUnderlay(canvas,area,layout,self);
 		    },
 			clickCallback : function(response, x, point) {
 				if(response.ctrlKey){
-					_self.map.syncDateTime(x);
-					_self.map.TempLinkEvent();
+					self.map.syncDateTime(x);
+					self.map.TempLinkEvent();
 					if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
 							IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_bottom) {
 						IPFDV.maps.B.syncDateTime(x);
 					}
-					_self.DyGraph.updateOptions({});
-					_self.DyGraph.resize();
+					self.DyGraph.updateOptions({});
+					self.DyGraph.resize();
 				}
 			}
 		});
@@ -76,13 +94,13 @@ IPFDyGraph.prototype.showDyGraph = function(lonlat) {
 		
 		$.when(this.getDyGraph, IPFDV.maps.B.IPFDyGraph.getDyGraph).then(function(){
 		    // the code here will be executed when both ajax requests resolve.
-			_self.drawDyGraph();
-			$("#TimeSeriesOverlay_map" + _self.map.MapName).hide();
+			self.drawDyGraph();
+			$("#TimeSeriesOverlay_map" + self.map.MapName).hide();
 		}, function() {
 			// the code here will be executed when one of the ajax requests is rejected.
-			if(_self.getDyGraph.statusText != "abort" && IPFDV.maps.B.IPFDyGraph.getDyGraph.statusText != "abort") {
-				$("#TimeSeriesOverlay_map" + _self.map.MapName).html($(overlay_ERROR));
-				$("#TimeSeriesOverlay_map" + _self.map.MapName).show();
+			if(self.getDyGraph.statusText != "abort" && IPFDV.maps.B.IPFDyGraph.getDyGraph.statusText != "abort") {
+				$("#TimeSeriesOverlay_map" + self.map.MapName).html($(overlay_ERROR));
+				$("#TimeSeriesOverlay_map" + self.map.MapName).show();
 			}
 		});
 	}
@@ -91,13 +109,13 @@ IPFDyGraph.prototype.showDyGraph = function(lonlat) {
 		    // the code here will be executed both ajax requests resolve.
 		    // a1, a2 are lists of length 3 containing the response text,
 		    // status, and jqXHR object for each of the four ajax calls respectively.
-			_self.drawDyGraph();
-			$("#TimeSeriesOverlay_map" + _self.map.MapName).hide();
+			self.drawDyGraph();
+			$("#TimeSeriesOverlay_map" + self.map.MapName).hide();
 		}, function() {
 			// the code here will be executed when one of the ajax requests is rejected.
-			if(_self.getDyGraph.statusText != "abort") {
-				$("#TimeSeriesOverlay_map" + _self.map.MapName).html($(overlay_ERROR));
-				$("#TimeSeriesOverlay_map" + _self.map.MapName).show();
+			if(self.getDyGraph.statusText != "abort") {
+				$("#TimeSeriesOverlay_map" + self.map.MapName).html($(overlay_ERROR));
+				$("#TimeSeriesOverlay_map" + self.map.MapName).show();
 			}
 		});
 	}
@@ -109,11 +127,12 @@ IPFDyGraph.prototype.showDyGraph = function(lonlat) {
  * @param {OpenLayers.LonLat} lonlat - Coordinates of the TimeSeries
  */
 IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
+	self=this;
 	console.log("getDyGraphValues");
-	var ncvar = map.Capabilities.capability.layers[$(
-			"#ncvarSelect" + map.MapName).val()].name;
-	var layer = $("#wmsSelect"+map.MapName).val().split("?")[0].split("/").pop();  //get file name
-	console.log(layer);
+//	var ncvar = map.Capabilities.capability.layers[$(
+//			"#ncvarSelect" + map.MapName).val()].name;
+//	var layer = $("#wmsSelect"+map.MapName).val().split("?")[0].split("/").pop();  //get file name
+//	console.log(layer);
 	var days = 30;
 //	var time = new Date($("#timeSelect"+map.MapName).val());
 //	console.log("Selcected date: "+time);
@@ -135,18 +154,20 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 //	var wmsurl = $("#wmsSelect" + map.MapName).val().split("?")[0];
 	//TODO: still hard coded... make available for all datasets...
 
-	$.ajax({
-		type: "GET",
-		url: '/GetConfigParam?section=URLs&param=ncss',
-		dataType: "json",
-		success: function(json) {
-
-			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar+"&latitude="+lonlat.lat+
-					"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
-			console.log("wmsurl = "+wmsurl);
-		},
-		async: false
-	});
+	wmsurl = IPFDV.controllers.A.buildDyGraphURL()+"&latitude="+lonlat[1]+"&longitude="+lonlat[0]+"&time_start="+time_start+"&time_end="+time_end;
+	console.log("wmsurl: "+wmsurl);
+//	$.ajax({
+//		type: "GET",
+//		url: '/GetConfigParam?section=URLs&param=ncss',
+//		dataType: "json",
+//		success: function(json) {
+//
+//			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar+"&latitude="+lonlat.lat+
+//					"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
+//			console.log("wmsurl = "+wmsurl);
+//		},
+//		async: false
+//	});
 
 	$.ajax({
 		type: "GET",
@@ -159,7 +180,8 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 		async: false
 	});
 
-	map.IPFDyGraph.getDyGraph = $.ajax({
+//	map.IPFDyGraph.getDyGraph =
+	$.ajax({
 		type: "GET",
 		url: wmsurl,
 		dataType: "xml",
@@ -176,10 +198,13 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 				}
 
 			}
-			console.log(mydata);
-			map.IPFDyGraph.DyGraphLabels = map.Capabilities.capability.layers[$("#ncvarSelect" + map.MapName).val()].title;
-			map.IPFDyGraph.DyGraphDates = dates;
-			map.IPFDyGraph.DyGraphData = mydata;
+			console.log("mydata "+mydata);
+			self.DyGraphLabels = IPFDV.controllers.A.mapCapabilities.Capability.Layer.Layer[0].Layer[IPFDV.controllers.A.varselector.val()].Title;
+
+			self.DyGraphDates = dates;
+			self.DyGraphData = mydata;
+			
+			self.drawDyGraph();
 		}
 	});
 //	var wmsurl = "http://localhost:8080/thredds/ncss/grid/testAll/"+layer+"?"+
@@ -250,9 +275,9 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
  */
 IPFDyGraph.prototype.drawDyGraph = function() {
 	console.log("drawDyGraph");
-	var _self = this;
+	var self = this;
 	
-	var dates = this.DyGraphDates;
+	var dates = self.DyGraphDates;
 	console.log(dates);
 
 	if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
@@ -335,8 +360,8 @@ IPFDyGraph.prototype.drawDyGraph = function() {
 		return d;
 	}
 	
-	dygraphData = getDyGraphDataArray(dygraphData, _self);
-	labels.push("Map"+_self.map.MapName+": "+this.DyGraphLabels);
+	dygraphData = getDyGraphDataArray(dygraphData, self);
+	labels.push("Map"+self.map.MapName+": "+this.DyGraphLabels);
 	if(this.DyGraphData.length < 50) {
 		showPointsArr.push(true);
 	}
@@ -366,7 +391,7 @@ IPFDyGraph.prototype.drawDyGraph = function() {
 		};
 		dyOptions.series[labels[1]] = { drawPoints: showPointsArr[1], pointSize: 2, highlightCircleSize: 3 };
 		dyOptions.series[labels[2]] = { axis: 'y2', drawPoints: showPointsArr[2], pointSize: 2, highlightCircleSize: 3 };
-		//this.DyGraph = new Dygraph(document.getElementById("TimeSeriesDiv_map" + _self.map.MapName),dygraphData,dyOptions);
+		//this.DyGraph = new Dygraph(document.getElementById("TimeSeriesDiv_map" + self.map.MapName),dygraphData,dyOptions);
 		this.DyGraph.updateOptions(dyOptions);
 		this.DyGraph.resize();	
 	}
@@ -377,9 +402,9 @@ IPFDyGraph.prototype.drawDyGraph = function() {
  * @function Draws a vertical line showing the currently selected date
  * @name showTimeUnderlay
  */
-IPFDyGraph.prototype.showTimeUnderlay=function(canvas,area,layout,_self){
+IPFDyGraph.prototype.showTimeUnderlay=function(canvas,area,layout,self){
 	console.log("showTimeUnderlay");
-	if (_self.DyGraph == null) return;
+	if (self.DyGraph == null) return;
 	
 	var two_highlights = false;
 	if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
@@ -388,11 +413,11 @@ IPFDyGraph.prototype.showTimeUnderlay=function(canvas,area,layout,_self){
 	    	two_highlights = true;
 	    }
 	}
-    var highlightTime = new Date($("#timeSelect"+_self.map.MapName).val());
-    console.log($("#timeSelect"+_self.map.MapName).val()+" highlightTime: "+highlightTime)
+    var highlightTime = new Date($("#timeSelect"+self.map.MapName).val());
+    console.log($("#timeSelect"+self.map.MapName).val()+" highlightTime: "+highlightTime)
     if (highlightTime == null && two_highlights == false)	return;
-    var coordStart = _self.DyGraph.toDomCoords(highlightTime.getTime(),0);
-    var coordEnd = _self.DyGraph.toDomCoords(highlightTime.getTime(),0);
+    var coordStart = self.DyGraph.toDomCoords(highlightTime.getTime(),0);
+    var coordEnd = self.DyGraph.toDomCoords(highlightTime.getTime(),0);
     var left = coordStart[0];
     var right = coordEnd[0];
     canvas.fillStyle = "rgba(116,255,230,1.0)";
@@ -400,8 +425,8 @@ IPFDyGraph.prototype.showTimeUnderlay=function(canvas,area,layout,_self){
     
     if (two_highlights) {
     	var highlightTime2 = new Date($("#timeSelect"+IPFDV.maps.B.MapName).val());
-        var coordStart2 = _self.DyGraph.toDomCoords(highlightTime2.getTime(),0);
-        var coordEnd2 = _self.DyGraph.toDomCoords(highlightTime2.getTime(),0);
+        var coordStart2 = self.DyGraph.toDomCoords(highlightTime2.getTime(),0);
+        var coordEnd2 = self.DyGraph.toDomCoords(highlightTime2.getTime(),0);
         var left2 = coordStart2[0];
         var right2 = coordEnd2[0];
         canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
