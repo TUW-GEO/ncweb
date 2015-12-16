@@ -14,7 +14,8 @@ function IPFDyGraph(map) {
 	// DyGraph Objects
 	self.DyGraph = null;
 	// AJAX Get Request
-	self.getDyGraph
+	self.getDyGraph;
+	self.baseurl = [];
 
 	self.lonlat = [];
 	
@@ -44,14 +45,16 @@ function IPFDyGraph(map) {
  * @name showDyGraph
  * @param {OpenLayers.LonLat} lonlat - Coordinates of the TimeSeries
  */
+
+IPFDyGraph.prototype.setBaseURL = function(url, index) {
+	var self = this;
+
+	self.baseurl[index] = url;
+	console.log("baseurl["+index+"] = "+url);
+}
+
 IPFDyGraph.prototype.showDyGraph = function() {
 	console.log("showDyGraph");
-	// Show DIV with Loading Overlay, Overlay will be hidden by new DyGraph()
-	// object
-	// Overlay instance gets created in html file
-//	$("#TimeSeriesOverlay_map" + this.map.MapName).html($(overlay_LOADING));
-//	$("#TimeSeriesOverlay_map" + this.map.MapName).show();
-//	$('#TimeSeriesContainerDiv_map' + this.map.MapName).show();
 
 	// Add Map Marker to the map
 
@@ -86,11 +89,10 @@ IPFDyGraph.prototype.showDyGraph = function() {
 		this.getDyGraph.abort();
 	}
 
-	this.getDyGraphValues(lonlat, this.map); // Get TimeSeries-Values for map
+	this.getDyGraphValues(lonlat, 0); // Get TimeSeries-Values for map
 	
-	if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
-			IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_bottom) {
-		this.getDyGraphValues(lonlat, IPFDV.maps.B); // Also get the values for map B
+	if($('#mapB').is(':visible')) {
+		this.getDyGraphValues(lonlat, 1); // Also get the values for map B
 		
 		$.when(this.getDyGraph, IPFDV.maps.B.IPFDyGraph.getDyGraph).then(function(){
 		    // the code here will be executed when both ajax requests resolve.
@@ -126,23 +128,9 @@ IPFDyGraph.prototype.showDyGraph = function() {
  * @name getDyGraphValues
  * @param {OpenLayers.LonLat} lonlat - Coordinates of the TimeSeries
  */
-IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
+IPFDyGraph.prototype.getDyGraphValues = function(lonlat,mapindex) {
 	self=this;
 	console.log("getDyGraphValues");
-//	var ncvar = map.Capabilities.capability.layers[$(
-//			"#ncvarSelect" + map.MapName).val()].name;
-//	var layer = $("#wmsSelect"+map.MapName).val().split("?")[0].split("/").pop();  //get file name
-//	console.log(layer);
-	var days = 30;
-//	var time = new Date($("#timeSelect"+map.MapName).val());
-//	console.log("Selcected date: "+time);
-//	var time_start = new Date(time);
-//	time_start.setDate(time_start.getDate() -days);
-//	console.log(time_start);
-//	time_start = time_start.toISOString();
-//	var time_end = new Date(time);
-//	time_end.setDate(time.getDate() +days);
-//	time_end = time_end.toISOString();
 
 	var time_start = $('#daterange').data('daterangepicker').startDate._d;
 	time_start = time_start.toISOString();
@@ -150,24 +138,8 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 	time_end = time_end.toISOString();
 	console.log("Start: "+time_start+" End: "+time_end);
 
-//	console.log(map.Capabilities.capability.layers[$("#ncvarSelect" + map.MapName)val()].title);
-//	var wmsurl = $("#wmsSelect" + map.MapName).val().split("?")[0];
-	//TODO: still hard coded... make available for all datasets...
-
-	wmsurl = IPFDV.controllers.A.buildDyGraphURL()+"&latitude="+lonlat[1]+"&longitude="+lonlat[0]+"&time_start="+time_start+"&time_end="+time_end;
+	wmsurl = self.baseurl[mapindex]+"&latitude="+lonlat[1]+"&longitude="+lonlat[0]+"&time_start="+time_start+"&time_end="+time_end;
 	console.log("wmsurl: "+wmsurl);
-//	$.ajax({
-//		type: "GET",
-//		url: '/GetConfigParam?section=URLs&param=ncss',
-//		dataType: "json",
-//		success: function(json) {
-//
-//			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar+"&latitude="+lonlat.lat+
-//					"&longitude="+lonlat.lon+"&time_start="+time_start+"&time_end="+time_end;
-//			console.log("wmsurl = "+wmsurl);
-//		},
-//		async: false
-//	});
 
 	$.ajax({
 		type: "GET",
@@ -180,7 +152,6 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 		async: false
 	});
 
-//	map.IPFDyGraph.getDyGraph =
 	$.ajax({
 		type: "GET",
 		url: wmsurl,
@@ -204,7 +175,7 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,map) {
 			self.DyGraphDates = dates;
 			self.DyGraphData = mydata;
 			
-			self.drawDyGraph();
+				self.drawDyGraph();
 		}
 	});
 //	var wmsurl = "http://localhost:8080/thredds/ncss/grid/testAll/"+layer+"?"+
@@ -280,8 +251,8 @@ IPFDyGraph.prototype.drawDyGraph = function() {
 	var dates = self.DyGraphDates;
 	console.log(dates);
 
-	if(IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_top ||
-			IPFDV.maps.B.ViewState == IPFDV.ViewStates.overlay_bottom) {
+
+	if($('#mapB').is(':visible')) {
 		// Merge possible dates into one array
 		dates = dates.concat(IPFDV.maps.B.IPFDyGraph.DyGraphDates);
 		// Remove duplicates

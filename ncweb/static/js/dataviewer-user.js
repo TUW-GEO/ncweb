@@ -314,17 +314,29 @@ function toggleGetTS() {
 //    });
 //
 function getDefaultStart(mapId){
-	var time = moment($("#timeSelect"+IPFDV.maps[mapId].MapName).val()).subtract(20, 'days');
+	var time = moment($("#timeSelect"+IPFDV.maps[mapId].MapName).val()).subtract(30, 'days');
     var time_start = moment(time).format("YYYY-MM-DD");
     console.log("Selcected date: "+time._i);
 	return time_start;
 }
 function getDefaultEnd(mapId){
-	var time = moment($("#timeSelect"+IPFDV.maps[mapId].MapName).val()).add(29, 'days');
+	var time = moment($("#timeSelect"+IPFDV.maps[mapId].MapName).val()).add(30, 'days');
     var time_end = moment(time).format("YYYY-MM-DD");
     console.log("Selcected date: "+time._i);
 	return time_end;
 }
+//
+//function updateRangePicker(mapId){
+//	    $('#daterange').data('daterangepicker').setStartDate(getDefaultStart($('#daterange').attr('mapId')));
+//	    $('#daterange').data('daterangepicker').setEndDate(getDefaultEnd($('#daterange').attr('mapId')));
+//	    console.log($("#daterange").val());
+//	    $('#daterange').data('daterangepicker').updateView();
+//	    start=$('#daterange').data('daterangepicker').startDate;
+//	    console.log(start);
+//	// update input text field
+//	    $('#daterange').val($('#daterange').data('daterangepicker').startDate._i + ' - ' + $('#daterange').data('daterangepicker').endDate._i);
+//	    console.log($("#daterange").val());
+//}
 
 //$(function() {
 ////function chooseDate(mapId) {
@@ -406,18 +418,7 @@ $(function() {
     "maxDate": "2015-05-05",
     "drops": "up"
     });
-    $('#daterange').on('showCalendar.daterangepicker', function(ev, picker){
-    	console.log("in showCalendar.daterangepicker "+picker+" "+ev);
-    });
-    $('#daterange').on('show.daterangepicker', function(ev, picker){
-//    	$('#daterange').data('daterangepicker').setStartDate(getDefaultStart($('#daterange').attr('mapId')));
-//		$('#daterange').data('daterangepicker').setEndDate(getDefaultEnd($('#daterange').attr('mapId')));
-    	console.log("in show.daterangepicker "+getDefaultStart($('#daterange').attr('mapId'))+" "+getDefaultEnd($('#daterange').attr('mapId')));
-    });
-    $('#daterange').on('apply.daterangepicker', function(ev, picker){
-    	console.log("in apply.daterangepicker"+picker+" "+ev);
 
-    });
 
 //}
 });

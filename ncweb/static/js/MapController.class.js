@@ -11,6 +11,7 @@ function MapController(serverurl, map, divName, initz){
     self.serverurl = serverurl;
     self.map = map;
     self.zindex = initz;
+    self.dyindex = initz;
     self.divName = divName;
     self.div = $("#map-settings" + self.divName);
     self.selector = $("#wmsSelect" + self.divName);
@@ -65,26 +66,26 @@ function MapController(serverurl, map, divName, initz){
     $(self.selector).change(function(){
         console.log("#wmsSelect"+self.divName+" changed");
         self.GetWMSCapabilities();
-        if(IPFDV.dygraphshowing) {IPFDV.dygraph.showDyGraph();}
     });
     $(self.varselector).change(function(){
         console.log("#ncvarSelect"+self.divName+" changed");
+        self.buildDyGraphURL();
         if(IPFDV.dygraphshowing) {IPFDV.dygraph.showDyGraph();}
     });
     $(self.timecontrol).change(function(){
         console.log("#timeSelect"+self.divName+" changed");
         //TODO: daterangepicker handling
-//	$('#daterange').data('daterangepicker').setStartDate(getDefaultStart($('#daterange').attr('mapId')));
-//	$('#daterange').data('daterangepicker').setEndDate(getDefaultEnd($('#daterange').attr('mapId')));
-//	console.log($("#daterange").val());
-//	$('#daterange').data('daterangepicker').updateView();
-//	start=$('#daterange').data('daterangepicker').startDate;
-//	console.log(start);
-//	// update input text field
-//	$('#daterange').val($('#daterange').data('daterangepicker').startDate._i + ' - ' + $('#daterange').data('daterangepicker').endDate._i);
-//	console.log($("#daterange").val());
-//
-//	console.log("See all list elements? "+$("#timeSelectA")[0].value);
+	    $('#daterange').data('daterangepicker').setStartDate(getDefaultStart($('#daterange').attr('mapId')));
+	    $('#daterange').data('daterangepicker').setEndDate(getDefaultEnd($('#daterange').attr('mapId')));
+	    console.log($("#daterange").val());
+	    $('#daterange').data('daterangepicker').updateView();
+	    start=$('#daterange').data('daterangepicker').startDate;
+	    console.log(start);
+	// update input text field
+	    $('#daterange').val($('#daterange').data('daterangepicker').startDate._i + ' - ' + $('#daterange').data('daterangepicker').endDate._i);
+	    console.log($("#daterange").val());
+
+	    console.log("See all list elements? "+$("#timeSelectA")[0].value);
     });
     $(self.cmapselector).change(function(){
         console.log("#cmapSelect"+self.divName+" changed");
@@ -214,6 +215,9 @@ MapController.prototype.loadVariables = function() {
     else {
         self.varselector.attr('disabled', true);
     }
+
+     $(self.varselector).trigger("change");
+
 }
 
 /** @function
@@ -232,26 +236,28 @@ MapController.prototype.loadTimepositions = function() {
     if(self.mapCapabilities.Capability && self.mapCapabilities.Capability.Layer.Layer[0].Layer) {
         var layer = self.mapCapabilities.Capability.Layer.Layer[0].Layer[ncvar];
         if (layer && layer.Dimension) {
-        var time_values = layer.Dimension[0].values.split(',');
-        console.log("time_values: "+time_values);
-        for (var t in time_values) {
-            var o = new Option(time_values[t],time_values[t]);
+            var time_values = layer.Dimension[0].values.split(',');
+            console.log("time_values: "+time_values);
+            for (var t in time_values) {
+                var o = new Option(time_values[t],time_values[t]);
 
-            $(o).html(time_values[t]);
-            self.timecontrol.append(o);
+                $(o).html(time_values[t]);
+                self.timecontrol.append(o);
 
-            // get the time next to self.map.Date
-            if(minDateDiff > Math.abs(self.map.Date - new Date(time_values[t])) || minDateDiff < 0) {
-            minDateDiff = Math.abs(self.map.Date - new Date(time_values[t]));
-            selectValue = time_values[t];
+                // get the time next to self.map.Date
+                if(minDateDiff > Math.abs(self.map.Date - new Date(time_values[t])) || minDateDiff < 0) {
+                minDateDiff = Math.abs(self.map.Date - new Date(time_values[t]));
+                selectValue = time_values[t];
+                }
             }
-        }
-        self.timecontrol.val(selectValue);
-        var time_start = moment(time_values[0]).format("YYYY-MM-DD");
-        var time_end = moment(time_values.pop()).format("YYYY-MM-DD");
-        console.log('newPicker '+time_start+" "+time_end);
-        newPicker(time_start,time_end);
-        //        self.timecontrol.trigger("change");
+            self.timecontrol.val(selectValue);
+
+            if(self.divName == 'A'){
+                var time_start = moment(time_values[0]).format("YYYY-MM-DD");
+                var time_end = moment(time_values.pop()).format("YYYY-MM-DD");
+                console.log('newPicker '+time_start+" "+time_end);
+                newPicker(time_start,time_end);
+            }
 
         }
 
@@ -263,6 +269,8 @@ MapController.prototype.loadTimepositions = function() {
     else {
         self.timecontrol.attr('disabled', true);
     }
+
+    $(self.timecontrol).trigger("change");
 }
 
 /** @function
@@ -389,12 +397,36 @@ MapController.prototype.setLayerOpacity = function(){
     this.map.setWMSOpacity(this.zindex, this.opacity);
 }
 
+//MapController.prototype.buildDyGraphURL = function() {
+//
+//    var self = this;
+//    var layer = $("#wmsSelect" + self.divName + " option:selected").html();
+//    console.log("Layer "+layer);
+//    var ncvar = self.mapCapabilities.Capability.Layer.Layer[0].Layer[self.varselector.val()].Name;
+//
+//	$.ajax({
+//		type: "GET",
+//		url: '/GetConfigParam?section=URLs&param=ncss',
+//		dataType: "json",
+//		success: function(json) {
+//
+//			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar;
+//			console.log("wmsurl = "+wmsurl);
+//		},
+//		async: false
+//	});
+//
+//    return wmsurl;
+//}
+
 MapController.prototype.buildDyGraphURL = function() {
 
+    console.log("buildDyGraphURL");
     var self = this;
     var layer = $("#wmsSelect" + self.divName + " option:selected").html();
     console.log("Layer "+layer);
     var ncvar = self.mapCapabilities.Capability.Layer.Layer[0].Layer[self.varselector.val()].Name;
+    console.log("Variable "+ncvar);
 
 	$.ajax({
 		type: "GET",
@@ -404,9 +436,11 @@ MapController.prototype.buildDyGraphURL = function() {
 
 			wmsurl = json.value+layer+"?"+"req=station&var="+ncvar;
 			console.log("wmsurl = "+wmsurl);
+			IPFDV.dygraph.setBaseURL(wmsurl, self.dyindex);
+			console.log(wmsurl+" "+self.dyindex);
 		},
 		async: false
 	});
 
-    return wmsurl;
+//    return wmsurl;
 }
