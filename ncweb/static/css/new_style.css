@@ -190,3 +190,7 @@ body {
 	left: calc(100% - 20px);
 	top:0px;
 }
+
+#TimeSeriesContainerDiv_mapA {
+    background-color: rgba(255, 255, 255, 0.8);
+}

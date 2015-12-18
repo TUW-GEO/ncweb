@@ -193,11 +193,6 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,mapindex) {
 				self.drawDyGraph();
 			}
 
-
-			self.DyGraphDates = dates;
-			self.DyGraphData = mydata;
-			
-			self.drawDyGraph();
 		}
 	});
 
