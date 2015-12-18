@@ -104,6 +104,7 @@ IPFDyGraph.prototype.showDyGraph = function() {
 
 	this.getDyGraphValues(lonlat, 0); // Get TimeSeries-Values for map
 	
+
 	if(IPFDV.controllers.B.visible) {
 		this.getDyGraphValues(lonlat, 1); // Also get the values for map B
 		
@@ -150,7 +151,7 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,mapindex) {
 	var time_end = $('#daterange').data('daterangepicker').endDate._d;
 	time_end = time_end.toISOString();
 	console.log("Start: "+time_start+" End: "+time_end);
-//
+
 	wmsurl = self.baseurl[mapindex]+"&latitude="+lonlat[1]+"&longitude="+lonlat[0]+"&time_start="+time_start+"&time_end="+time_end;
 	console.log("wmsurl: "+wmsurl);
 
@@ -192,6 +193,11 @@ IPFDyGraph.prototype.getDyGraphValues = function(lonlat,mapindex) {
 				self.drawDyGraph();
 			}
 
+
+			self.DyGraphDates = dates;
+			self.DyGraphData = mydata;
+			
+			self.drawDyGraph();
 		}
 	});
 
@@ -208,7 +214,6 @@ IPFDyGraph.prototype.drawDyGraph = function() {
 	var dates = self.DyGraphDates[0];
 	console.log(dates);
 	self.DyGraphLabels[0] = IPFDV.controllers.A.mapCapabilities.Capability.Layer.Layer[0].Layer[IPFDV.controllers.A.varselector.val()].Title;
-
 
 	if(IPFDV.controllers.B.visible) {
 		self.DyGraphLabels[1] = IPFDV.controllers.B.mapCapabilities.Capability.Layer.Layer[0].Layer[IPFDV.controllers.B.varselector.val()].Title;
