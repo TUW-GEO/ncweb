@@ -43,7 +43,9 @@ function IPFDataViewer(serverurl) {
     $('#opacitysliderB').hide();
     self.controllers.B = new MapController(serverurl, this.maps.A, "B", 1);
 
+    self.dygraph = new IPFDyGraph(self.maps.A);
     $('#TimeSeriesContainerDiv_mapA').hide();
+    self.dygraphshowing = false;
 
   //Get Pydap handled files for requested url and add to WMS Select
 
@@ -179,17 +181,22 @@ function IPFDataViewer(serverurl) {
         $('#TimeSeriesContainerDiv_mapA').toggle();
 
         if($('#getTS_text').text()==" Close Time Series") {
+            self.dygraphshowing = true;
             $('#mapA').css('cursor', 'crosshair');
             $('#mapB').css('cursor', 'crosshair');
             IPFDV.maps['A'].registerClickEvent(true);
             IPFDV.maps['B'].registerClickEvent(true);
-
+//            self.dygraphshowing = true;
+            console.log("dygraphshowing: "+self.dygraphshowing);
 	    }
 	    else {
+            self.dygraphshowing = false;
             $('#mapA').css('cursor', 'default');
             $('#mapB').css('cursor', 'default');
             IPFDV.maps['A'].registerClickEvent(false);
             IPFDV.maps['B'].registerClickEvent(false);
+//            self.dygraphshowing = false;
+
 	    }
     });
 

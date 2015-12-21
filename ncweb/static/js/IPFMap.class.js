@@ -35,7 +35,7 @@ function IPFMap(Name, Div) {
 	this.IPFDyGraph = null;
 
 	// OpenLayers Marker Layer
-	this.Markers = null;
+	this.Markers = [];
 	// OpenLayers Marker
 	this.Marker = null;
 	// OpenLayers Popup (for Marker)
@@ -49,6 +49,9 @@ function IPFMap(Name, Div) {
 	this.Date = new Date();
 
 	this.LayerList = [];
+
+	this.vectorLayer = null;
+
 
 }
 
@@ -580,30 +583,51 @@ IPFMap.prototype.registerClickEvent = function(register) {
  * @param {OpenLayers.LonLat} lonlat - Coordinates of the marker
  */
 IPFMap.prototype.addMapMarker = function(lonlat) {
-	var _self = this;
-	if(this.MarkerPopup != null) {
-		this.Map.removePopup(this.MarkerPopup);
-	}
-	this.Markers.clearMarkers();
-	this.Marker = new OpenLayers.Marker(lonlat);
-	var html = "<div class='markerPopup'>lon: "+lonlat.lon.toFixed(4)+"<br />lat: "+lonlat.lat.toFixed(4)+"</div>";
+	var self = this;
+	self.Markers = [];		// remove old Marker
+	self.Map.removeLayer(self.vectorLayer);
+	self.vectorLayer = null;
 
-    this.MarkerPopup = new OpenLayers.Popup.Anchored(
-        'markerPopup',
-        lonlat,
-        new OpenLayers.Size(90,30),
-        html, 
-        {size: {w: 14, h: 14}, offset: {x: -7, y: -7}},
-        false
-    );
-	this.Marker.events.register('mouseover', this.Marker, function(evt) {        
-        _self.Map.addPopup(_self.MarkerPopup);
-    });
-	this.Marker.events.register('mouseout', this.Marker, function(evt) {
-		_self.Map.removePopup(_self.MarkerPopup);
+	var feature = new ol.Feature({
+		geometry: new ol.geom.Point(lonlat),
+		name: 'TS'
+		});
+
+	self.Markers.push(feature);
+	var vectorSource = new ol.source.Vector({
+		features: self.Markers
 	});
-	this.Markers.addMarker(this.Marker);
-	this.Map.raiseLayer(this.Markers, 6);
+
+	self.vectorLayer = new ol.layer.Vector({
+		source: vectorSource
+	});
+
+	self.Map.addLayer(self.vectorLayer);
+
+//	var _self = this;
+//	if(this.MarkerPopup != null) {
+//		this.Map.removePopup(this.MarkerPopup);
+//	}
+//	this.Markers.clearMarkers();
+//	this.Marker = new OpenLayers.Marker(lonlat);
+//	var html = "<div class='markerPopup'>lon: "+lonlat.lon.toFixed(4)+"<br />lat: "+lonlat.lat.toFixed(4)+"</div>";
+//
+//    this.MarkerPopup = new OpenLayers.Popup.Anchored(
+//        'markerPopup',
+//        lonlat,
+//        new OpenLayers.Size(90,30),
+//        html,
+//        {size: {w: 14, h: 14}, offset: {x: -7, y: -7}},
+//        false
+//    );
+//	this.Marker.events.register('mouseover', this.Marker, function(evt) {
+//        _self.Map.addPopup(_self.MarkerPopup);
+//    });
+//	this.Marker.events.register('mouseout', this.Marker, function(evt) {
+//		_self.Map.removePopup(_self.MarkerPopup);
+//	});
+//	this.Markers.addMarker(this.Marker);
+//	this.Map.raiseLayer(this.Markers, 6);
 }
 
 /**

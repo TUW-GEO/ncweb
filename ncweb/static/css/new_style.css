@@ -184,8 +184,13 @@ body {
 
 .TSclose_Button {
 	z-index: 21;
-	position: relative;
+	position: absolute;
 	width: 20px;
 	text-align: center;
 	left: calc(100% - 20px);
+	top:0px;
+}
+
+#TimeSeriesContainerDiv_mapA {
+    background-color: rgba(255, 255, 255, 0.8);
 }
